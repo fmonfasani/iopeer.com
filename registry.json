@@ -1,0 +1,18 @@
+[
+    {
+      "id": "backend_agent",
+      "class": "BackendAgent",
+      "config": {
+        "max_code_lines": 1000,
+        "supported_frameworks": ["fastapi", "flask", "django"]
+      }
+    },
+    {
+      "id": "qa_agent",
+      "class": "QAAgent", 
+      "config": {
+        "max_test_cases": 100,
+        "default_timeout": 30
+      }
+    }
+  ]
