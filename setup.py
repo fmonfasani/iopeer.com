@@ -23,5 +23,6 @@ setup(
     description="Plataforma de orquestación de agentes IA",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
+    license="MIT",
     python_requires=">=3.11",
 )
