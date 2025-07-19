@@ -17,7 +17,23 @@ AgentHub is a lightweight framework for coordinating AI agents. It exposes a RES
    ```
    You can also run `make install` if you have `make` available.
 
+
 ## Running the server
+
+Consulta la [doctrina del proyecto](DOCS/DOCTRINE.md) para conocer los principios fundamentales.
+## 🌟 Características
+
+- **🏗️ Arquitectura Modular**: Agentes independientes con responsabilidades específicas
+- **⚡ Orquestación Inteligente**: Workflows configurables y deterministas  
+- **🔌 Estándares Abiertos**: Compatible con protocolos A2A, MCP y ACP
+- **📊 Observabilidad**: Métricas, logging y trazabilidad completa
+- **🚀 Fácil Despliegue**: Docker, Kubernetes y cloud-ready
+- **🧪 Testing Integrado**: Suite completa de tests automáticos
+
+## 🚀 Inicio Rápido
+
+### Instalación
+
 
 Start the development server with
 ```bash
