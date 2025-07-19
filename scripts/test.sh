@@ -10,6 +10,9 @@ if [ -d "venv" ]; then
     source venv/bin/activate
 fi
 
+# Ensure development dependencies are installed
+pip install -r requirements-dev.txt
+
 # Linting
 echo "🔍 Running linting..."
 flake8 agenthub/

@@ -19,10 +19,10 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copiar requirements
-COPY requirements.txt .
+# Copiar archivos de dependencias
+COPY requirements.txt requirements-dev.txt ./
 
-# Instalar dependencias Python
+# Instalar dependencias de runtime
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiar código fuente
