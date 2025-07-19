@@ -1,70 +1,188 @@
-# Getting Started with Create React App
+# Iopeer Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Frontend escalable para la plataforma de agentes IA Iopeer.
 
-## Available Scripts
+## 🚀 Inicio Rápido
 
-In the project directory, you can run:
+```bash
+# Instalar dependencias
+npm install
 
-### `npm start`
+# Iniciar en desarrollo
+npm start
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+# Construir para producción
+npm run build
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🏗️ Arquitectura
 
-### `npm test`
+### Estructura del Proyecto
+```
+src/
+├── components/           # Componentes React
+│   ├── ui/              # Componentes de UI reutilizables
+│   ├── features/        # Componentes específicos de features
+│   └── layout/          # Componentes de layout
+├── hooks/               # Custom hooks
+├── services/            # Servicios API
+├── utils/               # Utilidades
+├── types/               # Definiciones de tipos (futuro)
+└── assets/              # Recursos estáticos
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Conexión con Backend
 
-### `npm run build`
+El frontend se conecta automáticamente con el backend de Iopeer en `http://localhost:8000`.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Variables de entorno configurables en `.env`:
+- `REACT_APP_API_URL`: URL del backend
+- `REACT_APP_AUTO_RECONNECT`: Reconexión automática
+- `REACT_APP_POLLING_INTERVAL`: Intervalo de polling
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 🔧 Desarrollo
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Scripts Disponibles
 
-### `npm run eject`
+- `npm start`: Servidor de desarrollo
+- `npm run build`: Build para producción
+- `npm run build:prod`: Build optimizado
+- `npm test`: Ejecutar tests
+- `npm run analyze`: Analizar bundle size
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Hooks Principales
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+#### `useIopeer()`
+Hook principal para conexión con el backend:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```javascript
+const { 
+  connectionStatus, 
+  agents, 
+  systemHealth, 
+  connect,
+  sendMessage 
+} = useIopeer();
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+#### `useAgents()`
+Hook para gestión de agentes:
 
-## Learn More
+```javascript
+const { 
+  agents, 
+  selectedAgent, 
+  selectAgent,
+  sendMessageToAgent 
+} = useAgents();
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 🔌 API Integration
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### IopeerAPI Service
 
-### Code Splitting
+Servicio centralizado para todas las llamadas al backend:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```javascript
+import { iopeerAPI } from './services/iopeerAPI';
 
-### Analyzing the Bundle Size
+// Health check
+const health = await iopeerAPI.getHealth();
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+// Obtener agentes
+const agents = await iopeerAPI.getAgents();
 
-### Making a Progressive Web App
+// Enviar mensaje
+const result = await iopeerAPI.sendMessage(agentId, action, data);
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### Error Handling
 
-### Advanced Configuration
+Manejo robusto de errores con `IopeerAPIError`:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```javascript
+try {
+  const result = await iopeerAPI.sendMessage(agentId, action, data);
+} catch (error) {
+  if (error instanceof IopeerAPIError) {
+    console.error('API Error:', error.status, error.message);
+  }
+}
+```
 
-### Deployment
+## 🎨 Componentes UI
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### ErrorBoundary
+Captura errores de React y muestra interfaz de recuperación.
 
-### `npm run build` fails to minify
+### LoadingSpinner
+Indicador de carga reutilizable con diferentes tamaños.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### IopeerLayout
+Layout principal con header, sidebar y área de contenido.
+
+### AgentCard
+Tarjeta para mostrar información de agentes con acciones.
+
+### ConnectionStatus
+Componente para mostrar el estado de conexión con el backend.
+
+## 📱 Responsive Design
+
+El frontend está optimizado para:
+- Desktop (1024px+)
+- Tablet (768px - 1024px)
+- Mobile (320px - 768px)
+
+## 🔒 Seguridad
+
+- Validación de entrada en el frontend
+- Sanitización de datos
+- Timeout de requests automático
+- Error boundaries para recuperación
+
+## 📊 Performance
+
+### Optimizaciones Implementadas
+
+- Lazy loading de componentes
+- Memoización con React.memo
+- Debounce en búsquedas
+- Bundle splitting automático
+
+### Métricas Objetivo
+
+- First Contentful Paint: < 1.5s
+- Time to Interactive: < 3s
+- Bundle size: < 500KB gzipped
+
+## 🚀 Deploy
+
+### Desarrollo
+```bash
+npm start
+```
+
+### Producción
+```bash
+npm run build:prod
+npx serve -s build
+```
+
+### Docker
+```bash
+docker build -t iopeer-frontend .
+docker run -p 3000:80 iopeer-frontend
+```
+
+## 🤝 Contribuir
+
+1. Fork el proyecto
+2. Crear feature branch
+3. Commit cambios
+4. Push a la branch
+5. Crear Pull Request
+
+## 📄 Licencia
+
+MIT - ver [LICENSE](LICENSE) para detalles.

@@ -83,3 +83,8 @@ registry.local.json
 .dockerignore
 
 node_modules/
+*.sh
+*.bat
+
+# Backups
+backups/
