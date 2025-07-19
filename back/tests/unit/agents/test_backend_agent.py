@@ -37,7 +37,7 @@ class TestBackendAgent:
 
         message = {
             "action": "analyze_requirements",
-            "data": {"requirements": "Create a REST API for CRUD operations"},
+            "data": {"requirements": "Create CRUD REST API"},
         }
 
         result = agent.process_message(message)
