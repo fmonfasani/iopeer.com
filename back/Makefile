@@ -6,6 +6,11 @@ help: ## Mostrar ayuda
 	@echo "Comandos disponibles:"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$' $(MAKEFILE_LIST) | sort | awk 'BEGIN { FS=":.*?## " }; { printf "\033[36m%-30s\033[0m %s\n", $1, $2 }'
 
+setup:
+	@python -m venv .venv
+	@.venv/Scripts/activate && pip install pre-commit black flake8 isort mypy && pre-commit install
+
+
 install: ## Instalar dependencias
 	pip install -r requirements-dev.txt
 	pre-commit install

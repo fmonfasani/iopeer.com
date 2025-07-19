@@ -49,15 +49,15 @@ The interactive API documentation will be available at [http://localhost:8000/do
 
 List registered agents:
 ```bash
-agenthub agents
+python -m agenthub.main agents
 ```
 Send a message to an agent:
 ```bash
-agenthub send backend_agent analyze_requirements --data '{"requirements": "Simple API"}'
+python -m agenthub.main send backend_agent analyze_requirements --data '{"requirements": "Simple API"}'
 ```
 Run a workflow:
 ```bash
-agenthub run api_development --data '{"requirements": "Simple API"}'
+python -m agenthub.main run api_development --data '{"requirements": "Simple API"}'
 ```
 
 ## API examples
