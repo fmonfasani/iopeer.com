@@ -88,8 +88,12 @@ class Orchestrator:
         self.agent_registry.register(agent)
 
     def register_workflow(
-        self, name: str, tasks: List[str], parallel: bool = False, timeout: int = None
-    ):
+        self,
+        name: str,
+        tasks: List[str],
+        parallel: bool = False,
+        timeout: Optional[int] = None,
+    ) -> None:
         """
         Registra un workflow
 
