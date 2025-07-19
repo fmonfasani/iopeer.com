@@ -3,7 +3,7 @@ import time
 from collections import defaultdict, deque
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 
 @dataclass
@@ -11,7 +11,7 @@ class Metric:
     name: str
     value: float
     timestamp: datetime
-    tags: Dict[str, str] = None
+    tags: Optional[Dict[str, str]] = None
 
 
 class MetricsCollector:
@@ -22,7 +22,7 @@ class MetricsCollector:
         self.counters: Dict[str, int] = defaultdict(int)
         self.timers: Dict[str, list] = defaultdict(list)
 
-    def increment(self, name: str, tags: Dict[str, str] = None):
+    def increment(self, name: str, tags: Optional[Dict[str, str]] = None):
         """Incrementa un contador"""
         key = self._make_key(name, tags)
         self.counters[key] += 1
@@ -30,18 +30,18 @@ class MetricsCollector:
         metric = Metric(name, self.counters[key], datetime.utcnow(), tags)
         self.metrics[key].append(metric)
 
-    def gauge(self, name: str, value: float, tags: Dict[str, str] = None):
+    def gauge(self, name: str, value: float, tags: Optional[Dict[str, str]] = None):
         """Registra un valor gauge"""
         key = self._make_key(name, tags)
 
         metric = Metric(name, value, datetime.utcnow(), tags)
         self.metrics[key].append(metric)
 
-    def timer(self, name: str, tags: Dict[str, str] = None):
+    def timer(self, name: str, tags: Optional[Dict[str, str]] = None):
         """Context manager para medir tiempo"""
         return TimerContext(self, name, tags)
 
-    def histogram(self, name: str, value: float, tags: Dict[str, str] = None):
+    def histogram(self, name: str, value: float, tags: Optional[Dict[str, str]] = None):
         """Registra un valor en histograma"""
         key = self._make_key(name, tags)
         self.timers[key].append(value)
@@ -50,7 +50,7 @@ class MetricsCollector:
         if len(self.timers[key]) > 1000:
             self.timers[key] = self.timers[key][-1000:]
 
-    def get_metrics(self, since: datetime = None) -> Dict[str, Any]:
+    def get_metrics(self, since: Optional[datetime] = None) -> Dict[str, Any]:
         """Obtiene métricas agregadas"""
         if since is None:
             since = datetime.utcnow() - timedelta(hours=1)
@@ -86,7 +86,7 @@ class MetricsCollector:
 
         return result
 
-    def _make_key(self, name: str, tags: Dict[str, str] = None) -> str:
+    def _make_key(self, name: str, tags: Optional[Dict[str, str]] = None) -> str:
         """Crea clave única para métrica"""
         if not tags:
             return name
@@ -114,7 +114,7 @@ class TimerContext:
     """Context manager para medir tiempo"""
 
     def __init__(
-        self, collector: MetricsCollector, name: str, tags: Dict[str, str] = None
+        self, collector: MetricsCollector, name: str, tags: Optional[Dict[str, str]] = None
     ):
         self.collector = collector
         self.name = name
