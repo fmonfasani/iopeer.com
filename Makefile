@@ -1,31 +1,38 @@
 
-.PHONY: install test lint format run docker-build docker-run clean
+# Makefile
+.PHONY: help install test lint format run docker-build docker-run clean
 
-install:
-pip install -r requirements-dev.txt
-pre-commit install
+help: ## Mostrar ayuda
+	@echo "Comandos disponibles:"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$' $(MAKEFILE_LIST) | sort | awk 'BEGIN { FS=":.*?## " }; { printf "\033[36m%-30s\033[0m %s\n", $1, $2 }'
 
-test:
-pytest tests -v --cov=agenthub
+install: ## Instalar dependencias
+	pip install -r requirements-dev.txt
+	pre-commit install
 
-lint:
-flake8 agents orchestrator.py main.py cli.py
-mypy agents orchestrator.py main.py cli.py
+test: ## Ejecutar tests
+	pytest agenthub/tests/ -v --cov=agenthub
 
-format:
-black agents orchestrator.py main.py cli.py
-isort agents orchestrator.py main.py cli.py
+lint: ## Verificar código
+	flake8 agenthub/
+	mypy agenthub/
 
-run:
-python -m agenthub.main
+format: ## Formatear código
+	black agenthub/
+	isort agenthub/
 
-docker-build:
-docker build -t agenthub:latest .
+run: ## Ejecutar servidor de desarrollo
+	python -m agenthub.main
 
-docker-run:
-docker-compose up -d
+docker-build: ## Construir imagen Docker
+	docker build -t agenthub:latest .
 
-clean:
-find . -type f -name "*.pyc" -delete
-find . -type d -name "__pycache__" -delete
-rm -rf .pytest_cache htmlcov .coverage
+docker-run: ## Ejecutar con Docker Compose
+	docker-compose up -d
+
+clean: ## Limpiar archivos temporales
+	find . -type f -name "*.pyc" -delete
+	find . -type d -name "__pycache__" -delete
+	rm -rf .pytest_cache/
+	rm -rf htmlcov/
+	rm -rf .coverage
