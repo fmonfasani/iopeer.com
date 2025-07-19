@@ -7,6 +7,7 @@
 
 AgentHub es un framework modular que permite crear, coordinar y escalar agentes de inteligencia artificial para automatizar flujos de trabajo complejos.
 
+Consulta la [doctrina del proyecto](DOCS/DOCTRINE.md) para conocer los principios fundamentales.
 ## 🌟 Características
 
 - **🏗️ Arquitectura Modular**: Agentes independientes con responsabilidades específicas
