@@ -4,7 +4,8 @@ from setuptools import setup, find_packages
 setup(
     name="agenthub",
     version="1.0.0",
-    packages=find_packages(),
+    package_dir={"": "agenthub"},
+    packages=find_packages("agenthub"),
     install_requires=[
         "fastapi>=0.104.1",
         "uvicorn[standard]>=0.24.0",
