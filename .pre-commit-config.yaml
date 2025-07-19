@@ -12,7 +12,7 @@ repos:
       - id: debug-statements
 
   - repo: https://github.com/psf/black
-    rev: 23.11.0
+    rev: 24.4.2
     hooks:
       - id: black
         language_version: python3.11
@@ -29,8 +29,16 @@ repos:
       - id: flake8
         args: [--max-line-length=88, --extend-ignore=E203]
 
+  - repo: https://github.com/PyCQA/autoflake
+    rev: v2.2.1
+    hooks:
+      - id: autoflake
+        args:
+          - --remove-all-unused-imports
+          - --remove-unused-variables
+
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.7.1
+    rev: v1.10.0
     hooks:
       - id: mypy
-        additional_dependencies: [types-PyYAML, types-redis]
+        additional_dependencies: [types-PyYAML, types-redis, types-requests]

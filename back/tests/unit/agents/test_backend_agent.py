@@ -1,4 +1,3 @@
-import pytest
 from agenthub.agents.backend_agent import BackendAgent
 
 
@@ -39,7 +38,7 @@ class TestBackendAgent:
         message = {
             "action": "analyze_requirements",
             "data": {
-                "requirements": "Create a REST API for user management with CRUD operations"
+                "requirements": "Create a REST API for CRUD operations"
             },
         }
 

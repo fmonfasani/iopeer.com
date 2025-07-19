@@ -30,7 +30,6 @@ class BaseAgent(ABC):
         Returns:
             Dict con la respuesta del agente
         """
-        pass
 
     def _validate_message(self, message: Dict[str, Any]) -> bool:
         """Valida formato básico del mensaje"""

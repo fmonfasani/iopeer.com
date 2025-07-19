@@ -1,5 +1,4 @@
 # agenthub/orchestrator.py
-import asyncio
 import logging
 import time
 import uuid
@@ -15,8 +14,6 @@ logger = logging.getLogger(__name__)
 
 class WorkflowExecutionError(Exception):
     """Error en ejecución de workflow"""
-
-    pass
 
 
 class AgentRegistry:

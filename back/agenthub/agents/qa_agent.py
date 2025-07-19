@@ -170,9 +170,9 @@ def test_{test_name}():
                     result["json_parse_error"] = True
 
             if not status_match:
-                result[
-                    "error"
-                ] = f"Expected status {expected_status}, got {response.status_code}"
+                result["error"] = (
+                    f"Expected status {expected_status}, got {response.status_code}"
+                )
 
             return result
 
@@ -351,12 +351,10 @@ client = TestClient(app)
 
         # Funciones sin docstrings
         functions_without_docs = []
-        in_function = False
         current_function = None
 
         for i, line in enumerate(lines):
             if line.strip().startswith("def "):
-                in_function = True
                 current_function = line.strip()
                 # Check next few lines for docstring
                 has_docstring = False
@@ -510,7 +508,7 @@ client = TestClient(app)
 
     def _security_scan(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Ejecuta escaneo básico de seguridad"""
-        target = data.get("target", "")
+        data.get("target", "")
         scan_type = data.get("type", "basic")
 
         security_issues = []

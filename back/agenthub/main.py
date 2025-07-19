@@ -92,7 +92,7 @@ async def startup_event():
 
         # Importar workflows predefinidos
         try:
-            from .workflows import default
+            pass
 
             logger.info("Default workflows loaded")
         except ImportError as e:
@@ -138,7 +138,7 @@ async def load_agents_from_registry():
         try:
             agent_id = entry.get("id")
             agent_class_name = entry.get("class")
-            agent_config = entry.get("config", {})
+            entry.get("config", {})
 
             if not agent_id or not agent_class_name:
                 logger.warning(f"Invalid agent entry: {entry}")

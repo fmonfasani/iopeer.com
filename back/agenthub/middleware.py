@@ -1,8 +1,7 @@
 # agenthub/middleware.py
 import time
 
-from fastapi import Request, Response
-from fastapi.responses import JSONResponse
+from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from .metrics import metrics

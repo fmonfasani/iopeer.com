@@ -10,7 +10,6 @@ setup:
 	@python -m venv .venv
 	@.venv/Scripts/activate && pip install pre-commit black flake8 isort mypy && pre-commit install
 
-
 install: ## Instalar dependencias
 	pip install -r requirements-dev.txt
 	pre-commit install
