@@ -29,7 +29,7 @@ source venv/bin/activate
 
 # Instalar dependencias
 echo -e "${YELLOW}📚 Installing dependencies...${NC}"
-pip install -r requirements-dev.txt
+pip install -r requirements.txt -r requirements-dev.txt
 
 # Configurar pre-commit
 echo -e "${YELLOW}🎣 Setting up pre-commit hooks...${NC}"
