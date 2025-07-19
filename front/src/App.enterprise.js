@@ -12,11 +12,11 @@ import { CONNECTION_STATES } from './utils/constants';
 import config from './config/enterprise';
 
 function App() {
-  const { 
-    connectionStatus, 
-    systemHealth, 
-    loading, 
-    error, 
+  const {
+    connectionStatus,
+    systemHealth,
+    loading,
+    error,
     connect,
     isConnected
   } = useIopeer();
@@ -42,15 +42,15 @@ function App() {
   const handleSendMessage = async (agentId, action, data) => {
     try {
       trackUserAction('agent_message_sent', { agentId, action });
-      
+
       const result = await sendMessageToAgent(agentId, action, data);
-      
+
       setNotifications(prev => [...prev, {
         id: Date.now(),
         type: 'success',
         message: `Mensaje enviado a ${agentId}: ${result.status}`
       }]);
-      
+
       console.log('Message result:', result);
     } catch (error) {
       setNotifications(prev => [...prev, {
@@ -58,7 +58,7 @@ function App() {
         type: 'error',
         message: `Error enviando mensaje: ${error.message}`
       }]);
-      
+
       console.error('Message error:', error);
     }
   };
@@ -71,7 +71,7 @@ function App() {
   return (
     <ErrorBoundary>
       <div className="App">
-        <IopeerLayout 
+        <IopeerLayout
           title={isEnterpriseMode ? "Iopeer Enterprise" : "Iopeer Dashboard"}
           onSearch={handleSearch}
           notifications={notifications}
@@ -98,7 +98,7 @@ function App() {
             {isEnterpriseMode && (
               <div className="bg-white rounded-lg shadow-sm border p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">Métricas Enterprise</h2>
-                <EnterpriseMetrics 
+                <EnterpriseMetrics
                   analytics={analytics}
                   wsStatus={wsStatus}
                   realTimeData={realTimeData}
@@ -137,7 +137,7 @@ function App() {
                     </div>
                   )}
                 </div>
-                
+
                 {agents.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {agents.map((agent) => (
@@ -174,7 +174,7 @@ function App() {
               <div className="bg-white rounded-lg shadow-sm border p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">Acciones Rápidas</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <button 
+                  <button
                     onClick={() => {
                       trackUserAction('docs_opened');
                       window.open('http://localhost:8000/docs', '_blank');
@@ -186,8 +186,8 @@ function App() {
                     </svg>
                     <span>Ver API Docs</span>
                   </button>
-                  
-                  <button 
+
+                  <button
                     onClick={() => {
                       trackUserAction('health_checked');
                       window.open('http://localhost:8000/health', '_blank');
@@ -199,8 +199,8 @@ function App() {
                     </svg>
                     <span>Health Check</span>
                   </button>
-                  
-                  <button 
+
+                  <button
                     onClick={() => {
                       trackUserAction('connection_refreshed');
                       connect();

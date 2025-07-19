@@ -12,7 +12,7 @@ class IopeerAnalyticsService {
     this.pageViews = new Map();
     this.userActions = new Map();
     this.performanceMetrics = new Map();
-    
+
     if (this.enabled) {
       this.startSession();
     }
@@ -51,7 +51,7 @@ class IopeerAnalyticsService {
     };
 
     this.events.push(eventData);
-    
+
     // Keep only last 1000 events in memory
     if (this.events.length > 1000) {
       this.events.splice(0, 500);
@@ -66,7 +66,7 @@ class IopeerAnalyticsService {
   trackPageView(page, additionalProps = {}) {
     const count = this.pageViews.get(page) || 0;
     this.pageViews.set(page, count + 1);
-    
+
     return this.track('page_view', {
       page,
       viewCount: count + 1,
@@ -77,7 +77,7 @@ class IopeerAnalyticsService {
   trackUserAction(action, context = {}) {
     const count = this.userActions.get(action) || 0;
     this.userActions.set(action, count + 1);
-    
+
     return this.track('user_action', {
       action,
       context,

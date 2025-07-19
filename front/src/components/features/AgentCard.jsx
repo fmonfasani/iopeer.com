@@ -16,7 +16,7 @@ const AgentCard = ({ agent, onSelect, isSelected, onSendMessage }) => {
   };
 
   return (
-    <div 
+    <div
       className={`p-4 border rounded-lg cursor-pointer transition-all hover:shadow-md ${
         isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
       }`}
@@ -31,11 +31,11 @@ const AgentCard = ({ agent, onSelect, isSelected, onSendMessage }) => {
           {agent.status}
         </span>
       </div>
-      
+
       <p className="text-gray-700 mb-3 line-clamp-2">
         {agent.capabilities?.description || 'Sin descripción disponible'}
       </p>
-      
+
       <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
         <span>Actions: {agent.capabilities?.actions?.length || 0}</span>
         <span>Msgs: {agent.stats?.messages_processed || 0}</span>
@@ -52,7 +52,7 @@ const AgentCard = ({ agent, onSelect, isSelected, onSendMessage }) => {
           <Zap size={12} />
           <span>Test</span>
         </button>
-        
+
         <div className="flex items-center space-x-1 text-xs text-gray-500">
           <Clock size={12} />
           <span>{agent.stats?.last_activity ? 'Activo' : 'Inactivo'}</span>

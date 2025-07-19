@@ -16,7 +16,7 @@ class ErrorBoundary extends React.Component {
       error,
       errorInfo
     });
-    
+
     // Log error para debugging
     console.error('Iopeer Error Boundary:', error, errorInfo);
   }
@@ -30,11 +30,11 @@ class ErrorBoundary extends React.Component {
               <AlertTriangle size={24} />
               <h2 className="text-lg font-semibold">Error en Iopeer</h2>
             </div>
-            
+
             <p className="text-gray-600 mb-4">
               Algo salió mal. Por favor, recarga la aplicación para continuar.
             </p>
-            
+
             {process.env.NODE_ENV === 'development' && this.state.error && (
               <details className="mb-4">
                 <summary className="cursor-pointer text-sm text-gray-500 mb-2">
@@ -46,7 +46,7 @@ class ErrorBoundary extends React.Component {
                 </pre>
               </details>
             )}
-            
+
             <button
               onClick={() => window.location.reload()}
               className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"

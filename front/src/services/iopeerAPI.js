@@ -23,10 +23,10 @@ class IopeerAPI {
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
     const controller = new AbortController();
-    
+
     // Timeout automático
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
-    
+
     try {
       const response = await fetch(url, {
         headers: {
@@ -52,15 +52,15 @@ class IopeerAPI {
       return await response.json();
     } catch (error) {
       clearTimeout(timeoutId);
-      
+
       if (error.name === 'AbortError') {
         throw new IopeerAPIError(408, 'Request timeout');
       }
-      
+
       if (error instanceof IopeerAPIError) {
         throw error;
       }
-      
+
       throw new IopeerAPIError(0, `Network error: ${error.message}`);
     }
   }

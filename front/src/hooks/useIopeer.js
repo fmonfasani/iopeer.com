@@ -15,16 +15,16 @@ export const useIopeer = () => {
   // Cargar datos iniciales
   const loadInitialData = useCallback(async () => {
     setLoading(true);
-    
+
     try {
       const [agentsData, workflowsData] = await Promise.all([
         iopeerAPI.getAgents(),
         iopeerAPI.getWorkflows()
       ]);
-      
+
       setAgents(agentsData.agents || []);
       setWorkflows(workflowsData.workflows || []);
-      
+
     } catch (error) {
       console.error('Failed to load initial data:', error);
       setError(error.message);
@@ -37,15 +37,15 @@ export const useIopeer = () => {
   const connect = useCallback(async () => {
     setConnectionStatus('connecting');
     setError(null);
-    
+
     try {
       const health = await iopeerAPI.getHealth();
       setSystemHealth(health);
       setConnectionStatus('connected');
-      
+
       // Cargar datos iniciales
       await loadInitialData();
-      
+
     } catch (error) {
       setConnectionStatus('failed');
       setError(error.message);
@@ -79,7 +79,7 @@ export const useIopeer = () => {
       const timer = setTimeout(() => {
         connect();
       }, 5000);
-      
+
       return () => clearTimeout(timer);
     }
   }, [connectionStatus, connect]);
@@ -97,13 +97,13 @@ export const useIopeer = () => {
     systemHealth,
     loading,
     error,
-    
+
     // Acciones
     connect,
     sendMessage,
     executeWorkflow,
     loadInitialData,
-    
+
     // Utilidades
     isConnected: connectionStatus === 'connected',
     isLoading: loading,

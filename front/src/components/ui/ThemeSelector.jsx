@@ -27,7 +27,7 @@ const ThemeSelector = ({ className = '' }) => {
 
   return (
     <div className={`theme-selector ${className}`}>
-      <button 
+      <button
         onClick={() => setIsOpen(!isOpen)}
         className="theme-selector-trigger"
         title="Cambiar tema"
@@ -46,7 +46,7 @@ const ThemeSelector = ({ className = '' }) => {
               <h3>Seleccionar Tema</h3>
               <p>Elige el estilo visual que prefieras</p>
             </div>
-            
+
             <div className="theme-options-grid">
               {availableThemes.map(theme => (
                 <button

@@ -15,11 +15,11 @@ import { analyticsService } from './services/analytics';
 import { websocketService } from './services/websocket';
 
 function App() {
-  const { 
-    connectionStatus, 
-    systemHealth, 
-    loading, 
-    error, 
+  const {
+    connectionStatus,
+    systemHealth,
+    loading,
+    error,
     connect,
     isConnected
   } = useIopeer();
@@ -48,7 +48,7 @@ function App() {
   // 🏢 Enterprise Analytics Tracking
   useEffect(() => {
     trackUserAction('app_loaded', { mode: 'enterprise', theme: currentTheme });
-    
+
     // Update enterprise stats every 5 seconds
     const interval = setInterval(() => {
       setEnterpriseStats({
@@ -65,9 +65,9 @@ function App() {
   // Track theme changes
   useEffect(() => {
     const handleThemeChange = (event) => {
-      trackUserAction('theme_changed', { 
+      trackUserAction('theme_changed', {
         newTheme: event.detail.theme,
-        previousTheme: currentTheme 
+        previousTheme: currentTheme
       });
     };
 
@@ -78,15 +78,15 @@ function App() {
   const handleSendMessage = async (agentId, action, data) => {
     try {
       trackUserAction('agent_message_sent', { agentId, action, theme: currentTheme });
-      
+
       const result = await sendMessageToAgent(agentId, action, data);
-      
+
       setNotifications(prev => [...prev, {
         id: Date.now(),
         type: 'success',
         message: `✅ Enterprise: Mensaje enviado a ${agentId}`
       }]);
-      
+
       console.log('🏢 Enterprise Message Result:', result);
     } catch (error) {
       setNotifications(prev => [...prev, {
@@ -98,10 +98,10 @@ function App() {
   };
 
   const handleSearch = (query) => {
-    trackUserAction('enterprise_search', { 
-      query, 
+    trackUserAction('enterprise_search', {
+      query,
       timestamp: new Date().toISOString(),
-      theme: currentTheme 
+      theme: currentTheme
     });
     console.log('🏢 Enterprise Search:', query);
   };
@@ -109,7 +109,7 @@ function App() {
   // 🏢 Enterprise Metrics Component with Theme
   const EnterpriseMetrics = () => {
     const themeConfig = getThemeConfig();
-    
+
     return (
       <div className="enterprise-dashboard">
         <div className="enterprise-header">
@@ -122,7 +122,7 @@ function App() {
             <div style={{fontSize: '0.875rem'}}>v2.0.0</div>
           </div>
         </div>
-        
+
         <div className="enterprise-metrics-grid">
           <div className="enterprise-metric-card">
             <div className="metric-label">Sesión Activa</div>
@@ -158,7 +158,7 @@ function App() {
         <h3>🔔 Enterprise Notifications</h3>
         <div>
           {notifications.slice(-3).map(notification => (
-            <div 
+            <div
               key={notification.id}
               className={`notification-item ${notification.type}`}
             >
@@ -176,7 +176,7 @@ function App() {
   return (
     <ErrorBoundary>
       <div className="App">
-        <IopeerLayout 
+        <IopeerLayout
           title="🏢 Iopeer Enterprise Platform"
           onSearch={handleSearch}
           notifications={notifications}
@@ -196,7 +196,7 @@ function App() {
                 health={systemHealth}
                 onReconnect={connect}
               />
-              
+
               {/* 🏢 WebSocket Status */}
               <div className="websocket-status">
                 <h3>🌐 Enterprise WebSocket</h3>
@@ -230,26 +230,26 @@ function App() {
                 <div className="enterprise-agent-section">
                   <h2>🤖 Agentes Enterprise ({agents.length})</h2>
                   <p>Con analytics avanzado y tracking en tiempo real • Tema: {getThemeConfig().name}</p>
-                  
+
                   {agents.length > 0 && selectedAgent && (
                     <div className="text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded mb-4 inline-block">
                       ✅ Seleccionado: {selectedAgent.name}
                     </div>
                   )}
                 </div>
-                
+
                 {agents.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {agents.map((agent, index) => (
                       <div key={agent.agent_id} className="relative">
                         <div className="agent-badge">#{index + 1}</div>
-                        
+
                         <AgentCard
                           agent={agent}
                           isSelected={selectedAgent?.agent_id === agent.agent_id}
                           onSelect={(agent) => {
                             selectAgent(agent);
-                            trackUserAction('enterprise_agent_selected', { 
+                            trackUserAction('enterprise_agent_selected', {
                               agentId: agent.agent_id,
                               agentName: agent.name,
                               timestamp: new Date().toISOString(),
@@ -283,7 +283,7 @@ function App() {
               <div className="enterprise-actions">
                 <h2>⚡ Enterprise Quick Actions</h2>
                 <div className="enterprise-actions-grid">
-                  <button 
+                  <button
                     onClick={() => {
                       trackUserAction('enterprise_docs_opened', { theme: currentTheme });
                       window.open('http://localhost:8000/docs', '_blank');
@@ -297,8 +297,8 @@ function App() {
                     </div>
                     <span>API Docs</span>
                   </button>
-                  
-                  <button 
+
+                  <button
                     onClick={() => {
                       trackUserAction('enterprise_health_checked', { theme: currentTheme });
                       window.open('http://localhost:8000/health', '_blank');
@@ -312,8 +312,8 @@ function App() {
                     </div>
                     <span>Health Check</span>
                   </button>
-                  
-                  <button 
+
+                  <button
                     onClick={() => {
                       trackUserAction('enterprise_websocket_test', { theme: currentTheme });
                       websocketService.send({ type: 'test', data: { timestamp: Date.now(), theme: currentTheme } });
@@ -327,8 +327,8 @@ function App() {
                     </div>
                     <span>Test WebSocket</span>
                   </button>
-                  
-                  <button 
+
+                  <button
                     onClick={() => {
                       trackUserAction('enterprise_analytics_viewed', { theme: currentTheme });
                       console.log('🏢 Enterprise Analytics:', analytics);

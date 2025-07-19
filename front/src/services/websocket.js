@@ -55,7 +55,7 @@ class IopeerWebSocketService {
         this.ws.onmessage = (event) => {
           try {
             const data = JSON.parse(event.data);
-            
+
             // Handle heartbeat
             if (data.type === 'pong') {
               return;
@@ -63,7 +63,7 @@ class IopeerWebSocketService {
 
             console.log('📨 WebSocket message received:', data);
             this.emit('message', data);
-            
+
             // Emit specific event types
             if (data.type) {
               this.emit(data.type, data);
@@ -79,7 +79,7 @@ class IopeerWebSocketService {
           console.log('🔌 WebSocket disconnected:', event.code, event.reason);
           this.isConnecting = false;
           this.emit('disconnected', { code: event.code, reason: event.reason });
-          
+
           if (!event.wasClean) {
             this.handleReconnect();
           }
@@ -105,9 +105,9 @@ class IopeerWebSocketService {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
       const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
-      
+
       console.log(`🔄 Reconnecting WebSocket in ${delay}ms (attempt ${this.reconnectAttempts})`);
-      
+
       setTimeout(() => {
         this.connect().catch(error => {
           console.error('❌ Reconnection failed:', error);
@@ -187,19 +187,19 @@ class IopeerWebSocketService {
   disconnect() {
     this.reconnectAttempts = this.maxReconnectAttempts; // Prevent reconnection
     this.stopHeartbeat();
-    
+
     if (this.ws) {
       this.ws.close(1000, 'Client disconnect');
       this.ws = null;
     }
-    
+
     this.messageQueue = [];
     this.listeners.clear();
   }
 
   getConnectionState() {
     if (!this.ws) return 'disconnected';
-    
+
     switch (this.ws.readyState) {
       case WebSocket.CONNECTING: return 'connecting';
       case WebSocket.OPEN: return 'connected';

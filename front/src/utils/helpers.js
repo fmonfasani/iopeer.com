@@ -5,7 +5,7 @@
 // Formatear timestamps
 export const formatTimestamp = (timestamp) => {
   if (!timestamp) return 'N/A';
-  
+
   try {
     return new Date(timestamp).toLocaleString('es-ES', {
       year: 'numeric',
@@ -23,11 +23,11 @@ export const formatTimestamp = (timestamp) => {
 // Formatear duración
 export const formatDuration = (seconds) => {
   if (!seconds || seconds < 0) return '0s';
-  
+
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const secs = Math.floor(seconds % 60);
-  
+
   if (hours > 0) {
     return `${hours}h ${minutes}m ${secs}s`;
   } else if (minutes > 0) {

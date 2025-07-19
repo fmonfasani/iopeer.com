@@ -18,7 +18,7 @@ const IopeerLayout = ({ children, title = "Iopeer", onSearch, notifications = []
     <div className="min-h-screen" style={{backgroundColor: 'var(--bg-secondary)'}}>
       {/* Header */}
       <header className="shadow-sm border-b" style={{
-        backgroundColor: 'var(--bg-primary)', 
+        backgroundColor: 'var(--bg-primary)',
         borderColor: 'var(--border-color)'
       }}>
         <div className="flex items-center justify-between px-6 py-4">
@@ -30,7 +30,7 @@ const IopeerLayout = ({ children, title = "Iopeer", onSearch, notifications = []
             >
               <Menu size={20} />
             </button>
-            
+
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">io</span>

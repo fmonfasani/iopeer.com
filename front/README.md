@@ -56,12 +56,12 @@ Variables de entorno configurables en `.env`:
 Hook principal para conexión con el backend:
 
 ```javascript
-const { 
-  connectionStatus, 
-  agents, 
-  systemHealth, 
+const {
+  connectionStatus,
+  agents,
+  systemHealth,
   connect,
-  sendMessage 
+  sendMessage
 } = useIopeer();
 ```
 
@@ -69,11 +69,11 @@ const {
 Hook para gestión de agentes:
 
 ```javascript
-const { 
-  agents, 
-  selectedAgent, 
+const {
+  agents,
+  selectedAgent,
   selectAgent,
-  sendMessageToAgent 
+  sendMessageToAgent
 } = useAgents();
 ```
 

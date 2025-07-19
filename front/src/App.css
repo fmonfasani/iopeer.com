@@ -84,7 +84,7 @@
     z-index: 40;
     transform: translateX(-100%);
   }
-  
+
   .iopeer-sidebar.open {
     transform: translateX(0);
   }

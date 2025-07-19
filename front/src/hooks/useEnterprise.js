@@ -89,13 +89,13 @@ export const useEnterprise = () => {
   const sendRealTimeMessage = useCallback((message) => {
     try {
       const sent = websocketService.send(message);
-      
+
       if (sent) {
         analyticsService.trackUserAction('realtime_message_sent', {
           messageType: message.type
         });
       }
-      
+
       return sent;
     } catch (error) {
       console.error('Failed to send message:', error);
@@ -127,7 +127,7 @@ export const useEnterprise = () => {
   const cleanup = useCallback(() => {
     // Unsubscribe from WebSocket events
     unsubscribeRef.current.forEach(unsubscribe => unsubscribe());
-    
+
     // Disconnect WebSocket
     websocketService.disconnect();
   }, []);

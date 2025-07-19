@@ -9,11 +9,11 @@ import { useIopeer, useAgents } from './hooks/useIopeer';
 import { CONNECTION_STATES } from './utils/constants';
 
 function App() {
-  const { 
-    connectionStatus, 
-    systemHealth, 
-    loading, 
-    error, 
+  const {
+    connectionStatus,
+    systemHealth,
+    loading,
+    error,
     connect,
     isConnected
   } = useIopeer();
@@ -30,14 +30,14 @@ function App() {
   const handleSendMessage = async (agentId, action, data) => {
     try {
       const result = await sendMessageToAgent(agentId, action, data);
-      
+
       // Añadir notificación de éxito
       setNotifications(prev => [...prev, {
         id: Date.now(),
         type: 'success',
         message: `Mensaje enviado a ${agentId}: ${result.status}`
       }]);
-      
+
       console.log('Message result:', result);
     } catch (error) {
       // Añadir notificación de error
@@ -46,7 +46,7 @@ function App() {
         type: 'error',
         message: `Error enviando mensaje: ${error.message}`
       }]);
-      
+
       console.error('Message error:', error);
     }
   };
@@ -59,7 +59,7 @@ function App() {
   return (
     <ErrorBoundary>
       <div className="App">
-        <IopeerLayout 
+        <IopeerLayout
           title="Iopeer Dashboard"
           onSearch={handleSearch}
           notifications={notifications}
@@ -96,7 +96,7 @@ function App() {
                     </div>
                   )}
                 </div>
-                
+
                 {agents.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {agents.map((agent) => (
@@ -130,7 +130,7 @@ function App() {
               <div className="bg-white rounded-lg shadow-sm border p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">Acciones Rápidas</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <button 
+                  <button
                     onClick={() => window.open('http://localhost:8000/docs', '_blank')}
                     className="flex items-center justify-center space-x-2 bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-colors"
                   >
@@ -139,8 +139,8 @@ function App() {
                     </svg>
                     <span>Ver API Docs</span>
                   </button>
-                  
-                  <button 
+
+                  <button
                     onClick={() => window.open('http://localhost:8000/health', '_blank')}
                     className="flex items-center justify-center space-x-2 bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition-colors"
                   >
@@ -149,8 +149,8 @@ function App() {
                     </svg>
                     <span>Health Check</span>
                   </button>
-                  
-                  <button 
+
+                  <button
                     onClick={connect}
                     className="flex items-center justify-center space-x-2 bg-purple-600 text-white p-4 rounded-lg hover:bg-purple-700 transition-colors"
                   >
