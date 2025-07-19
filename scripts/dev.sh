@@ -52,7 +52,7 @@ if [ ! -f "registry.json" ]; then
   },
   {
     "id": "qa_agent",
-    "class": "QAAgent", 
+    "class": "QAAgent",
     "config": {}
   }
 ]

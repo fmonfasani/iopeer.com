@@ -24,7 +24,7 @@ Consulta la [doctrina del proyecto](DOCS/DOCTRINE.md) para conocer los principio
 ## 🌟 Características
 
 - **🏗️ Arquitectura Modular**: Agentes independientes con responsabilidades específicas
-- **⚡ Orquestación Inteligente**: Workflows configurables y deterministas  
+- **⚡ Orquestación Inteligente**: Workflows configurables y deterministas
 - **🔌 Estándares Abiertos**: Compatible con protocolos A2A, MCP y ACP
 - **📊 Observabilidad**: Métricas, logging y trazabilidad completa
 - **🚀 Fácil Despliegue**: Docker, Kubernetes y cloud-ready

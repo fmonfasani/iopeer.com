@@ -9,7 +9,7 @@
     },
     {
       "id": "qa_agent",
-      "class": "QAAgent", 
+      "class": "QAAgent",
       "config": {
         "max_test_cases": 100,
         "default_timeout": 30

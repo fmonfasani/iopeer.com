@@ -176,14 +176,14 @@ from agenthub.agents.base_agent import BaseAgent
 class ExampleAgent(BaseAgent):
     def __init__(self):
         super().__init__(agent_id="example_agent", name="Example Agent")
-    
+
     def handle(self, message):
         action = message.get("action")
         if action == "hello":
             return {"status": "success", "message": "Hello World!"}
         else:
             return {"status": "error", "message": f"Unknown action: {action}"}
-    
+
     def get_capabilities(self):
         return {
             "actions": ["hello"],

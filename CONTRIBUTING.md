@@ -29,4 +29,3 @@ The project includes helper scripts under `scripts/`.
 2. Run `pre-commit` and `./scripts/test.sh` locally until both succeed.
 3. Push your branch and open a pull request describing your changes.
 4. Make sure CI passes before requesting review.
-

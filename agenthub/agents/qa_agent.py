@@ -1,7 +1,7 @@
 # agenthub/agents/qa_agent.py
-import json
+
 import re
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 from .base_agent import BaseAgent
 
@@ -24,10 +24,10 @@ def test_{function_name}():
     """Test for {function_name}"""
     # Arrange
     {arrange}
-    
+
     # Act
     {act}
-    
+
     # Assert
     {assert_statements}
 ''',
@@ -35,7 +35,7 @@ def test_{function_name}():
 def test_{endpoint_name}(client):
     """Test {method} {path}"""
     response = client.{method}("{path}", json={payload})
-    
+
     assert response.status_code == {expected_status}
     {additional_assertions}
 ''',
@@ -44,13 +44,13 @@ def test_{test_name}():
     """Integration test for {description}"""
     # Setup
     {setup}
-    
+
     # Execute
     {execute}
-    
+
     # Verify
     {verify}
-    
+
     # Cleanup
     {cleanup}
 ''',
@@ -166,7 +166,7 @@ def test_{test_name}():
             if is_json:
                 try:
                     result["response_data"] = response.json()
-                except:
+                except Exception:
                     result["json_parse_error"] = True
 
             if not status_match:
@@ -475,7 +475,6 @@ client = TestClient(app)
 
     def _performance_test(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Ejecuta test de performance básico"""
-        url = data.get("url", "http://localhost:8000")
         concurrent_users = data.get("concurrent_users", 10)
         duration_seconds = data.get("duration", 30)
 

@@ -39,7 +39,7 @@ class {model_name}(BaseModel):
             "database_model": """
 class {model_name}(Base):
     __tablename__ = "{table_name}"
-    
+
 {fields}
 """,
         }

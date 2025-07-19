@@ -1,5 +1,5 @@
 # setup.py
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 setup(
     name="agenthub",
@@ -12,12 +12,12 @@ setup(
         "pydantic>=2.5.0",
         "PyYAML>=6.0.1",
         "click>=8.0.0",
-        "requests>=2.31.0"
+        "requests>=2.31.0",
     ],
     entry_points={
-        'console_scripts': [
-            'agenthub=agenthub.cli:cli',
-            'agenthub-server=agenthub.main:run_server',
+        "console_scripts": [
+            "agenthub=agenthub.cli:cli",
+            "agenthub-server=agenthub.main:run_server",
         ],
     },
     author="AgentHub Team",
