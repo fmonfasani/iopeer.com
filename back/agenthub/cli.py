@@ -192,9 +192,9 @@ class ExampleAgent(BaseAgent):
         )
 
     click.echo(f"✅ Project {project_name} created successfully!")
-    click.echo(f"📁 Next steps:")
+    click.echo("📁 Next steps:")
     click.echo(f"   cd {project_name}")
-    click.echo(f"   agenthub-server")
+    click.echo("   agenthub-server")
 
 
 if __name__ == "__main__":
