@@ -81,3 +81,5 @@ registry.local.json
 
 # Docker
 .dockerignore
+
+node_modules/
