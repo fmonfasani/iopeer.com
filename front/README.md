@@ -87,13 +87,10 @@ docker run -p 3000:80 agenthub-frontend
 ### Desarrollo
 ```bash
 # Modo desarrollo con hot reload
-./dev.sh
-
-# Solo frontend
 npm start
 
-# Con backend integrado
-./start-agenthub.sh
+# Con Docker Compose
+npm run docker:compose
 ```
 
 ### Producción
@@ -101,19 +98,13 @@ npm start
 # Build optimizado
 npm run build
 
-# Servidor de producción
-./prod.sh
-
-# Con Docker
-docker-compose up
+# Servidor de producción con Docker
+npm run docker:compose
 ```
 
 ### Testing
 ```bash
-# Suite completa de tests
-./test.sh
-
-# Solo tests unitarios
+# Ejecutar tests unitarios
 npm test
 
 # Coverage
@@ -294,7 +285,7 @@ cd agenthub/iopeer/front
 
 # Instalar y ejecutar
 npm install
-./dev.sh
+npm start
 ```
 
 ### Guidelines
