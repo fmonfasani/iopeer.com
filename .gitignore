@@ -90,3 +90,7 @@ back/package-lock.json
 
 # Backups
 backups/
+
+# Temporary database files
+*.sqlite
+*.sqlite3
