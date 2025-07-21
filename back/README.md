@@ -20,7 +20,7 @@ AgentHub is a lightweight framework for coordinating AI agents. It exposes a RES
 
 ## Running the server
 
-Consulta la [doctrina del proyecto](DOCS/DOCTRINE.md) para conocer los principios fundamentales.
+Consulta la [doctrina del proyecto](docs/DOCTRINE.md) para conocer los principios fundamentales.
 ## 🌟 Características
 
 - **🏗️ Arquitectura Modular**: Agentes independientes con responsabilidades específicas
