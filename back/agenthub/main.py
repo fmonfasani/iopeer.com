@@ -92,7 +92,9 @@ async def startup_event():
 
         # Importar workflows predefinidos
         try:
-            pass
+            from agenthub.workflows.default import register_default_workflows
+
+            register_default_workflows()
 
             logger.info("Default workflows loaded")
         except ImportError as e:
