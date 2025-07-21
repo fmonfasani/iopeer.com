@@ -1,3 +1,4 @@
+import pytest
 from agenthub.agents.base_agent import BaseAgent
 from agenthub.orchestrator import AgentRegistry, Orchestrator, WorkflowRegistry
 
@@ -58,6 +59,15 @@ class TestOrchestrator:
         )
 
         assert result["status"] == "success"
+
+    def test_send_message_unknown_agent(self):
+        orchestrator = Orchestrator()
+
+        with pytest.raises(ValueError) as exc:
+            orchestrator.send_message("ghost", {"action": "test"})
+
+        assert "ghost" in str(exc.value)
+        assert "Available agents" in str(exc.value)
 
     def test_execute_workflow(self):
         orchestrator = Orchestrator()
