@@ -57,3 +57,11 @@ class TestAPI:
         assert response.status_code == 200
         data = response.json()
         assert "execution_id" in data
+
+    def test_send_message_unknown_agent(self, client):
+        message_data = {"agent_id": "ghost", "action": "test"}
+        response = client.post("/message/send", json=message_data)
+        assert response.status_code == 404
+        data = response.json()
+        assert "ghost" in data["detail"]
+        assert "Available agents" in data["detail"]

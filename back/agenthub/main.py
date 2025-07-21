@@ -309,6 +309,7 @@ async def send_message(request: MessageRequest):
         }
 
     except ValueError as e:
+        # Propagar mensaje detallado del orquestador
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         logger.error(f"Error sending message: {e}")

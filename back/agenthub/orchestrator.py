@@ -36,7 +36,14 @@ class AgentRegistry:
 
     def get(self, agent_id: str) -> Optional[BaseAgent]:
         """Obtiene un agente por ID"""
-        return self.agents.get(agent_id)
+        agent = self.agents.get(agent_id)
+        if not agent:
+            self.logger.debug(
+                "Agent %s not found. Available agents: %s",
+                agent_id,
+                ", ".join(self.list_agents()) or "none",
+            )
+        return agent
 
     def list_agents(self) -> List[str]:
         """Lista todos los agentes registrados"""
@@ -114,7 +121,10 @@ class Orchestrator:
         """Envía un mensaje a un agente específico"""
         agent = self.agent_registry.get(agent_id)
         if not agent:
-            raise ValueError(f"Agent {agent_id} not found")
+            available = ", ".join(self.agent_registry.list_agents()) or "none"
+            raise ValueError(
+                f"Agent {agent_id} not found. Available agents: {available}"
+            )
 
         return agent.process_message(message)
 
