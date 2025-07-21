@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 const THEMES = {
   LIGHT_PROFESSIONAL: 'light-professional',
-  LIGHT_OCEANIC: 'light-oceanic',
+  LIGHT_OCEANIC: 'light-oceanic', 
   DARK_CORPORATE: 'dark-corporate',
   DARK_CYBERPUNK: 'dark-cyberpunk'
 };
@@ -10,7 +10,7 @@ const THEMES = {
 const THEME_NAMES = {
   [THEMES.LIGHT_PROFESSIONAL]: 'Light Profesional',
   [THEMES.LIGHT_OCEANIC]: 'Light Oceánico',
-  [THEMES.DARK_CORPORATE]: 'Dark Corporativo',
+  [THEMES.DARK_CORPORATE]: 'Dark Corporativo', 
   [THEMES.DARK_CYBERPUNK]: 'Dark Cyberpunk'
 };
 
@@ -22,13 +22,13 @@ export const useTheme = () => {
   const changeTheme = useCallback((newTheme) => {
     setCurrentTheme(newTheme);
     localStorage.setItem('iopeer-theme', newTheme);
-
+    
     // Aplicar clase al body
     document.body.className = `theme-${newTheme}`;
-
+    
     // Dispatch evento personalizado para analytics
-    window.dispatchEvent(new CustomEvent('themeChanged', {
-      detail: { theme: newTheme }
+    window.dispatchEvent(new CustomEvent('themeChanged', { 
+      detail: { theme: newTheme } 
     }));
   }, []);
 
@@ -115,7 +115,7 @@ export const useTheme = () => {
         }
       }
     };
-
+    
     return configs[theme] || configs[THEMES.LIGHT_PROFESSIONAL];
   }, [currentTheme]);
 

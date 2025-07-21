@@ -1,8 +1,8 @@
 import React from 'react';
-import MarketplaceLayout from './MarketplaceLayout';
+import ProfessionalMarketplace from './ProfessionalMarketplace';
 
 const MarketplaceApp = () => {
-  return <MarketplaceLayout />;
+  return <ProfessionalMarketplace />;
 };
 
 export default MarketplaceApp;

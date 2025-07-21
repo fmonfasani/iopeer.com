@@ -1,425 +1,328 @@
-/**
- * Iopeer Agent Marketplace - Categorías y Agentes
- */
-
+// Categorías de agentes
 export const AGENT_CATEGORIES = {
   FEATURED: 'featured',
-  DEVELOPMENT: 'development',
+  DEVELOPMENT: 'development', 
   PRODUCTIVITY: 'productivity',
   RESEARCH: 'research',
   CREATIVITY: 'creativity',
   BUSINESS: 'business',
   EDUCATION: 'education',
-  LIFESTYLE: 'lifestyle',
-  DATA_ANALYSIS: 'data-analysis'
+  LIFESTYLE: 'lifestyle'
 };
 
 export const CATEGORY_LABELS = {
-  [AGENT_CATEGORIES.FEATURED]: 'Destacados',
-  [AGENT_CATEGORIES.DEVELOPMENT]: 'Desarrollo',
-  [AGENT_CATEGORIES.PRODUCTIVITY]: 'Productividad',
-  [AGENT_CATEGORIES.RESEARCH]: 'Investigación',
-  [AGENT_CATEGORIES.CREATIVITY]: 'Creatividad',
-  [AGENT_CATEGORIES.BUSINESS]: 'Negocios',
-  [AGENT_CATEGORIES.EDUCATION]: 'Educación',
-  [AGENT_CATEGORIES.LIFESTYLE]: 'Estilo de Vida',
-  [AGENT_CATEGORIES.DATA_ANALYSIS]: 'Análisis de Datos'
+  [AGENT_CATEGORIES.FEATURED]: 'Agentes Destacados',
+  [AGENT_CATEGORIES.DEVELOPMENT]: 'Desarrollo de Software',
+  [AGENT_CATEGORIES.PRODUCTIVITY]: 'Productividad y Eficiencia',
+  [AGENT_CATEGORIES.RESEARCH]: 'Investigación y Análisis',
+  [AGENT_CATEGORIES.CREATIVITY]: 'Creatividad y Diseño',
+  [AGENT_CATEGORIES.BUSINESS]: 'Negocios y Finanzas',
+  [AGENT_CATEGORIES.EDUCATION]: 'Educación y Aprendizaje',
+  [AGENT_CATEGORIES.LIFESTYLE]: 'Estilo de Vida'
 };
 
+// Datos de ejemplo de agentes para el marketplace
 export const MARKETPLACE_AGENTS = [
-  // ==========================================
-  // FEATURED AGENTS
-  // ==========================================
+  // Agentes de Desarrollo
   {
     id: 'code-assistant-pro',
     name: 'Code Assistant Pro',
-    description: 'Asistente de código avanzado con soporte para 20+ lenguajes. Refactoring automático, debugging y generación de tests.',
-    category: AGENT_CATEGORIES.FEATURED,
-    subcategory: 'ai-powered',
-    author: 'Iopeer Team',
+    description: 'Asistente de programación avanzado que ayuda con código Python, JavaScript, React y más.',
     avatar: '👨‍💻',
-    color: 'from-blue-500 to-purple-600',
-    verified: true,
-    premium: true,
+    category: AGENT_CATEGORIES.DEVELOPMENT,
+    author: 'DevTools Inc.',
     rating: 4.9,
-    installs: 15420,
-    tags: ['Python', 'JavaScript', 'TypeScript', 'React', 'Node.js'],
-    capabilities: [
-      'Generación de código',
-      'Refactoring automático',
-      'Debugging inteligente',
-      'Generación de tests'
-    ],
+    installs: 25000,
+    price: 'Gratis',
+    premium: false,
+    verified: true,
+    tags: ['Python', 'JavaScript', 'React', 'Debugging'],
+    color: 'from-blue-400 to-purple-600',
+    demo: true,
+    capabilities: {
+      description: 'Genera código, encuentra bugs, explica algoritmos y optimiza rendimiento'
+    }
+  },
+  {
+    id: 'api-builder',
+    name: 'API Builder',
+    description: 'Construye APIs REST y GraphQL automáticamente con documentación completa.',
+    avatar: '🔌',
+    category: AGENT_CATEGORIES.DEVELOPMENT,
+    author: 'API Studios',
+    rating: 4.7,
+    installs: 18500,
     price: 'Premium',
+    premium: true,
+    verified: true,
+    tags: ['API', 'REST', 'GraphQL', 'Swagger'],
+    color: 'from-green-400 to-blue-500',
     demo: true
   },
   {
-    id: 'data-wizard',
-    name: 'Data Wizard',
-    description: 'Análisis de datos con IA. Visualizaciones automáticas, insights predictivos y reportes profesionales.',
-    category: AGENT_CATEGORIES.FEATURED,
-    subcategory: 'analytics',
-    author: 'DataCorp',
-    avatar: '📊',
-    color: 'from-green-500 to-blue-500',
-    verified: true,
-    premium: true,
+    id: 'database-wizard',
+    name: 'Database Wizard',
+    description: 'Optimiza consultas SQL, diseña esquemas y gestiona migraciones de base de datos.',
+    avatar: '🗄️',
+    category: AGENT_CATEGORIES.DEVELOPMENT,
+    author: 'DataOps Co.',
     rating: 4.8,
-    installs: 12350,
-    tags: ['Pandas', 'Matplotlib', 'ML', 'Statistics'],
-    capabilities: [
-      'Análisis exploratorio',
-      'Visualizaciones automáticas',
-      'Modelos predictivos',
-      'Reportes ejecutivos'
-    ],
-    price: '$29/mes',
+    installs: 12000,
+    price: 'Gratis',
+    premium: false,
+    verified: true,
+    tags: ['SQL', 'PostgreSQL', 'MySQL', 'MongoDB'],
+    color: 'from-gray-400 to-gray-600',
+    demo: false
+  },
+
+  // Agentes de Productividad
+  {
+    id: 'email-composer',
+    name: 'Email Composer',
+    description: 'Redacta emails profesionales con el tono perfecto para cada situación.',
+    avatar: '📧',
+    category: AGENT_CATEGORIES.PRODUCTIVITY,
+    author: 'Productivity Pro',
+    rating: 4.6,
+    installs: 42000,
+    price: 'Gratis',
+    premium: false,
+    verified: true,
+    tags: ['Email', 'Comunicación', 'Redacción'],
+    color: 'from-yellow-400 to-red-500',
     demo: true
   },
+  {
+    id: 'meeting-summarizer',
+    name: 'Meeting Summarizer',
+    description: 'Convierte transcripciones de reuniones en resúmenes accionables con tareas asignadas.',
+    avatar: '📋',
+    category: AGENT_CATEGORIES.PRODUCTIVITY,
+    author: 'MeetingBot LLC',
+    rating: 4.8,
+    installs: 31000,
+    price: 'Premium',
+    premium: true,
+    verified: true,
+    tags: ['Reuniones', 'Transcripción', 'Resúmenes'],
+    color: 'from-purple-400 to-pink-500',
+    demo: true
+  },
+  {
+    id: 'task-planner',
+    name: 'Smart Task Planner',
+    description: 'Organiza tu día optimizando tiempo y prioridades usando IA.',
+    avatar: '✅',
+    category: AGENT_CATEGORIES.PRODUCTIVITY,
+    author: 'TimeWise',
+    rating: 4.5,
+    installs: 28000,
+    price: 'Gratis',
+    premium: false,
+    verified: false,
+    tags: ['Planificación', 'GTD', 'Productividad'],
+    color: 'from-green-400 to-cyan-500',
+    demo: false
+  },
+
+  // Agentes de Investigación
+  {
+    id: 'research-analyst',
+    name: 'Research Analyst',
+    description: 'Analiza papers académicos, extrae insights y genera reportes de investigación.',
+    avatar: '🔬',
+    category: AGENT_CATEGORIES.RESEARCH,
+    author: 'AcademicAI',
+    rating: 4.9,
+    installs: 15000,
+    price: 'Premium',
+    premium: true,
+    verified: true,
+    tags: ['Investigación', 'Papers', 'Análisis', 'Academia'],
+    color: 'from-indigo-400 to-purple-600',
+    demo: true
+  },
+  {
+    id: 'data-explorer',
+    name: 'Data Explorer',
+    description: 'Explora datasets, encuentra patrones y genera visualizaciones automáticamente.',
+    avatar: '📊',
+    category: AGENT_CATEGORIES.RESEARCH,
+    author: 'DataViz Pro',
+    rating: 4.7,
+    installs: 22000,
+    price: 'Gratis',
+    premium: false,
+    verified: true,
+    tags: ['Datos', 'Visualización', 'Estadísticas'],
+    color: 'from-blue-400 to-indigo-600',
+    demo: true
+  },
+
+  // Agentes de Creatividad
   {
     id: 'content-creator',
-    name: 'Content Creator AI',
-    description: 'Crea contenido viral para redes sociales, blogs y marketing. Optimizado para engagement y SEO.',
-    category: AGENT_CATEGORIES.FEATURED,
-    subcategory: 'marketing',
-    author: 'CreativeMinds',
+    name: 'Content Creator',
+    description: 'Genera contenido para blogs, redes sociales y marketing con tu voz única.',
     avatar: '✍️',
-    color: 'from-pink-500 to-yellow-500',
-    verified: true,
-    premium: false,
-    rating: 4.7,
-    installs: 8920,
-    tags: ['SEO', 'Social Media', 'Copywriting', 'Marketing'],
-    capabilities: [
-      'Generación de posts',
-      'Optimización SEO',
-      'Hashtags inteligentes',
-      'A/B testing de contenido'
-    ],
+    category: AGENT_CATEGORIES.CREATIVITY,
+    author: 'Creative Studio',
+    rating: 4.6,
+    installs: 38000,
     price: 'Gratis',
+    premium: false,
+    verified: true,
+    tags: ['Contenido', 'Blog', 'Social Media', 'Marketing'],
+    color: 'from-pink-400 to-red-500',
+    demo: true
+  },
+  {
+    id: 'design-assistant',
+    name: 'Design Assistant',
+    description: 'Ayuda con paletas de colores, tipografías y layouts para tus diseños.',
+    avatar: '🎨',
+    category: AGENT_CATEGORIES.CREATIVITY,
+    author: 'DesignBot Inc.',
+    rating: 4.8,
+    installs: 19000,
+    price: 'Premium',
+    premium: true,
+    verified: true,
+    tags: ['Diseño', 'UI/UX', 'Colores', 'Tipografía'],
+    color: 'from-purple-400 to-pink-600',
     demo: true
   },
 
-  // ==========================================
-  // DEVELOPMENT AGENTS
-  // ==========================================
+  // Agentes de Negocios
   {
-    id: 'backend-architect',
-    name: 'Backend Architect',
-    description: 'Diseña arquitecturas backend escalables. APIs REST, microservicios, bases de datos y DevOps.',
-    category: AGENT_CATEGORIES.DEVELOPMENT,
-    subcategory: 'backend',
-    author: 'TechGurus',
-    avatar: '🏗️',
-    color: 'from-gray-600 to-blue-600',
-    verified: true,
-    premium: true,
-    rating: 4.9,
-    installs: 5430,
-    tags: ['Python', 'FastAPI', 'PostgreSQL', 'Docker', 'AWS'],
-    capabilities: [
-      'Diseño de APIs',
-      'Arquitectura de microservicios',
-      'Optimización de BD',
-      'CI/CD pipelines'
-    ],
-    price: '$49/mes'
-  },
-  {
-    id: 'frontend-master',
-    name: 'Frontend Master',
-    description: 'Especialista en React, Vue y Angular. Componentes reutilizables, optimización y UX design.',
-    category: AGENT_CATEGORIES.DEVELOPMENT,
-    subcategory: 'frontend',
-    author: 'UIExperts',
-    avatar: '🎨',
-    color: 'from-purple-500 to-pink-500',
-    verified: true,
-    premium: false,
-    rating: 4.6,
-    installs: 7890,
-    tags: ['React', 'Vue', 'Angular', 'TypeScript', 'Tailwind'],
-    capabilities: [
-      'Componentes React',
-      'Estados globales',
-      'Optimización performance',
-      'Responsive design'
-    ],
-    price: 'Gratis'
-  },
-  {
-    id: 'mobile-dev',
-    name: 'Mobile Dev Assistant',
-    description: 'Desarrollo mobile nativo y cross-platform. React Native, Flutter, iOS y Android.',
-    category: AGENT_CATEGORIES.DEVELOPMENT,
-    subcategory: 'mobile',
-    author: 'MobileFirst',
-    avatar: '📱',
-    color: 'from-blue-500 to-green-500',
-    verified: false,
-    premium: true,
-    rating: 4.4,
-    installs: 3210,
-    tags: ['React Native', 'Flutter', 'Swift', 'Kotlin'],
-    capabilities: [
-      'Apps nativas',
-      'Cross-platform',
-      'App Store deployment',
-      'Push notifications'
-    ],
-    price: '$19/mes'
-  },
-
-  // ==========================================
-  // PRODUCTIVITY AGENTS
-  // ==========================================
-  {
-    id: 'task-master',
-    name: 'Task Master Pro',
-    description: 'Gestión avanzada de tareas y proyectos. Metodologías ágiles, reporting automático y sincronización.',
-    category: AGENT_CATEGORIES.PRODUCTIVITY,
-    subcategory: 'project-management',
-    author: 'ProductivityHub',
-    avatar: '✅',
-    color: 'from-green-500 to-blue-500',
-    verified: true,
-    premium: true,
-    rating: 4.8,
-    installs: 9870,
-    tags: ['Scrum', 'Kanban', 'JIRA', 'Trello', 'Slack'],
-    capabilities: [
-      'Planificación automática',
-      'Seguimiento de progreso',
-      'Reportes ejecutivos',
-      'Integración con herramientas'
-    ],
-    price: '$39/mes'
-  },
-  {
-    id: 'email-ninja',
-    name: 'Email Ninja',
-    description: 'Automatización de emails, templates inteligentes y seguimiento de campañas.',
-    category: AGENT_CATEGORIES.PRODUCTIVITY,
-    subcategory: 'communication',
-    author: 'CommTools',
-    avatar: '📧',
-    color: 'from-yellow-500 to-red-500',
-    verified: true,
-    premium: false,
-    rating: 4.5,
-    installs: 6540,
-    tags: ['Gmail', 'Outlook', 'Automation', 'Templates'],
-    capabilities: [
-      'Templates automáticos',
-      'Programación de envíos',
-      'Seguimiento de apertura',
-      'Respuestas inteligentes'
-    ],
-    price: 'Gratis'
-  },
-
-  // ==========================================
-  // RESEARCH AGENTS
-  // ==========================================
-  {
-    id: 'research-scholar',
-    name: 'Research Scholar',
-    description: 'Investigación académica avanzada. Acceso a papers, citas automáticas y análisis de literatura.',
-    category: AGENT_CATEGORIES.RESEARCH,
-    subcategory: 'academic',
-    author: 'AcademicAI',
-    avatar: '🎓',
-    color: 'from-indigo-500 to-purple-500',
-    verified: true,
-    premium: true,
-    rating: 4.9,
-    installs: 4320,
-    tags: ['PubMed', 'arXiv', 'Citations', 'Literature Review'],
-    capabilities: [
-      'Búsqueda en papers',
-      'Análisis de literatura',
-      'Citas automáticas',
-      'Resúmenes ejecutivos'
-    ],
-    price: '$59/mes'
-  },
-  {
-    id: 'market-researcher',
-    name: 'Market Researcher',
-    description: 'Investigación de mercado con IA. Análisis de competencia, tendencias y oportunidades.',
-    category: AGENT_CATEGORIES.RESEARCH,
-    subcategory: 'market',
-    author: 'MarketIntel',
-    avatar: '📈',
-    color: 'from-blue-500 to-green-500',
-    verified: true,
-    premium: true,
-    rating: 4.7,
-    installs: 2890,
-    tags: ['Market Analysis', 'Competitor Research', 'Trends'],
-    capabilities: [
-      'Análisis de competencia',
-      'Identificación de tendencias',
-      'Segmentación de mercado',
-      'Reportes estratégicos'
-    ],
-    price: '$79/mes'
-  },
-
-  // ==========================================
-  // CREATIVITY AGENTS
-  // ==========================================
-  {
-    id: 'design-genius',
-    name: 'Design Genius',
-    description: 'Diseño gráfico con IA. Logos, banners, presentaciones y branding completo.',
-    category: AGENT_CATEGORIES.CREATIVITY,
-    subcategory: 'design',
-    author: 'DesignStudio',
-    avatar: '🎨',
-    color: 'from-pink-500 to-purple-500',
-    verified: true,
-    premium: true,
-    rating: 4.6,
-    installs: 7650,
-    tags: ['Photoshop', 'Illustrator', 'Figma', 'Branding'],
-    capabilities: [
-      'Generación de logos',
-      'Diseño de presentaciones',
-      'Paletas de colores',
-      'Mockups automáticos'
-    ],
-    price: '$29/mes'
-  },
-  {
-    id: 'story-writer',
-    name: 'Story Writer AI',
-    description: 'Escritura creativa avanzada. Novelas, cuentos, guiones y desarrollo de personajes.',
-    category: AGENT_CATEGORIES.CREATIVITY,
-    subcategory: 'writing',
-    author: 'StoryForge',
-    avatar: '📚',
-    color: 'from-orange-500 to-red-500',
-    verified: false,
-    premium: false,
-    rating: 4.3,
-    installs: 5210,
-    tags: ['Creative Writing', 'Storytelling', 'Characters'],
-    capabilities: [
-      'Desarrollo de tramas',
-      'Creación de personajes',
-      'Diálogos naturales',
-      'Editing inteligente'
-    ],
-    price: 'Gratis'
-  },
-
-  // ==========================================
-  // BUSINESS AGENTS
-  // ==========================================
-  {
-    id: 'business-analyst',
-    name: 'Business Analyst Pro',
-    description: 'Análisis empresarial completo. KPIs, forecasting, análisis financiero y estrategia.',
-    category: AGENT_CATEGORIES.BUSINESS,
-    subcategory: 'strategy',
-    author: 'BusinessIntel',
+    id: 'business-analyzer',
+    name: 'Business Analyzer',
+    description: 'Analiza métricas de negocio y proporciona insights estratégicos.',
     avatar: '💼',
-    color: 'from-gray-700 to-blue-600',
-    verified: true,
+    category: AGENT_CATEGORIES.BUSINESS,
+    author: 'BizIntel Corp',
+    rating: 4.7,
+    installs: 16000,
+    price: 'Premium',
     premium: true,
-    rating: 4.8,
-    installs: 3450,
-    tags: ['KPIs', 'Financial Analysis', 'Forecasting', 'Strategy'],
-    capabilities: [
-      'Análisis de KPIs',
-      'Modelado financiero',
-      'Predicciones de ventas',
-      'Planes estratégicos'
-    ],
-    price: '$99/mes'
+    verified: true,
+    tags: ['Negocios', 'Métricas', 'KPIs', 'Estrategia'],
+    color: 'from-gray-600 to-gray-800',
+    demo: false
   },
   {
-    id: 'sales-optimizer',
-    name: 'Sales Optimizer',
-    description: 'Optimización de ventas con IA. Lead scoring, predicción de conversión y automatización.',
-    category: AGENT_CATEGORIES.BUSINESS,
-    subcategory: 'sales',
-    author: 'SalesForce+',
+    id: 'finance-advisor',
+    name: 'Finance Advisor',
+    description: 'Asistente financiero para presupuestos, inversiones y planificación.',
     avatar: '💰',
-    color: 'from-green-500 to-yellow-500',
-    verified: true,
+    category: AGENT_CATEGORIES.BUSINESS,
+    author: 'FinTech Solutions',
+    rating: 4.9,
+    installs: 21000,
+    price: 'Premium',
     premium: true,
+    verified: true,
+    tags: ['Finanzas', 'Inversiones', 'Presupuestos'],
+    color: 'from-green-500 to-green-700',
+    demo: true
+  },
+
+  // Agentes de Educación
+  {
+    id: 'tutor-personal',
+    name: 'Tutor Personal',
+    description: 'Tutor personalizado que se adapta a tu estilo de aprendizaje.',
+    avatar: '🎓',
+    category: AGENT_CATEGORIES.EDUCATION,
+    author: 'EduTech Plus',
+    rating: 4.8,
+    installs: 33000,
+    price: 'Gratis',
+    premium: false,
+    verified: true,
+    tags: ['Educación', 'Tutoría', 'Aprendizaje'],
+    color: 'from-blue-500 to-indigo-600',
+    demo: true
+  },
+  {
+    id: 'language-coach',
+    name: 'Language Coach',
+    description: 'Practica conversación y mejora tu pronunciación en múltiples idiomas.',
+    avatar: '🗣️',
+    category: AGENT_CATEGORIES.EDUCATION,
+    author: 'LinguaBot',
+    rating: 4.6,
+    installs: 27000,
+    price: 'Premium',
+    premium: true,
+    verified: true,
+    tags: ['Idiomas', 'Conversación', 'Pronunciación'],
+    color: 'from-orange-400 to-red-500',
+    demo: true
+  },
+
+  // Agentes de Estilo de Vida
+  {
+    id: 'fitness-trainer',
+    name: 'Fitness Trainer',
+    description: 'Planes de ejercicio personalizados y seguimiento de progreso.',
+    avatar: '💪',
+    category: AGENT_CATEGORIES.LIFESTYLE,
+    author: 'FitLife AI',
+    rating: 4.5,
+    installs: 24000,
+    price: 'Gratis',
+    premium: false,
+    verified: false,
+    tags: ['Fitness', 'Ejercicio', 'Salud'],
+    color: 'from-red-400 to-pink-500',
+    demo: false
+  },
+  {
+    id: 'recipe-master',
+    name: 'Recipe Master',
+    description: 'Genera recetas personalizadas basadas en tus ingredientes y preferencias.',
+    avatar: '👨‍🍳',
+    category: AGENT_CATEGORIES.LIFESTYLE,
+    author: 'CookBot Pro',
     rating: 4.7,
-    installs: 6780,
-    tags: ['CRM', 'Lead Generation', 'Sales Automation'],
-    capabilities: [
-      'Lead scoring',
-      'Predicción de ventas',
-      'Follow-up automático',
-      'Pipeline optimization'
-    ],
-    price: '$69/mes'
+    installs: 35000,
+    price: 'Gratis',
+    premium: false,
+    verified: true,
+    tags: ['Cocina', 'Recetas', 'Alimentación'],
+    color: 'from-orange-400 to-yellow-500',
+    demo: true
   }
 ];
 
-export const SUBCATEGORIES = {
-  [AGENT_CATEGORIES.DEVELOPMENT]: [
-    { id: 'backend', label: 'Backend', count: 8 },
-    { id: 'frontend', label: 'Frontend', count: 12 },
-    { id: 'mobile', label: 'Mobile', count: 6 },
-    { id: 'devops', label: 'DevOps', count: 5 },
-    { id: 'ai-ml', label: 'AI/ML', count: 9 }
-  ],
-  [AGENT_CATEGORIES.PRODUCTIVITY]: [
-    { id: 'project-management', label: 'Project Management', count: 7 },
-    { id: 'communication', label: 'Comunicación', count: 5 },
-    { id: 'automation', label: 'Automatización', count: 11 },
-    { id: 'time-management', label: 'Gestión del Tiempo', count: 4 }
-  ],
-  [AGENT_CATEGORIES.RESEARCH]: [
-    { id: 'academic', label: 'Académica', count: 6 },
-    { id: 'market', label: 'Mercado', count: 8 },
-    { id: 'competitive', label: 'Competitiva', count: 4 },
-    { id: 'trend-analysis', label: 'Análisis de Tendencias', count: 3 }
-  ],
-  [AGENT_CATEGORIES.CREATIVITY]: [
-    { id: 'design', label: 'Diseño', count: 9 },
-    { id: 'writing', label: 'Escritura', count: 7 },
-    { id: 'music', label: 'Música', count: 4 },
-    { id: 'video', label: 'Video', count: 5 }
-  ],
-  [AGENT_CATEGORIES.BUSINESS]: [
-    { id: 'strategy', label: 'Estrategia', count: 6 },
-    { id: 'sales', label: 'Ventas', count: 8 },
-    { id: 'marketing', label: 'Marketing', count: 10 },
-    { id: 'finance', label: 'Finanzas', count: 5 }
-  ]
-};
-
-// Helper functions
+// Funciones de utilidad
 export const getAgentsByCategory = (category) => {
+  if (category === AGENT_CATEGORIES.FEATURED) {
+    return getFeaturedAgents();
+  }
   return MARKETPLACE_AGENTS.filter(agent => agent.category === category);
 };
 
-export const getAgentsBySubcategory = (category, subcategory) => {
-  return MARKETPLACE_AGENTS.filter(agent => 
-    agent.category === category && agent.subcategory === subcategory
-  );
-};
-
 export const getFeaturedAgents = () => {
-  return MARKETPLACE_AGENTS.filter(agent => 
-    agent.category === AGENT_CATEGORIES.FEATURED
-  );
+  // Agentes destacados: los mejor valorados y más instalados
+  return MARKETPLACE_AGENTS
+    .filter(agent => agent.rating >= 4.7 || agent.installs >= 25000)
+    .sort((a, b) => b.rating - a.rating)
+    .slice(0, 8);
 };
 
 export const searchAgents = (query) => {
-  const normalizedQuery = query.toLowerCase();
-  return MARKETPLACE_AGENTS.filter(agent =>
-    agent.name.toLowerCase().includes(normalizedQuery) ||
-    agent.description.toLowerCase().includes(normalizedQuery) ||
-    agent.tags.some(tag => tag.toLowerCase().includes(normalizedQuery)) ||
-    agent.capabilities.some(cap => cap.toLowerCase().includes(normalizedQuery))
+  const searchTerm = query.toLowerCase();
+  return MARKETPLACE_AGENTS.filter(agent => 
+    agent.name.toLowerCase().includes(searchTerm) ||
+    agent.description.toLowerCase().includes(searchTerm) ||
+    agent.tags.some(tag => tag.toLowerCase().includes(searchTerm)) ||
+    agent.author.toLowerCase().includes(searchTerm)
   );
+};
+
+export const getAgentById = (id) => {
+  return MARKETPLACE_AGENTS.find(agent => agent.id === id);
 };
