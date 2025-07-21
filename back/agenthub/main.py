@@ -2,6 +2,7 @@
 import json
 import logging
 from contextlib import asynccontextmanager
+from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -26,6 +27,15 @@ logger = logging.getLogger(__name__)
 
 
 # Modelos Pydantic para la API
+
+
+class AgentType(str, Enum):
+    """Tipos válidos de agentes"""
+
+    BackendAgent = "BackendAgent"
+    QAAgent = "QAAgent"
+
+
 class MessageRequest(BaseModel):
     agent_id: str = Field(..., description="ID del agente destinatario")
     action: str = Field(..., description="Acción a ejecutar")
@@ -39,7 +49,7 @@ class WorkflowRequest(BaseModel):
 
 class AgentRegistrationRequest(BaseModel):
     agent_id: str = Field(..., description="ID único del agente")
-    agent_type: str = Field(..., description="Tipo de agente (clase)")
+    agent_type: AgentType = Field(..., description="Tipo de agente (clase)")
     config: Optional[Dict[str, Any]] = Field(
         None, description="Configuración del agente"
     )
@@ -270,13 +280,18 @@ async def get_agent_capabilities(agent: BaseAgent = Depends(get_agent)):
 async def register_agent_endpoint(request: AgentRegistrationRequest):
     """Registra un nuevo agente dinámicamente"""
     try:
-        # En esta implementación simplificada, solo soportamos tipos conocidos
-        agent_classes = {"BackendAgent": BackendAgent, "QAAgent": QAAgent}
+        # Mapeo de tipos de agentes a sus clases
+        agent_classes = {
+            AgentType.BackendAgent: BackendAgent,
+            AgentType.QAAgent: QAAgent,
+        }
 
         agent_class = agent_classes.get(request.agent_type)
         if not agent_class:
+            valid = ", ".join(t.value for t in AgentType)
             raise HTTPException(
-                status_code=400, detail=f"Unknown agent type: {request.agent_type}"
+                status_code=400,
+                detail=f"Unsupported agent type '{request.agent_type}'. Valid types: {valid}",
             )
 
         # Verificar que el agente no exista ya
@@ -294,7 +309,7 @@ async def register_agent_endpoint(request: AgentRegistrationRequest):
         return {
             "status": "registered",
             "agent_id": request.agent_id,
-            "agent_type": request.agent_type,
+            "agent_type": request.agent_type.value,
         }
 
     except HTTPException:
