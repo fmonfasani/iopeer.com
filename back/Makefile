@@ -15,7 +15,7 @@ install: ## Instalar dependencias
 	pre-commit install
 
 test: ## Ejecutar tests
-	pytest agenthub/tests/ -v --cov=agenthub
+        pytest tests/ -v --cov=agenthub
 
 lint: ## Verificar código
 	flake8 agenthub/
