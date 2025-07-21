@@ -1,32 +1,21 @@
 /**
- * Iopeer API Service
- * Maneja toda la comunicación con el backend de Iopeer
+ * Iopeer API Service adaptado para AgentHub
  */
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
-class IopeerAPIError extends Error {
-  constructor(status, message, details = null) {
-    super(message);
-    this.name = 'IopeerAPIError';
-    this.status = status;
-    this.details = details;
-  }
-}
-
 class IopeerAPI {
   constructor() {
     this.baseURL = API_BASE_URL;
-    this.timeout = parseInt(process.env.REACT_APP_API_TIMEOUT) || 30000;
+    this.timeout = 30000;
   }
 
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
     const controller = new AbortController();
-
-    // Timeout automático
+    
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
-
+    
     try {
       const response = await fetch(url, {
         headers: {
@@ -42,26 +31,18 @@ class IopeerAPI {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new IopeerAPIError(
-          response.status,
-          errorData.message || response.statusText,
-          errorData
-        );
+        throw new Error(errorData.message || response.statusText);
       }
 
       return await response.json();
     } catch (error) {
       clearTimeout(timeoutId);
-
+      
       if (error.name === 'AbortError') {
-        throw new IopeerAPIError(408, 'Request timeout');
+        throw new Error('Request timeout');
       }
-
-      if (error instanceof IopeerAPIError) {
-        throw error;
-      }
-
-      throw new IopeerAPIError(0, `Network error: ${error.message}`);
+      
+      throw error;
     }
   }
 
@@ -105,20 +86,23 @@ class IopeerAPI {
     });
   }
 
-  // Executions
-  async getExecutions() {
-    return this.request('/executions');
-  }
-
-  async getExecution(executionId) {
-    return this.request(`/executions/${executionId}`);
-  }
-
   // Stats
   async getStats() {
     return this.request('/stats');
   }
+
+  // Marketplace específico
+  async installAgent(agentId) {
+    return this.request('/marketplace/install', {
+      method: 'POST',
+      body: JSON.stringify({ agent_id: agentId }),
+    });
+  }
+
+  async getInstalledAgents() {
+    return this.request('/marketplace/installed');
+  }
 }
 
 export const iopeerAPI = new IopeerAPI();
-export { IopeerAPIError };
+export default IopeerAPI;

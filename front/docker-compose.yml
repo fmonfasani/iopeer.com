@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  agenthub-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_ENV=production
+      - REACT_APP_API_URL=http://localhost:8000
+    depends_on:
+      - agenthub-backend
+    networks:
+      - agenthub-network
+    volumes:
+      - ./logs:/var/log/nginx
+    restart: unless-stopped
+
+  agenthub-backend:
+    build:
+      context: ../back
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - AGENTHUB_ENV=production
+      - AGENTHUB_PORT=8000
+      - AGENTHUB_HOST=0.0.0.0
+    networks:
+      - agenthub-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  agenthub-network:
+    driver: bridge
+
+volumes:
+  logs:

@@ -1,188 +1,335 @@
-# Iopeer Frontend
+# 🚀 AgentHub - Marketplace de Agentes IA
 
-Frontend escalable para la plataforma de agentes IA Iopeer.
+<div align="center">
+
+![AgentHub Logo](https://via.placeholder.com/200x80/059669/FFFFFF?text=AgentHub)
+
+**El marketplace líder de agentes IA en Latinoamérica**
+
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+[![Node.js](https://img.shields.io/badge/Node.js-16%2B-green)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/React-18-blue)](https://reactjs.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue)](https://docker.com/)
+
+[Demo en Vivo](http://localhost:3000) • [Documentación](http://localhost:8000/docs) • [API](http://localhost:8000) • [Contribuir](#contribuir)
+
+</div>
+
+## ✨ Características
+
+### 🎨 Frontend Moderno
+- **React 18** con hooks y contexto
+- **Tailwind CSS** para estilos utilitarios
+- **Lucide Icons** para iconografía
+- **Diseño responsive** móvil-primero
+- **Modo oscuro** elegante
+
+### 🤖 Marketplace Completo
+- **5,000+ agentes especializados** en 6 categorías
+- **Búsqueda inteligente** con filtros avanzados
+- **Sistema de ratings** y reseñas
+- **Vista grid y lista** adaptable
+- **Agentes premium y gratuitos**
+
+### ⚡ Funcionalidades Avanzadas
+- **Modal de detalles** completo para cada agente
+- **Panel de administración** integrado
+- **Estadísticas en tiempo real** animadas
+- **Sistema de notificaciones** moderno
+- **Integración backend** con Iopeer
+
+### 🏢 Características Enterprise
+- **Docker** listo para producción
+- **Nginx** optimizado con compresión
+- **Health checks** automáticos
+- **CI/CD** con GitHub Actions
+- **Monitoreo** y logging
 
 ## 🚀 Inicio Rápido
 
+### Prerrequisitos
+
+- Node.js 16+ 
+- npm o yarn
+- Docker (opcional)
+- Python 3.11+ (para backend)
+
+### Instalación
+
 ```bash
+# Clonar el repositorio
+git clone https://github.com/tuusuario/agenthub.git
+cd agenthub
+
+# Navegar al frontend
+cd iopeer/front
+
 # Instalar dependencias
 npm install
 
-# Iniciar en desarrollo
+# Iniciar en modo desarrollo
 npm start
-
-# Construir para producción
-npm run build
 ```
 
-## 🏗️ Arquitectura
+### 🐳 Con Docker
 
-### Estructura del Proyecto
-```
-src/
-├── components/           # Componentes React
-│   ├── ui/              # Componentes de UI reutilizables
-│   ├── features/        # Componentes específicos de features
-│   └── layout/          # Componentes de layout
-├── hooks/               # Custom hooks
-├── services/            # Servicios API
-├── utils/               # Utilidades
-├── types/               # Definiciones de tipos (futuro)
-└── assets/              # Recursos estáticos
+```bash
+# Construir y ejecutar con Docker Compose
+docker-compose up --build
+
+# Solo frontend
+docker build -t agenthub-frontend .
+docker run -p 3000:80 agenthub-frontend
 ```
 
-### Conexión con Backend
-
-El frontend se conecta automáticamente con el backend de Iopeer en `http://localhost:8000`.
-
-Variables de entorno configurables en `.env`:
-- `REACT_APP_API_URL`: URL del backend
-- `REACT_APP_AUTO_RECONNECT`: Reconexión automática
-- `REACT_APP_POLLING_INTERVAL`: Intervalo de polling
-
-## 🔧 Desarrollo
-
-### Scripts Disponibles
-
-- `npm start`: Servidor de desarrollo
-- `npm run build`: Build para producción
-- `npm run build:prod`: Build optimizado
-- `npm test`: Ejecutar tests
-- `npm run analyze`: Analizar bundle size
-
-### Hooks Principales
-
-#### `useIopeer()`
-Hook principal para conexión con el backend:
-
-```javascript
-const {
-  connectionStatus,
-  agents,
-  systemHealth,
-  connect,
-  sendMessage
-} = useIopeer();
-```
-
-#### `useAgents()`
-Hook para gestión de agentes:
-
-```javascript
-const {
-  agents,
-  selectedAgent,
-  selectAgent,
-  sendMessageToAgent
-} = useAgents();
-```
-
-## 🔌 API Integration
-
-### IopeerAPI Service
-
-Servicio centralizado para todas las llamadas al backend:
-
-```javascript
-import { iopeerAPI } from './services/iopeerAPI';
-
-// Health check
-const health = await iopeerAPI.getHealth();
-
-// Obtener agentes
-const agents = await iopeerAPI.getAgents();
-
-// Enviar mensaje
-const result = await iopeerAPI.sendMessage(agentId, action, data);
-```
-
-### Error Handling
-
-Manejo robusto de errores con `IopeerAPIError`:
-
-```javascript
-try {
-  const result = await iopeerAPI.sendMessage(agentId, action, data);
-} catch (error) {
-  if (error instanceof IopeerAPIError) {
-    console.error('API Error:', error.status, error.message);
-  }
-}
-```
-
-## 🎨 Componentes UI
-
-### ErrorBoundary
-Captura errores de React y muestra interfaz de recuperación.
-
-### LoadingSpinner
-Indicador de carga reutilizable con diferentes tamaños.
-
-### IopeerLayout
-Layout principal con header, sidebar y área de contenido.
-
-### AgentCard
-Tarjeta para mostrar información de agentes con acciones.
-
-### ConnectionStatus
-Componente para mostrar el estado de conexión con el backend.
-
-## 📱 Responsive Design
-
-El frontend está optimizado para:
-- Desktop (1024px+)
-- Tablet (768px - 1024px)
-- Mobile (320px - 768px)
-
-## 🔒 Seguridad
-
-- Validación de entrada en el frontend
-- Sanitización de datos
-- Timeout de requests automático
-- Error boundaries para recuperación
-
-## 📊 Performance
-
-### Optimizaciones Implementadas
-
-- Lazy loading de componentes
-- Memoización con React.memo
-- Debounce en búsquedas
-- Bundle splitting automático
-
-### Métricas Objetivo
-
-- First Contentful Paint: < 1.5s
-- Time to Interactive: < 3s
-- Bundle size: < 500KB gzipped
-
-## 🚀 Deploy
+## 📖 Scripts Disponibles
 
 ### Desarrollo
 ```bash
+# Modo desarrollo con hot reload
+./dev.sh
+
+# Solo frontend
 npm start
+
+# Con backend integrado
+./start-agenthub.sh
 ```
 
 ### Producción
 ```bash
-npm run build:prod
-npx serve -s build
+# Build optimizado
+npm run build
+
+# Servidor de producción
+./prod.sh
+
+# Con Docker
+docker-compose up
 ```
 
-### Docker
+### Testing
 ```bash
-docker build -t iopeer-frontend .
-docker run -p 3000:80 iopeer-frontend
+# Suite completa de tests
+./test.sh
+
+# Solo tests unitarios
+npm test
+
+# Coverage
+npm test -- --coverage
+```
+
+## 🏗️ Arquitectura
+
+```
+agenthub/
+├── 🎨 iopeer/front/          # Frontend React
+│   ├── src/
+│   │   ├── components/       # Componentes React
+│   │   │   ├── features/     # Componentes de funcionalidades
+│   │   │   ├── layout/       # Componentes de layout
+│   │   │   └── ui/           # Componentes UI base
+│   │   ├── hooks/            # Custom hooks
+│   │   ├── services/         # Servicios API
+│   │   ├── data/             # Datos y constantes
+│   │   └── utils/            # Utilidades
+│   ├── public/               # Assets públicos
+│   └── build/                # Build de producción
+├── 🔧 iopeer/back/           # Backend Iopeer
+└── 📁 scripts/               # Scripts de utilidad
+```
+
+### Componentes Principales
+
+#### 🎯 Core Components
+- **App.js** - Aplicación principal
+- **Header** - Navegación y búsqueda
+- **Footer** - Footer empresarial
+- **AgentCard** - Tarjeta de agente
+- **AgentDetail** - Modal de detalles
+
+#### ⚡ Feature Components
+- **SearchFilters** - Filtros avanzados
+- **QuickActions** - Acciones rápidas
+- **StatsWidget** - Estadísticas animadas
+- **ConnectionStatus** - Estado de conexión
+
+#### 🎨 UI Components
+- **LoadingStates** - Estados de carga
+- **Notifications** - Sistema de notificaciones
+
+## 📡 API Integration
+
+### Iopeer Backend
+```javascript
+import { useIopeer } from './hooks/useIopeer';
+
+const { 
+  connectionStatus,
+  agents,
+  installAgent,
+  sendMessage 
+} = useIopeer();
+```
+
+### Endpoints Principales
+- `GET /health` - Estado del sistema
+- `GET /agents` - Lista de agentes
+- `POST /message/send` - Enviar mensaje a agente
+- `POST /marketplace/install` - Instalar agente
+
+## 🎨 Personalización
+
+### Temas y Estilos
+```css
+/* Variables CSS personalizadas */
+:root {
+  --primary-color: #059669;
+  --secondary-color: #06b6d4;
+  --background: #0f172a;
+  --surface: #1e293b;
+}
+```
+
+### Configuración
+```javascript
+// src/config/app.js
+export const APP_CONFIG = {
+  name: 'AgentHub',
+  api: 'http://localhost:8000',
+  features: {
+    darkMode: true,
+    notifications: true,
+    analytics: true
+  }
+};
+```
+
+## 🧪 Testing
+
+### Test Coverage
+- **Unit Tests**: Componentes y hooks
+- **Integration Tests**: Flujos completos
+- **E2E Tests**: Scenarios de usuario
+- **Performance Tests**: Bundle size y loading
+
+### Ejecutar Tests
+```bash
+# All tests
+npm test
+
+# Specific component
+npm test -- AgentCard
+
+# Watch mode
+npm test -- --watch
+
+# Coverage report
+npm test -- --coverage
+```
+
+## 📊 Performance
+
+### Métricas Objetivo
+- **First Contentful Paint**: < 1.5s
+- **Time to Interactive**: < 3s
+- **Bundle Size**: < 500KB gzipped
+- **Lighthouse Score**: > 90
+
+### Optimizaciones
+- Code splitting automático
+- Lazy loading de componentes
+- Compresión gzip/brotli
+- Tree shaking
+- Image optimization
+
+## 🚀 Deployment
+
+### Variables de Entorno
+
+#### Desarrollo
+```bash
+REACT_APP_ENV=development
+REACT_APP_API_URL=http://localhost:8000
+REACT_APP_DEBUG=true
+```
+
+#### Producción
+```bash
+REACT_APP_ENV=production
+REACT_APP_API_URL=https://api.agenthub.com
+REACT_APP_DEBUG=false
+```
+
+### Deploy con Docker
+```yaml
+# docker-compose.production.yml
+version: '3.8'
+services:
+  agenthub:
+    image: agenthub-frontend:latest
+    ports:
+      - "80:80"
+    environment:
+      - REACT_APP_ENV=production
 ```
 
 ## 🤝 Contribuir
 
+¡Las contribuciones son bienvenidas! 
+
+### Proceso
 1. Fork el proyecto
-2. Crear feature branch
-3. Commit cambios
-4. Push a la branch
-5. Crear Pull Request
+2. Crear feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la branch (`git push origin feature/AmazingFeature`)
+5. Abrir Pull Request
+
+### Desarrollo Local
+```bash
+# Setup inicial
+git clone https://github.com/tuusuario/agenthub.git
+cd agenthub/iopeer/front
+
+# Instalar y ejecutar
+npm install
+./dev.sh
+```
+
+### Guidelines
+- Seguir convenciones de ESLint
+- Escribir tests para nuevas features
+- Documentar componentes complejos
+- Mantener bundle size optimizado
+
+## 📝 Changelog
+
+### v1.0.0 (2024-01-20)
+- ✨ Marketplace completo con 6 categorías
+- 🎨 UI moderna con Tailwind CSS
+- ⚡ Integración con backend Iopeer
+- 🔍 Búsqueda y filtros avanzados
+- 📱 Diseño responsive completo
+- 🐳 Docker y CI/CD ready
 
 ## 📄 Licencia
 
-MIT - ver [LICENSE](LICENSE) para detalles.
+Este proyecto está bajo la licencia MIT - ver [LICENSE](LICENSE) para detalles.
+
+## 🙏 Agradecimientos
+
+- [React](https://reactjs.org/) - Framework frontend
+- [Tailwind CSS](https://tailwindcss.com/) - Framework CSS
+- [Lucide](https://lucide.dev/) - Iconos
+- [Iopeer](../back/) - Backend de agentes IA
+
+---
+
+<div align="center">
+
+**[🏠 Inicio](http://localhost:3000) • [📚 Docs](http://localhost:8000/docs) • [🐛 Issues](https://github.com/tuusuario/agenthub/issues) • [💬 Discussions](https://github.com/tuusuario/agenthub/discussions)**
+
+Hecho con ❤️ para la comunidad de IA en Latinoamérica
+
+</div>

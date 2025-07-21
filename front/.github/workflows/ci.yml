@@ -1,0 +1,63 @@
+name: AgentHub CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: iopeer/front/package-lock.json
+    
+    - name: Install dependencies
+      working-directory: ./iopeer/front
+      run: npm ci
+    
+    - name: Run tests
+      working-directory: ./iopeer/front
+      run: npm test -- --coverage --watchAll=false
+    
+    - name: Build for production
+      working-directory: ./iopeer/front
+      run: npm run build
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        directory: ./iopeer/front/coverage
+
+  build-and-deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Build Docker image
+      working-directory: ./iopeer/front
+      run: docker build -t agenthub-frontend:latest .
+    
+    - name: Save Docker image
+      run: docker save agenthub-frontend:latest | gzip > agenthub-frontend.tar.gz
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: docker-image
+        path: agenthub-frontend.tar.gz

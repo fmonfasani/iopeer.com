@@ -1,328 +1,290 @@
 // Categorías de agentes
 export const AGENT_CATEGORIES = {
-  FEATURED: 'featured',
-  DEVELOPMENT: 'development', 
-  PRODUCTIVITY: 'productivity',
-  RESEARCH: 'research',
-  CREATIVITY: 'creativity',
+  DEVELOPMENT: 'development',
+  DATA_ANALYSIS: 'data_analysis',
+  CONTENT: 'content',
+  DESIGN: 'design',
+  MARKETING: 'marketing',
   BUSINESS: 'business',
   EDUCATION: 'education',
-  LIFESTYLE: 'lifestyle'
+  PRODUCTIVITY: 'productivity'
 };
 
 export const CATEGORY_LABELS = {
-  [AGENT_CATEGORIES.FEATURED]: 'Agentes Destacados',
-  [AGENT_CATEGORIES.DEVELOPMENT]: 'Desarrollo de Software',
-  [AGENT_CATEGORIES.PRODUCTIVITY]: 'Productividad y Eficiencia',
-  [AGENT_CATEGORIES.RESEARCH]: 'Investigación y Análisis',
-  [AGENT_CATEGORIES.CREATIVITY]: 'Creatividad y Diseño',
-  [AGENT_CATEGORIES.BUSINESS]: 'Negocios y Finanzas',
-  [AGENT_CATEGORIES.EDUCATION]: 'Educación y Aprendizaje',
-  [AGENT_CATEGORIES.LIFESTYLE]: 'Estilo de Vida'
+  [AGENT_CATEGORIES.DEVELOPMENT]: 'Desarrollo',
+  [AGENT_CATEGORIES.DATA_ANALYSIS]: 'Análisis de Datos',
+  [AGENT_CATEGORIES.CONTENT]: 'Contenido',
+  [AGENT_CATEGORIES.DESIGN]: 'Diseño',
+  [AGENT_CATEGORIES.MARKETING]: 'Marketing',
+  [AGENT_CATEGORIES.BUSINESS]: 'Negocios',
+  [AGENT_CATEGORIES.EDUCATION]: 'Educación',
+  [AGENT_CATEGORIES.PRODUCTIVITY]: 'Productividad'
 };
 
-// Datos de ejemplo de agentes para el marketplace
+// Datos de agentes del marketplace
 export const MARKETPLACE_AGENTS = [
-  // Agentes de Desarrollo
+  // Desarrollo
   {
-    id: 'code-assistant-pro',
-    name: 'Code Assistant Pro',
-    description: 'Asistente de programación avanzado que ayuda con código Python, JavaScript, React y más.',
-    avatar: '👨‍💻',
+    id: 'codemaster-pro',
+    name: 'CodeMaster Pro',
     category: AGENT_CATEGORIES.DEVELOPMENT,
-    author: 'DevTools Inc.',
+    avatar: '💻',
+    description: 'Asistente de programación avanzado especializado en Python, JavaScript y React. Genera código, encuentra bugs y optimiza rendimiento.',
+    longDescription: 'CodeMaster Pro es tu compañero perfecto para el desarrollo de software. Utiliza los últimos modelos de IA para generar código limpio, detectar bugs sutiles y optimizar el rendimiento de tus aplicaciones.',
+    author: 'DevStudio',
     rating: 4.9,
     installs: 25000,
     price: 'Gratis',
     premium: false,
     verified: true,
-    tags: ['Python', 'JavaScript', 'React', 'Debugging'],
-    color: 'from-blue-400 to-purple-600',
+    tags: ['Python', 'JavaScript', 'React', 'Debugging', 'Code Review'],
+    capabilities: [
+      'Generación de código en múltiples lenguajes',
+      'Detección automática de bugs',
+      'Optimización de rendimiento',
+      'Code review inteligente',
+      'Refactoring automático'
+    ],
     demo: true,
-    capabilities: {
-      description: 'Genera código, encuentra bugs, explica algoritmos y optimiza rendimiento'
-    }
+    featured: true,
+    color: 'from-blue-500 to-purple-600'
   },
   {
-    id: 'api-builder',
-    name: 'API Builder',
-    description: 'Construye APIs REST y GraphQL automáticamente con documentación completa.',
-    avatar: '🔌',
+    id: 'api-architect',
+    name: 'API Architect',
     category: AGENT_CATEGORIES.DEVELOPMENT,
-    author: 'API Studios',
+    avatar: '🏗️',
+    description: 'Diseña y documenta APIs RESTful perfectas. Genera documentación OpenAPI automáticamente.',
+    author: 'TechFlow',
     rating: 4.7,
-    installs: 18500,
-    price: 'Premium',
-    premium: true,
-    verified: true,
-    tags: ['API', 'REST', 'GraphQL', 'Swagger'],
-    color: 'from-green-400 to-blue-500',
-    demo: true
-  },
-  {
-    id: 'database-wizard',
-    name: 'Database Wizard',
-    description: 'Optimiza consultas SQL, diseña esquemas y gestiona migraciones de base de datos.',
-    avatar: '🗄️',
-    category: AGENT_CATEGORIES.DEVELOPMENT,
-    author: 'DataOps Co.',
-    rating: 4.8,
     installs: 12000,
-    price: 'Gratis',
-    premium: false,
+    price: '$19/mes',
+    premium: true,
     verified: true,
-    tags: ['SQL', 'PostgreSQL', 'MySQL', 'MongoDB'],
-    color: 'from-gray-400 to-gray-600',
-    demo: false
+    tags: ['API', 'REST', 'OpenAPI', 'Documentation'],
+    demo: true,
+    featured: false,
+    color: 'from-green-500 to-blue-600'
   },
-
-  // Agentes de Productividad
   {
-    id: 'email-composer',
-    name: 'Email Composer',
-    description: 'Redacta emails profesionales con el tono perfecto para cada situación.',
-    avatar: '📧',
-    category: AGENT_CATEGORIES.PRODUCTIVITY,
-    author: 'Productivity Pro',
+    id: 'test-genius',
+    name: 'Test Genius',
+    category: AGENT_CATEGORIES.DEVELOPMENT,
+    avatar: '🧪',
+    description: 'Genera casos de prueba automatizados y tests unitarios para tu código.',
+    author: 'QualityLabs',
     rating: 4.6,
-    installs: 42000,
+    installs: 8500,
     price: 'Gratis',
     premium: false,
     verified: true,
-    tags: ['Email', 'Comunicación', 'Redacción'],
-    color: 'from-yellow-400 to-red-500',
-    demo: true
-  },
-  {
-    id: 'meeting-summarizer',
-    name: 'Meeting Summarizer',
-    description: 'Convierte transcripciones de reuniones en resúmenes accionables con tareas asignadas.',
-    avatar: '📋',
-    category: AGENT_CATEGORIES.PRODUCTIVITY,
-    author: 'MeetingBot LLC',
-    rating: 4.8,
-    installs: 31000,
-    price: 'Premium',
-    premium: true,
-    verified: true,
-    tags: ['Reuniones', 'Transcripción', 'Resúmenes'],
-    color: 'from-purple-400 to-pink-500',
-    demo: true
-  },
-  {
-    id: 'task-planner',
-    name: 'Smart Task Planner',
-    description: 'Organiza tu día optimizando tiempo y prioridades usando IA.',
-    avatar: '✅',
-    category: AGENT_CATEGORIES.PRODUCTIVITY,
-    author: 'TimeWise',
-    rating: 4.5,
-    installs: 28000,
-    price: 'Gratis',
-    premium: false,
-    verified: false,
-    tags: ['Planificación', 'GTD', 'Productividad'],
-    color: 'from-green-400 to-cyan-500',
-    demo: false
+    tags: ['Testing', 'Unit Tests', 'Automation'],
+    demo: true,
+    featured: false,
+    color: 'from-purple-500 to-pink-600'
   },
 
-  // Agentes de Investigación
+  // Análisis de Datos
   {
-    id: 'research-analyst',
-    name: 'Research Analyst',
-    description: 'Analiza papers académicos, extrae insights y genera reportes de investigación.',
-    avatar: '🔬',
-    category: AGENT_CATEGORIES.RESEARCH,
-    author: 'AcademicAI',
-    rating: 4.9,
-    installs: 15000,
-    price: 'Premium',
-    premium: true,
-    verified: true,
-    tags: ['Investigación', 'Papers', 'Análisis', 'Academia'],
-    color: 'from-indigo-400 to-purple-600',
-    demo: true
-  },
-  {
-    id: 'data-explorer',
-    name: 'Data Explorer',
-    description: 'Explora datasets, encuentra patrones y genera visualizaciones automáticamente.',
+    id: 'dataviz-genius',
+    name: 'DataViz Genius',
+    category: AGENT_CATEGORIES.DATA_ANALYSIS,
     avatar: '📊',
-    category: AGENT_CATEGORIES.RESEARCH,
-    author: 'DataViz Pro',
-    rating: 4.7,
-    installs: 22000,
-    price: 'Gratis',
-    premium: false,
+    description: 'Crea visualizaciones impactantes y análisis profundos de tus datos. Integración con Excel, CSV y bases de datos.',
+    longDescription: 'Transforma tus datos en insights accionables con visualizaciones profesionales y análisis estadísticos avanzados.',
+    author: 'DataPro',
+    rating: 4.8,
+    installs: 18000,
+    price: '$29/mes',
+    premium: true,
     verified: true,
-    tags: ['Datos', 'Visualización', 'Estadísticas'],
-    color: 'from-blue-400 to-indigo-600',
-    demo: true
+    tags: ['Visualización', 'Excel', 'SQL', 'Charts', 'Analytics'],
+    capabilities: [
+      'Visualizaciones interactivas',
+      'Análisis estadístico',
+      'Integración con múltiples fuentes',
+      'Reportes automatizados',
+      'Predicciones con ML'
+    ],
+    demo: true,
+    featured: true,
+    color: 'from-green-500 to-teal-600'
+  },
+  {
+    id: 'sql-master',
+    name: 'SQL Master',
+    category: AGENT_CATEGORIES.DATA_ANALYSIS,
+    avatar: '🗄️',
+    description: 'Genera consultas SQL complejas y optimiza bases de datos automáticamente.',
+    author: 'DatabasePro',
+    rating: 4.7,
+    installs: 15000,
+    price: '$39/mes',
+    premium: true,
+    verified: true,
+    tags: ['SQL', 'Database', 'Optimization'],
+    demo: true,
+    featured: false,
+    color: 'from-indigo-500 to-purple-600'
   },
 
-  // Agentes de Creatividad
+  // Contenido
   {
-    id: 'content-creator',
-    name: 'Content Creator',
-    description: 'Genera contenido para blogs, redes sociales y marketing con tu voz única.',
+    id: 'content-creator-ai',
+    name: 'Content Creator AI',
+    category: AGENT_CATEGORIES.CONTENT,
     avatar: '✍️',
-    category: AGENT_CATEGORIES.CREATIVITY,
-    author: 'Creative Studio',
-    rating: 4.6,
-    installs: 38000,
+    description: 'Genera contenido para blogs, redes sociales y marketing. Adaptado al tono de tu marca con SEO optimizado.',
+    longDescription: 'Crea contenido que conecte con tu audiencia. Desde posts de blog hasta copys publicitarios, todo optimizado para SEO.',
+    author: 'ContentHub',
+    rating: 4.7,
+    installs: 32000,
     price: 'Gratis',
     premium: false,
     verified: true,
-    tags: ['Contenido', 'Blog', 'Social Media', 'Marketing'],
-    color: 'from-pink-400 to-red-500',
-    demo: true
+    tags: ['Copywriting', 'SEO', 'Social Media', 'Blog', 'Marketing'],
+    capabilities: [
+      'Generación de contenido multicanal',
+      'Optimización SEO automática',
+      'Adaptación al tono de marca',
+      'Calendarios de contenido',
+      'Análisis de engagement'
+    ],
+    demo: true,
+    featured: true,
+    color: 'from-orange-500 to-red-600'
   },
+  {
+    id: 'social-scheduler',
+    name: 'Social Scheduler',
+    category: AGENT_CATEGORIES.CONTENT,
+    avatar: '📱',
+    description: 'Programa y optimiza publicaciones en redes sociales para máximo engagement.',
+    author: 'SocialPro',
+    rating: 4.5,
+    installs: 22000,
+    price: '$15/mes',
+    premium: true,
+    verified: true,
+    tags: ['Social Media', 'Scheduling', 'Engagement'],
+    demo: true,
+    featured: false,
+    color: 'from-pink-500 to-rose-600'
+  },
+
+  // Diseño
   {
     id: 'design-assistant',
     name: 'Design Assistant',
-    description: 'Ayuda con paletas de colores, tipografías y layouts para tus diseños.',
+    category: AGENT_CATEGORIES.DESIGN,
     avatar: '🎨',
-    category: AGENT_CATEGORIES.CREATIVITY,
-    author: 'DesignBot Inc.',
-    rating: 4.8,
-    installs: 19000,
-    price: 'Premium',
-    premium: true,
-    verified: true,
-    tags: ['Diseño', 'UI/UX', 'Colores', 'Tipografía'],
-    color: 'from-purple-400 to-pink-600',
-    demo: true
-  },
-
-  // Agentes de Negocios
-  {
-    id: 'business-analyzer',
-    name: 'Business Analyzer',
-    description: 'Analiza métricas de negocio y proporciona insights estratégicos.',
-    avatar: '💼',
-    category: AGENT_CATEGORIES.BUSINESS,
-    author: 'BizIntel Corp',
-    rating: 4.7,
-    installs: 16000,
-    price: 'Premium',
-    premium: true,
-    verified: true,
-    tags: ['Negocios', 'Métricas', 'KPIs', 'Estrategia'],
-    color: 'from-gray-600 to-gray-800',
-    demo: false
-  },
-  {
-    id: 'finance-advisor',
-    name: 'Finance Advisor',
-    description: 'Asistente financiero para presupuestos, inversiones y planificación.',
-    avatar: '💰',
-    category: AGENT_CATEGORIES.BUSINESS,
-    author: 'FinTech Solutions',
-    rating: 4.9,
-    installs: 21000,
-    price: 'Premium',
-    premium: true,
-    verified: true,
-    tags: ['Finanzas', 'Inversiones', 'Presupuestos'],
-    color: 'from-green-500 to-green-700',
-    demo: true
-  },
-
-  // Agentes de Educación
-  {
-    id: 'tutor-personal',
-    name: 'Tutor Personal',
-    description: 'Tutor personalizado que se adapta a tu estilo de aprendizaje.',
-    avatar: '🎓',
-    category: AGENT_CATEGORIES.EDUCATION,
-    author: 'EduTech Plus',
-    rating: 4.8,
-    installs: 33000,
-    price: 'Gratis',
-    premium: false,
-    verified: true,
-    tags: ['Educación', 'Tutoría', 'Aprendizaje'],
-    color: 'from-blue-500 to-indigo-600',
-    demo: true
-  },
-  {
-    id: 'language-coach',
-    name: 'Language Coach',
-    description: 'Practica conversación y mejora tu pronunciación en múltiples idiomas.',
-    avatar: '🗣️',
-    category: AGENT_CATEGORIES.EDUCATION,
-    author: 'LinguaBot',
+    description: 'Crea mockups, paletas de colores y elementos de diseño profesionales.',
+    author: 'CreativeStudio',
     rating: 4.6,
-    installs: 27000,
-    price: 'Premium',
+    installs: 14000,
+    price: '$25/mes',
     premium: true,
     verified: true,
-    tags: ['Idiomas', 'Conversación', 'Pronunciación'],
-    color: 'from-orange-400 to-red-500',
-    demo: true
+    tags: ['UI/UX', 'Mockups', 'Colors', 'Design'],
+    demo: true,
+    featured: false,
+    color: 'from-purple-500 to-pink-600'
   },
 
-  // Agentes de Estilo de Vida
+  // Marketing
   {
-    id: 'fitness-trainer',
-    name: 'Fitness Trainer',
-    description: 'Planes de ejercicio personalizados y seguimiento de progreso.',
-    avatar: '💪',
-    category: AGENT_CATEGORIES.LIFESTYLE,
-    author: 'FitLife AI',
-    rating: 4.5,
-    installs: 24000,
-    price: 'Gratis',
-    premium: false,
-    verified: false,
-    tags: ['Fitness', 'Ejercicio', 'Salud'],
-    color: 'from-red-400 to-pink-500',
-    demo: false
+    id: 'marketing-optimizer',
+    name: 'Marketing Optimizer',
+    category: AGENT_CATEGORIES.MARKETING,
+    avatar: '📈',
+    description: 'Optimiza campañas publicitarias, analiza audiencias y mejora ROI. Integración con Google Ads y Facebook.',
+    longDescription: 'Maximiza el retorno de tus campañas publicitarias con análisis inteligente y optimización automática.',
+    author: 'MarketingPro',
+    rating: 4.9,
+    installs: 15000,
+    price: '$49/mes',
+    premium: true,
+    verified: true,
+    tags: ['Google Ads', 'Facebook', 'ROI', 'Analytics', 'Optimization'],
+    capabilities: [
+      'Optimización de campañas',
+      'Análisis de audiencias',
+      'A/B testing automático',
+      'Reportes de ROI',
+      'Predicción de performance'
+    ],
+    demo: true,
+    featured: true,
+    color: 'from-purple-500 to-pink-600'
   },
   {
-    id: 'recipe-master',
-    name: 'Recipe Master',
-    description: 'Genera recetas personalizadas basadas en tus ingredientes y preferencias.',
-    avatar: '👨‍🍳',
-    category: AGENT_CATEGORIES.LIFESTYLE,
-    author: 'CookBot Pro',
-    rating: 4.7,
-    installs: 35000,
+    id: 'email-master',
+    name: 'Email Master',
+    category: AGENT_CATEGORIES.MARKETING,
+    avatar: '📧',
+    description: 'Crea campañas de email marketing efectivas con personalización avanzada.',
+    author: 'EmailPro',
+    rating: 4.4,
+    installs: 11000,
+    price: '$19/mes',
+    premium: true,
+    verified: true,
+    tags: ['Email', 'Automation', 'Personalization'],
+    demo: true,
+    featured: false,
+    color: 'from-blue-500 to-purple-600'
+  },
+
+  // Productividad
+  {
+    id: 'task-organizer',
+    name: 'Task Organizer',
+    category: AGENT_CATEGORIES.PRODUCTIVITY,
+    avatar: '📋',
+    description: 'Organiza tareas, gestiona proyectos y optimiza tu flujo de trabajo.',
+    author: 'ProductivityHub',
+    rating: 4.5,
+    installs: 19000,
     price: 'Gratis',
     premium: false,
     verified: true,
-    tags: ['Cocina', 'Recetas', 'Alimentación'],
-    color: 'from-orange-400 to-yellow-500',
-    demo: true
+    tags: ['Tasks', 'Projects', 'Workflow', 'Organization'],
+    demo: true,
+    featured: false,
+    color: 'from-emerald-500 to-cyan-600'
   }
 ];
 
 // Funciones de utilidad
 export const getAgentsByCategory = (category) => {
-  if (category === AGENT_CATEGORIES.FEATURED) {
-    return getFeaturedAgents();
-  }
   return MARKETPLACE_AGENTS.filter(agent => agent.category === category);
 };
 
 export const getFeaturedAgents = () => {
-  // Agentes destacados: los mejor valorados y más instalados
-  return MARKETPLACE_AGENTS
-    .filter(agent => agent.rating >= 4.7 || agent.installs >= 25000)
-    .sort((a, b) => b.rating - a.rating)
-    .slice(0, 8);
+  return MARKETPLACE_AGENTS.filter(agent => agent.featured);
 };
 
 export const searchAgents = (query) => {
-  const searchTerm = query.toLowerCase();
+  const lowercaseQuery = query.toLowerCase();
   return MARKETPLACE_AGENTS.filter(agent => 
-    agent.name.toLowerCase().includes(searchTerm) ||
-    agent.description.toLowerCase().includes(searchTerm) ||
-    agent.tags.some(tag => tag.toLowerCase().includes(searchTerm)) ||
-    agent.author.toLowerCase().includes(searchTerm)
+    agent.name.toLowerCase().includes(lowercaseQuery) ||
+    agent.description.toLowerCase().includes(lowercaseQuery) ||
+    agent.tags.some(tag => tag.toLowerCase().includes(lowercaseQuery))
   );
 };
 
 export const getAgentById = (id) => {
   return MARKETPLACE_AGENTS.find(agent => agent.id === id);
+};
+
+export const getAgentStats = () => {
+  return {
+    totalAgents: MARKETPLACE_AGENTS.length,
+    totalInstalls: MARKETPLACE_AGENTS.reduce((sum, agent) => sum + agent.installs, 0),
+    averageRating: MARKETPLACE_AGENTS.reduce((sum, agent) => sum + agent.rating, 0) / MARKETPLACE_AGENTS.length,
+    categoryCounts: Object.values(AGENT_CATEGORIES).reduce((counts, category) => {
+      counts[category] = getAgentsByCategory(category).length;
+      return counts;
+    }, {})
+  };
 };
