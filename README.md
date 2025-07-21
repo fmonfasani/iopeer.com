@@ -187,10 +187,10 @@ def register_user(user: UserCreate):
     try:
         # Hash password
         hashed_password = pwd_context.hash(user.password)
-        
+
         # Create user in database
         new_user = create_user_in_db(user.email, hashed_password, user.name)
-        
+
         return new_user
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -210,7 +210,7 @@ def get_products(
             filters['min_price'] = min_price
         if max_price:
             filters['max_price'] = max_price
-            
+
         products = get_filtered_products(filters)
         return products
     except Exception as e:
@@ -257,7 +257,7 @@ def test_register_user():
         "password": "secure123",
         "name": "Test User"
     })
-    
+
     assert response.status_code == 201
     assert "id" in response.json()
     assert response.json()["email"] == "test@example.com"
@@ -265,14 +265,14 @@ def test_register_user():
 def test_get_products():
     """Test GET /products"""
     response = client.get("/products")
-    
+
     assert response.status_code == 200
     assert isinstance(response.json(), list)
 
 def test_get_products_with_filters():
     """Test GET /products with filters"""
     response = client.get("/products?category=electronics&min_price=100")
-    
+
     assert response.status_code == 200
     products = response.json()
     for product in products:
@@ -318,7 +318,7 @@ curl -X POST http://localhost:8000/message/send \
       },
       {
         "endpoint": "GET /agents",
-        "status": "passed", 
+        "status": "passed",
         "actual_status": 200,
         "response_time": 0.123,
         "is_json": true
@@ -350,7 +350,7 @@ curl -X POST http://localhost:8000/workflow/start \
 ```json
 {
   "execution_id": "wf_1234567890",
-  "workflow": "api_development", 
+  "workflow": "api_development",
   "status": "completed",
   "execution_time": 12.34,
   "result": {
@@ -366,7 +366,7 @@ curl -X POST http://localhost:8000/workflow/start \
         }
       },
       "step_2": {
-        "task": "backend_agent.suggest_architecture", 
+        "task": "backend_agent.suggest_architecture",
         "result": {
           "architecture": {
             "components": ["User Service", "Post Service", "Comment Service"],
@@ -497,7 +497,7 @@ curl -X POST http://localhost:8000/message/send \
 curl -X POST http://localhost:8000/message/send \
   -H "Content-Type: application/json" \
   -d '{
-    "agent_id": "backend_agent", 
+    "agent_id": "backend_agent",
     "action": "analyze_requirements",
     "data": {
       "requirements": "API para plataforma de gaming con usuarios, perfiles de jugador, matchmaking, leaderboards, in-app purchases, chat en tiempo real, torneos y streaming."
@@ -551,7 +551,7 @@ cd front
 
 # Características activadas:
 # ✅ WebSocket real-time
-# ✅ Analytics avanzado  
+# ✅ Analytics avanzado
 # ✅ Error tracking
 # ✅ 4 temas profesionales
 # ✅ Métricas de performance

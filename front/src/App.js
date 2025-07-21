@@ -15,11 +15,11 @@ import { analyticsService } from './services/analytics';
 import { websocketService } from './services/websocket';
 
 function App() {
-  const { 
-    connectionStatus, 
-    systemHealth, 
-    loading, 
-    error, 
+  const {
+    connectionStatus,
+    systemHealth,
+    loading,
+    error,
     connect,
     isConnected
   } = useIopeer();
@@ -47,11 +47,11 @@ function App() {
 
   // 🏢 Enterprise Analytics Tracking
   useEffect(() => {
-    trackUserAction('app_loaded', { 
-      mode: 'enterprise_professional', 
-      theme: currentTheme 
+    trackUserAction('app_loaded', {
+      mode: 'enterprise_professional',
+      theme: currentTheme
     });
-    
+
     // Update enterprise stats every 3 seconds
     const interval = setInterval(() => {
       setEnterpriseStats({
@@ -70,9 +70,9 @@ function App() {
   // Track theme changes
   useEffect(() => {
     const handleThemeChange = (event) => {
-      trackUserAction('theme_changed', { 
+      trackUserAction('theme_changed', {
         newTheme: event.detail.theme,
-        previousTheme: currentTheme 
+        previousTheme: currentTheme
       });
     };
 
@@ -82,21 +82,21 @@ function App() {
 
   const handleSendMessage = async (agentId, action, data) => {
     try {
-      trackUserAction('agent_message_sent', { 
-        agentId, 
-        action, 
-        theme: currentTheme 
+      trackUserAction('agent_message_sent', {
+        agentId,
+        action,
+        theme: currentTheme
       });
-      
+
       const result = await sendMessageToAgent(agentId, action, data);
-      
+
       setNotifications(prev => [...prev, {
         id: Date.now(),
         type: 'success',
         message: `✅ Enterprise: Mensaje enviado a ${agentId}`,
         timestamp: new Date().toISOString()
       }]);
-      
+
       console.log('🏢 Enterprise Message Result:', result);
     } catch (error) {
       setNotifications(prev => [...prev, {
@@ -109,10 +109,10 @@ function App() {
   };
 
   const handleSearch = (query) => {
-    trackUserAction('enterprise_search', { 
-      query, 
+    trackUserAction('enterprise_search', {
+      query,
       timestamp: new Date().toISOString(),
-      theme: currentTheme 
+      theme: currentTheme
     });
     console.log('🏢 Enterprise Search:', query);
   };
@@ -120,7 +120,7 @@ function App() {
   // 🏢 Enterprise Metrics Component with Professional Theme
   const ProfessionalMetricsDashboard = () => {
     const themeConfig = getThemeConfig();
-    
+
     return (
       <div className="enterprise-dashboard">
         <div className="enterprise-header">
@@ -133,7 +133,7 @@ function App() {
             <div style={{fontSize: '0.875rem'}}>v2.1.0</div>
           </div>
         </div>
-        
+
         <div className="enterprise-metrics-grid">
           <div className="enterprise-metric-card">
             <div className="metric-label">Tiempo de Sesión</div>
@@ -181,13 +181,13 @@ function App() {
         <h3>🔔 Enterprise Notifications</h3>
         <div>
           {notifications.slice(-3).map(notification => (
-            <div 
+            <div
               key={notification.id}
               className={`notification-item ${notification.type}`}
             >
               <div className="notification-message">{notification.message}</div>
               <div className="notification-time">
-                {new Date(notification.timestamp).toLocaleTimeString()} • 
+                {new Date(notification.timestamp).toLocaleTimeString()} •
                 Enterprise Mode • {getThemeConfig().name}
               </div>
             </div>
@@ -200,7 +200,7 @@ function App() {
   return (
     <ErrorBoundary>
       <div className="App">
-        <IopeerLayout 
+        <IopeerLayout
           title="🏢 Iopeer Enterprise Platform"
           onSearch={handleSearch}
           notifications={notifications}
@@ -235,7 +235,7 @@ function App() {
                       Estado: {connectionStatus.toUpperCase()}
                     </div>
                     <div className="status-details">
-                      {connectionStatus === CONNECTION_STATES.CONNECTED ? 
+                      {connectionStatus === CONNECTION_STATES.CONNECTED ?
                         `Conectado a ${systemHealth?.stats?.agents || 0} agentes` :
                         'Desconectado del sistema'
                       }
@@ -243,7 +243,7 @@ function App() {
                   </div>
                   <div className={`websocket-indicator ${connectionStatus === CONNECTION_STATES.CONNECTED ? 'connected' : 'disconnected'}`}></div>
                 </div>
-                
+
                 {error && (
                   <div style={{
                     marginTop: '1rem',
@@ -256,7 +256,7 @@ function App() {
                   </div>
                 )}
               </div>
-              
+
               {/* 🏢 Professional WebSocket Status */}
               <div className="websocket-status">
                 <h3>⚡ Enterprise WebSocket</h3>
@@ -292,11 +292,11 @@ function App() {
                 <div className="enterprise-agent-section">
                   <h2>🤖 Agentes Enterprise ({agents.length})</h2>
                   <p>
-                    Con analytics profesional y tracking en tiempo real • 
-                    Tema: {getThemeConfig().name} • 
+                    Con analytics profesional y tracking en tiempo real •
+                    Tema: {getThemeConfig().name} •
                     Cache: {enterpriseStats.cacheHitRate}
                   </p>
-                  
+
                   {agents.length > 0 && selectedAgent && (
                     <div style={{
                       fontSize: '0.875rem',
@@ -312,7 +312,7 @@ function App() {
                     </div>
                   )}
                 </div>
-                
+
                 {agents.length > 0 ? (
                   <div style={{
                     display: 'grid',
@@ -322,14 +322,14 @@ function App() {
                     {agents.map((agent, index) => (
                       <div key={agent.agent_id} style={{position: 'relative'}}>
                         <div className="agent-badge">#{index + 1}</div>
-                        
-                        <div 
+
+                        <div
                           className="professional-card"
                           style={{
                             padding: '1.5rem',
                             cursor: 'pointer',
-                            border: selectedAgent?.agent_id === agent.agent_id ? 
-                              '2px solid var(--accent-primary)' : 
+                            border: selectedAgent?.agent_id === agent.agent_id ?
+                              '2px solid var(--accent-primary)' :
                               '1px solid var(--border-color)',
                             background: selectedAgent?.agent_id === agent.agent_id ?
                               'color-mix(in srgb, var(--accent-primary) 5%, var(--bg-primary))' :
@@ -337,7 +337,7 @@ function App() {
                           }}
                           onClick={() => {
                             selectAgent(agent);
-                            trackUserAction('enterprise_agent_selected', { 
+                            trackUserAction('enterprise_agent_selected', {
                               agentId: agent.agent_id,
                               agentName: agent.name,
                               timestamp: new Date().toISOString(),
@@ -373,7 +373,7 @@ function App() {
                               borderRadius: '12px',
                               fontSize: '0.75rem',
                               fontWeight: '600',
-                              background: agent.status === 'idle' ? 
+                              background: agent.status === 'idle' ?
                                 'color-mix(in srgb, var(--success) 15%, var(--bg-secondary))' :
                                 agent.status === 'busy' ?
                                 'color-mix(in srgb, var(--warning) 15%, var(--bg-secondary))' :
@@ -384,7 +384,7 @@ function App() {
                               {agent.status}
                             </span>
                           </div>
-                          
+
                           <p style={{
                             color: 'var(--text-secondary)',
                             marginBottom: '1rem',
@@ -393,7 +393,7 @@ function App() {
                           }}>
                             {agent.capabilities?.description || 'Agente especializado en IA'}
                           </p>
-                          
+
                           <div style={{
                             display: 'flex',
                             justifyContent: 'space-between',
@@ -439,7 +439,7 @@ function App() {
               <div className="enterprise-actions">
                 <h2>⚡ Enterprise Quick Actions</h2>
                 <div className="enterprise-actions-grid">
-                  <button 
+                  <button
                     onClick={() => {
                       trackUserAction('enterprise_docs_opened', { theme: currentTheme });
                       window.open('http://localhost:8000/docs', '_blank');
@@ -453,8 +453,8 @@ function App() {
                     </div>
                     <span>API Docs</span>
                   </button>
-                  
-                  <button 
+
+                  <button
                     onClick={() => {
                       trackUserAction('enterprise_health_checked', { theme: currentTheme });
                       window.open('http://localhost:8000/health', '_blank');
@@ -468,17 +468,17 @@ function App() {
                     </div>
                     <span>Health Check</span>
                   </button>
-                  
-                  <button 
+
+                  <button
                     onClick={() => {
                       trackUserAction('enterprise_websocket_test', { theme: currentTheme });
-                      websocketService.send({ 
-                        type: 'test', 
-                        data: { 
-                          timestamp: Date.now(), 
+                      websocketService.send({
+                        type: 'test',
+                        data: {
+                          timestamp: Date.now(),
                           theme: currentTheme,
                           mode: 'enterprise_professional'
-                        } 
+                        }
                       });
                     }}
                     className="enterprise-action-button btn-purple"
@@ -490,8 +490,8 @@ function App() {
                     </div>
                     <span>Test WebSocket</span>
                   </button>
-                  
-                  <button 
+
+                  <button
                     onClick={() => {
                       trackUserAction('enterprise_analytics_viewed', { theme: currentTheme });
                       console.log('🏢 Enterprise Analytics:', analytics);
@@ -536,8 +536,8 @@ function App() {
                     disabled={connectionStatus === CONNECTION_STATES.CONNECTING}
                     className="enterprise-welcome-button"
                   >
-                    {connectionStatus === CONNECTION_STATES.CONNECTING ? 
-                      '🔄 Conectando...' : 
+                    {connectionStatus === CONNECTION_STATES.CONNECTING ?
+                      '🔄 Conectando...' :
                       '🚀 Conectar a Iopeer Enterprise'
                     }
                   </button>
