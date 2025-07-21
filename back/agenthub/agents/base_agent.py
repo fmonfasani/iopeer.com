@@ -16,7 +16,11 @@ class BaseAgent(ABC):
         self.name = name or agent_id
         self.created_at = datetime.utcnow()
         self.status = "idle"
-        self.stats = {"messages_processed": 0, "errors": 0, "last_activity": None}
+        self.stats: Dict[str, Any] = {
+            "messages_processed": 0,
+            "errors": 0,
+            "last_activity": None,
+        }
         self.logger = logging.getLogger(f"{__name__}.{agent_id}")
 
     @abstractmethod

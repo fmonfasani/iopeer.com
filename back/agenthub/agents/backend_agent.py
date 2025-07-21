@@ -57,7 +57,7 @@ class {model_name}(Base):
             "suggest_architecture": self._suggest_architecture,
         }
 
-        handler = handlers.get(action)
+        handler = handlers.get(str(action))
         if not handler:
             return {
                 "status": "error",
@@ -236,7 +236,7 @@ def delete_{model_name.lower()}(item_id: int):
             return {"status": "error", "message": "Requirements text required"}
 
         # Análisis simple basado en palabras clave
-        analysis = {
+        analysis: Dict[str, Any] = {
             "suggested_frameworks": [],
             "suggested_patterns": [],
             "complexity_score": "medium",
@@ -293,7 +293,7 @@ def delete_{model_name.lower()}(item_id: int):
         project_type = data.get("type", "api")
         scale = data.get("scale", "small")
 
-        architecture = {
+        architecture: Dict[str, Any] = {
             "layers": [],
             "components": [],
             "technologies": [],
