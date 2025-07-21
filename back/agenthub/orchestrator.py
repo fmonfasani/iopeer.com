@@ -1,5 +1,6 @@
 # agenthub/orchestrator.py
 import logging
+import re
 import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
@@ -76,6 +77,14 @@ class WorkflowRegistry:
 class Orchestrator:
     """Orquestador central de AgentHub"""
 
+    # Patrón para validar tareas en formato "agente.accion"
+    TASK_REGEX = re.compile(r"^[^.]+\.[^.]+$")
+
+    @classmethod
+    def is_valid_task(cls, task: str) -> bool:
+        """Valida que la tarea tenga formato 'agent_id.action'."""
+        return bool(cls.TASK_REGEX.match(task))
+
     def __init__(self):
         self.agent_registry = AgentRegistry()
         self.workflow_registry = WorkflowRegistry()
@@ -103,6 +112,12 @@ class Orchestrator:
             parallel: Si las tareas se ejecutan en paralelo
             timeout: Timeout en segundos
         """
+        for task in tasks:
+            if not self.is_valid_task(task):
+                raise ValueError(
+                    f"Invalid task format: {task}. Use 'agent_id.action'"
+                )
+
         definition = {
             "tasks": tasks,
             "parallel": parallel,

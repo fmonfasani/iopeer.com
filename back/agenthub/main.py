@@ -355,6 +355,13 @@ async def get_workflow(workflow_name: str):
 async def register_workflow(request: WorkflowDefinitionRequest):
     """Registra un nuevo workflow"""
     try:
+        for task in request.tasks:
+            if not orchestrator.is_valid_task(task):
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Invalid task format: {task}. Use 'agent_id.action'",
+                )
+
         orchestrator.register_workflow(
             name=request.name,
             tasks=request.tasks,
@@ -368,6 +375,8 @@ async def register_workflow(request: WorkflowDefinitionRequest):
             "tasks": request.tasks,
         }
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error registering workflow: {e}")
         raise HTTPException(status_code=500, detail=str(e))
