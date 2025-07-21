@@ -83,6 +83,8 @@ registry.local.json
 .dockerignore
 
 node_modules/
+back/package.json
+back/package-lock.json
 *.sh
 *.bat
 
