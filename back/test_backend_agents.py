@@ -1,124 +1,81 @@
 #!/usr/bin/env python3
-"""
-Script de testing para agentes de backend
-"""
+"""Manual test script for the built-in agents."""
 
-import sys
-import json
-from agenthub.orchestrator import AgentRegistry, Orchestrator
+from agenthub.agents.backend_agent import BackendAgent
+from agenthub.agents.qa_agent import QAAgent
+from agenthub.orchestrator import Orchestrator
 
-def test_backend_agents():
-    """Prueba todos los agentes de backend"""
-    
-    print("🧪 Testing Backend Agents...")
+
+def test_backend_agents() -> None:
+    """Run a quick sanity check for BackendAgent and QAAgent."""
+
+    print("🧪 Testing Backend and QA Agents...")
     print("=" * 40)
-    
-    # Inicializar orquestador
+
     orchestrator = Orchestrator()
-    
-    # Test Database Architect
-    print("🏗️ Testing Database Architect...")
-    result = orchestrator.send_message("database_architect", {
-        "action": "design_schema",
-        "data": {
-            "entities": [
-                {
-                    "name": "User",
-                    "fields": [
-                        {"name": "email", "type": "VARCHAR(255)"},
-                        {"name": "password_hash", "type": "VARCHAR(255)"},
-                        {"name": "is_active", "type": "BOOLEAN", "optional": False}
-                    ]
-                }
-            ]
-        }
-    })
-    
+    orchestrator.register_agent(BackendAgent())
+    orchestrator.register_agent(QAAgent())
+
+    # BackendAgent - analyze requirements
+    print("🏗️  Testing BackendAgent.analyze_requirements...")
+    result = orchestrator.send_message(
+        "backend_agent",
+        {
+            "action": "analyze_requirements",
+            "data": {"requirements": "Simple REST API for products"},
+        },
+    )
     if result["status"] == "success":
-        print("✅ Database Architect: OK")
-        print(f"   📊 Tablas creadas: {result['data']['tables_created']}")
+        print("✅ analyze_requirements: OK")
     else:
-        print(f"❌ Database Architect: {result.get('error')}")
-    
-    # Test FastAPI Generator
-    print("\n🚀 Testing FastAPI Generator...")
-    result = orchestrator.send_message("fastapi_generator", {
-        "action": "generate_crud_endpoint", 
-        "data": {
-            "model_name": "Product",
-            "fields": [
-                {"name": "title", "type": "str"},
-                {"name": "price", "type": "float"},
-                {"name": "description", "type": "str", "optional": True}
-            ],
-            "include_auth": True
-        }
-    })
-    
+        print(f"❌ analyze_requirements: {result.get('message')}")
+
+    # BackendAgent - generate CRUD
+    print("\n🚀 Testing BackendAgent.generate_crud...")
+    result = orchestrator.send_message(
+        "backend_agent",
+        {
+            "action": "generate_crud",
+            "data": {"model_name": "Product", "operations": ["create", "read"]},
+        },
+    )
     if result["status"] == "success":
-        print("✅ FastAPI Generator: OK")
-        print(f"   📁 Archivos: {len(result['data']['files_created'])}")
+        print("✅ generate_crud: OK")
+        print(f"   Operations: {result['data']['operations']}")
     else:
-        print(f"❌ FastAPI Generator: {result.get('error')}")
-    
-    # Test Security Auditor
-    print("\n🔒 Testing Security Auditor...")
-    result = orchestrator.send_message("security_auditor", {
-        "action": "scan_vulnerabilities",
-        "data": {
-            "code_files": ["main.py", "auth.py"]
-        }
-    })
-    
+        print(f"❌ generate_crud: {result.get('message')}")
+
+    # QAAgent - security scan
+    print("\n🔒 Testing QAAgent.security_scan...")
+    result = orchestrator.send_message(
+        "qa_agent",
+        {"action": "security_scan", "data": {"target": "api", "type": "basic"}},
+    )
     if result["status"] == "success":
-        print("✅ Security Auditor: OK")
-        print(f"   🔍 Vulnerabilidades: {result['data']['vulnerabilities_found']}")
-        print(f"   📊 Score: {result['data']['security_score']}")
+        issues = len(result["data"]["security_issues"])
+        print("✅ security_scan: OK")
+        print(f"   Issues found: {issues}")
     else:
-        print(f"❌ Security Auditor: {result.get('error')}")
-    
-    # Test Test Generator
-    print("\n🧪 Testing Test Generator...")
-    result = orchestrator.send_message("test_generator", {
-        "action": "generate_api_tests",
-        "data": {
-            "endpoints": [
-                {"path": "/users", "method": "GET"},
-                {"path": "/users", "method": "POST"},
-                {"path": "/users/{user_id}", "method": "GET"}
-            ]
-        }
-    })
-    
+        print(f"❌ security_scan: {result.get('message')}")
+
+    # QAAgent - generate unit tests
+    print("\n🧪 Testing QAAgent.generate_tests...")
+    sample_code = "def add(a, b):\n    return a + b\n"
+    result = orchestrator.send_message(
+        "qa_agent",
+        {
+            "action": "generate_tests",
+            "data": {"type": "unit", "target": sample_code},
+        },
+    )
     if result["status"] == "success":
-        print("✅ Test Generator: OK")
-        print(f"   🧪 Tests generados: {result['data']['tests_generated']}")
+        print("✅ generate_tests: OK")
+        print(f"   Functions found: {result['data']['functions_found']}")
     else:
-        print(f"❌ Test Generator: {result.get('error')}")
-    
-    # Test API Documentator
-    print("\n📚 Testing API Documentator...")
-    result = orchestrator.send_message("api_documentator", {
-        "action": "generate_openapi_spec",
-        "data": {
-            "api_info": {
-                "title": "Test API",
-                "version": "1.0.0"
-            },
-            "endpoints": [
-                {"path": "/users", "method": "GET"},
-                {"path": "/products", "method": "POST"}
-            ]
-        }
-    })
-    
-    if result["status"] == "success":
-        print("✅ API Documentator: OK")
-        print(f"   📄 Endpoints documentados: {result['data']['endpoints_documented']}")
-    else:
-        print(f"❌ API Documentator: {result.get('error')}")
-    
+        print(f"❌ generate_tests: {result.get('message')}")
+
     print("\n🎉 Testing completado!")
+
 
 if __name__ == "__main__":
     test_backend_agents()
