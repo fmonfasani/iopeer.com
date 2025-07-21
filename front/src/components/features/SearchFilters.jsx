@@ -34,8 +34,8 @@ const SearchFilters = ({ filters, onFiltersChange, onClear }) => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`flex items-center space-x-2 px-4 py-2 border rounded-lg transition-colors ${
-          hasActiveFilters 
-            ? 'bg-emerald-500 text-white border-emerald-500' 
+          hasActiveFilters
+            ? 'bg-emerald-500 text-white border-emerald-500'
             : 'bg-slate-800 text-slate-300 border-slate-600 hover:border-slate-500'
         }`}
       >
@@ -50,8 +50,8 @@ const SearchFilters = ({ filters, onFiltersChange, onClear }) => {
 
       {isOpen && (
         <>
-          <div 
-            className="fixed inset-0 z-40" 
+          <div
+            className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
           />
           <div className="absolute top-12 right-0 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl z-50 w-80 p-6">
@@ -142,7 +142,7 @@ const SearchFilters = ({ filters, onFiltersChange, onClear }) => {
                     <Shield size={16} className="text-blue-400" />
                     <span className="text-slate-300 text-sm">Solo verificados</span>
                   </label>
-                  
+
                   <label className="flex items-center space-x-2 cursor-pointer">
                     <input
                       type="checkbox"

@@ -9,7 +9,7 @@ export const AgentCardSkeleton = () => (
         <div className="w-4 h-4 bg-slate-700 rounded"></div>
       </div>
     </div>
-    
+
     <div className="space-y-3">
       <div className="h-5 bg-slate-700 rounded w-3/4"></div>
       <div className="h-4 bg-slate-700 rounded w-1/2"></div>
@@ -47,7 +47,7 @@ export const StatsSkeleton = () => (
       <div className="h-6 bg-slate-700 rounded w-1/2 mb-2"></div>
       <div className="h-4 bg-slate-700 rounded w-3/4"></div>
     </div>
-    
+
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {Array.from({ length: 4 }).map((_, i) => (
         <div key={i} className="bg-slate-700/30 rounded-lg p-4 animate-pulse">
@@ -60,7 +60,7 @@ export const StatsSkeleton = () => (
         </div>
       ))}
     </div>
-    
+
     <div className="mt-6 pt-6 border-t border-slate-700">
       <div className="flex items-center justify-between mb-3">
         <div className="h-4 bg-slate-700 rounded w-32"></div>
@@ -85,10 +85,10 @@ export const FullPageLoader = ({ message = "Cargando AgentHub..." }) => (
         <div className="w-16 h-16 border-4 border-slate-700 border-t-emerald-500 rounded-full animate-spin mx-auto"></div>
         <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-cyan-400 rounded-full animate-spin mx-auto" style={{ animationDelay: '0.15s' }}></div>
       </div>
-      
+
       <h2 className="text-xl font-semibold text-white mb-2">{message}</h2>
       <p className="text-slate-400">Preparando la mejor experiencia para ti...</p>
-      
+
       <div className="mt-8 flex justify-center space-x-1">
         {Array.from({ length: 3 }).map((_, i) => (
           <div

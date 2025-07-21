@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { 
+import {
   X, Star, Download, Shield, Crown, Play, Heart, Share2,
   Clock, Users, CheckCircle, AlertCircle, ExternalLink,
   Code, Database, Palette, TrendingUp
@@ -84,7 +84,7 @@ const AgentDetail = ({ agent, isOpen, onClose, onInstall, onDemo }) => {
               <p className="text-slate-400">por {agent.author}</p>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setIsLiked(!isLiked)}
@@ -97,7 +97,7 @@ const AgentDetail = ({ agent, isOpen, onClose, onInstall, onDemo }) => {
             <button className="p-2 bg-slate-700 text-slate-400 hover:text-white rounded-lg transition-colors">
               <Share2 size={20} />
             </button>
-            <button 
+            <button
               onClick={onClose}
               className="p-2 bg-slate-700 text-slate-400 hover:text-white rounded-lg transition-colors"
             >
@@ -136,8 +136,8 @@ const AgentDetail = ({ agent, isOpen, onClose, onInstall, onDemo }) => {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 transition-colors ${
-                activeTab === tab.id 
-                  ? 'bg-slate-700 text-white border-b-2 border-emerald-500' 
+                activeTab === tab.id
+                  ? 'bg-slate-700 text-white border-b-2 border-emerald-500'
                   : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
               }`}
             >
@@ -246,9 +246,9 @@ const AgentDetail = ({ agent, isOpen, onClose, onInstall, onDemo }) => {
                       </div>
                       <div className="flex items-center space-x-1">
                         {Array.from({ length: 5 }).map((_, i) => (
-                          <Star 
-                            key={i} 
-                            className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-slate-600'}`} 
+                          <Star
+                            key={i}
+                            className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-slate-600'}`}
                           />
                         ))}
                       </div>
@@ -306,7 +306,7 @@ const AgentDetail = ({ agent, isOpen, onClose, onInstall, onDemo }) => {
                 <span>Ver documentación</span>
               </button>
             </div>
-            
+
             <button
               onClick={() => onInstall?.(agent)}
               className="bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors flex items-center space-x-2"

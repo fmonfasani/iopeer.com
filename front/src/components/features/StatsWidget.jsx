@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  TrendingUp, Users, Download, Star, 
-  ArrowUp, ArrowDown, Minus 
+import {
+  TrendingUp, Users, Download, Star,
+  ArrowUp, ArrowDown, Minus
 } from 'lucide-react';
 
 const StatsWidget = ({ agents = [], systemHealth }) => {
@@ -16,7 +16,7 @@ const StatsWidget = ({ agents = [], systemHealth }) => {
   const realStats = {
     totalAgents: agents.length || 47,
     totalInstalls: agents.reduce((sum, agent) => sum + (typeof agent.installs === 'number' ? agent.installs : 0), 0) || 156000,
-    averageRating: agents.length > 0 ? 
+    averageRating: agents.length > 0 ?
       (agents.reduce((sum, agent) => sum + agent.rating, 0) / agents.length).toFixed(1) : 4.7,
     activeUsers: systemHealth?.stats?.active_users || 2340
   };
@@ -144,7 +144,7 @@ const StatsWidget = ({ agents = [], systemHealth }) => {
                 <span className="text-xs font-medium">{stat.change}</span>
               </div>
             </div>
-            
+
             <div>
               <div className={`text-2xl font-bold ${stat.color} group-hover:scale-105 transition-transform`}>
                 {stat.value}
@@ -163,7 +163,7 @@ const StatsWidget = ({ agents = [], systemHealth }) => {
           <h4 className="text-white font-medium">Actividad reciente</h4>
           <span className="text-slate-400 text-sm">Últimas 24 horas</span>
         </div>
-        
+
         <div className="flex items-end space-x-2 h-16">
           {Array.from({ length: 12 }).map((_, i) => (
             <div
@@ -176,7 +176,7 @@ const StatsWidget = ({ agents = [], systemHealth }) => {
             />
           ))}
         </div>
-        
+
         <div className="flex justify-between text-xs text-slate-500 mt-2">
           <span>00:00</span>
           <span>12:00</span>

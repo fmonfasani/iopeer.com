@@ -49,7 +49,7 @@
 
 ### Prerrequisitos
 
-- Node.js 16+ 
+- Node.js 16+
 - npm o yarn
 - Docker (opcional)
 - Python 3.11+ (para backend)
@@ -165,11 +165,11 @@ agenthub/
 ```javascript
 import { useIopeer } from './hooks/useIopeer';
 
-const { 
+const {
   connectionStatus,
   agents,
   installAgent,
-  sendMessage 
+  sendMessage
 } = useIopeer();
 ```
 
@@ -277,7 +277,7 @@ services:
 
 ## 🤝 Contribuir
 
-¡Las contribuciones son bienvenidas! 
+¡Las contribuciones son bienvenidas!
 
 ### Proceso
 1. Fork el proyecto

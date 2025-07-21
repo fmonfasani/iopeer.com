@@ -5,7 +5,7 @@ const AgentCard = ({ agent, onInstall, onDemo }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div 
+    <div
       className="bg-slate-800 border border-slate-700 rounded-xl p-6 hover:border-slate-600 transition-all duration-300 card-hover"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -23,15 +23,15 @@ const AgentCard = ({ agent, onInstall, onDemo }) => {
 
       {/* Content */}
       <h3 className="text-lg font-bold text-white mb-2">{agent.name}</h3>
-      
+
       <div className="flex items-center space-x-2 mb-3">
         <div className="flex items-center space-x-1">
           <Star className="w-4 h-4 text-yellow-400 fill-current" />
           <span className="text-sm font-medium text-white">{agent.rating}</span>
         </div>
         <span className="text-slate-400 text-sm">
-          • {typeof agent.installs === 'number' ? 
-            (agent.installs > 1000 ? `${Math.floor(agent.installs/1000)}k` : agent.installs) : 
+          • {typeof agent.installs === 'number' ?
+            (agent.installs > 1000 ? `${Math.floor(agent.installs/1000)}k` : agent.installs) :
             agent.installs} instalaciones
         </span>
       </div>

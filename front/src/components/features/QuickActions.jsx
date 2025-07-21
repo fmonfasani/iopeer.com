@@ -1,7 +1,7 @@
 import React from 'react';
-import { 
-  ExternalLink, FileText, Activity, HelpCircle, 
-  Zap, Database, Code, Settings 
+import {
+  ExternalLink, FileText, Activity, HelpCircle,
+  Zap, Database, Code, Settings
 } from 'lucide-react';
 
 const QuickActions = ({ connectionStatus, onNotification }) => {
@@ -64,10 +64,10 @@ const QuickActions = ({ connectionStatus, onNotification }) => {
             Herramientas y recursos para desarrolladores
           </p>
         </div>
-        
+
         <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-          isConnected 
-            ? 'bg-emerald-500/20 text-emerald-400' 
+          isConnected
+            ? 'bg-emerald-500/20 text-emerald-400'
             : 'bg-red-500/20 text-red-400'
         }`}>
           {isConnected ? 'Sistema activo' : 'Sistema inactivo'}
@@ -82,20 +82,20 @@ const QuickActions = ({ connectionStatus, onNotification }) => {
             disabled={!isConnected && (action.id === 'api-docs' || action.id === 'health-check')}
             className={`group relative p-4 rounded-xl border transition-all duration-300 text-left ${
               isConnected || (action.id !== 'api-docs' && action.id !== 'health-check')
-                ? 'border-slate-600 hover:border-slate-500 hover:scale-105 cursor-pointer' 
+                ? 'border-slate-600 hover:border-slate-500 hover:scale-105 cursor-pointer'
                 : 'border-slate-700 opacity-50 cursor-not-allowed'
             }`}
           >
             <div className={`absolute inset-0 bg-gradient-to-r ${action.color} opacity-0 group-hover:opacity-10 rounded-xl transition-opacity`} />
-            
+
             <div className="relative">
               <div className={`inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-r ${action.color} text-white mb-3`}>
                 {action.icon}
               </div>
-              
+
               <h4 className="font-medium text-white mb-1">{action.label}</h4>
               <p className="text-slate-400 text-sm">{action.description}</p>
-              
+
               <div className="mt-2 flex items-center text-slate-500 group-hover:text-slate-400 transition-colors">
                 <ExternalLink size={14} />
                 <span className="ml-1 text-xs">Abrir</span>

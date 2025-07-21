@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Search, Star, Download, Shield, Crown, Play, 
+import {
+  Search, Star, Download, Shield, Crown, Play,
   Code, BarChart3, PenTool, Palette, TrendingUp,
   ArrowRight, CheckCircle, Brain, Grid3X3, List,
   Bell, MessageCircle, BarChart
@@ -18,22 +18,22 @@ import StatsWidget from './components/features/StatsWidget';
 import AnalyticsDashboard from './components/features/AnalyticsDashboard';
 import NotificationCenter from './components/features/NotificationCenter';
 import LiveChat from './components/features/LiveChat';
-import { 
-  AgentCardSkeleton, 
-  CategoryCardSkeleton, 
-  FullPageLoader 
+import {
+  AgentCardSkeleton,
+  CategoryCardSkeleton,
+  FullPageLoader
 } from './components/ui/LoadingStates';
 
 // Hooks
 import { useIopeer } from './hooks/useIopeer';
 
 // Data
-import { 
-  MARKETPLACE_AGENTS, 
-  getAgentsByCategory, 
+import {
+  MARKETPLACE_AGENTS,
+  getAgentsByCategory,
   getFeaturedAgents,
   searchAgents,
-  getAgentStats 
+  getAgentStats
 } from './data/agentCategories';
 
 function App() {
@@ -169,7 +169,7 @@ function App() {
   // Obtener agentes filtrados
   const getFilteredAgents = () => {
     let agents = [];
-    
+
     if (searchQuery.trim()) {
       agents = searchAgents(searchQuery);
     } else if (selectedCategory === 'featured') {
@@ -213,7 +213,7 @@ function App() {
       if (connectionStatus === 'connected') {
         await installAgent(agent.id);
       }
-      
+
       addNotification('success', `${agent.name} instalado`, 'El agente se instaló correctamente y está listo para usar');
     } catch (error) {
       addNotification('error', `Error al instalar ${agent.name}`, error.message);
@@ -260,7 +260,7 @@ function App() {
   };
 
   const markNotificationAsRead = (id) => {
-    setNotifications(prev => prev.map(n => 
+    setNotifications(prev => prev.map(n =>
       n.id === id ? { ...n, read: true } : n
     ));
   };
@@ -286,7 +286,7 @@ function App() {
               >
                 <Grid3X3 size={20} />
               </button>
-              
+
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-lg flex items-center justify-center">
                   <Brain className="w-5 h-5 text-slate-900" />
@@ -294,7 +294,7 @@ function App() {
                 <span className="text-xl font-bold text-white">AgentHub</span>
               </div>
             </div>
-            
+
             <nav className="hidden md:flex items-center space-x-8">
               <a href="#agentes" className="text-slate-300 hover:text-white transition-colors">
                 Agentes
@@ -305,7 +305,7 @@ function App() {
               <a href="#api" className="text-slate-300 hover:text-white transition-colors">
                 API
               </a>
-              <button 
+              <button
                 onClick={() => setShowAnalytics(true)}
                 className="text-slate-300 hover:text-white transition-colors flex items-center space-x-1"
               >
@@ -351,7 +351,7 @@ function App() {
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 bg-pattern"></div>
-        
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="mb-8 animate-fadeIn">
             <h1 className="text-5xl md:text-6xl font-bold mb-6">
@@ -361,7 +361,7 @@ function App() {
                 de Latinoamérica
               </span>
             </h1>
-            
+
             <p className="text-xl text-slate-300 mb-8 max-w-3xl mx-auto">
               Más de <span className="text-emerald-400 font-semibold">5,000 agentes especializados</span> y más
               <br />
@@ -385,11 +385,11 @@ function App() {
                   </button>
                 </div>
               </div>
-              
+
               <p className="text-slate-400 text-sm mt-4">
                 Prueba cualquier agente gratis.
                 <br />
-                O adquiere <button 
+                O adquiere <button
                   onClick={() => setShowAdmin(true)}
                   className="text-cyan-400 hover:underline"
                 >
@@ -423,19 +423,19 @@ function App() {
               health={systemHealth}
               onReconnect={connect}
             />
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <QuickActions 
+              <QuickActions
                 connectionStatus={connectionStatus}
                 onNotification={addNotification}
               />
-              
-              <StatsWidget 
+
+              <StatsWidget
                 agents={filteredAgents}
                 systemHealth={systemHealth}
               />
             </div>
-            
+
             {connectionStatus === 'connected' && backendAgents.length > 0 && (
               <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
                 <h3 className="text-lg font-semibold mb-4 flex items-center space-x-2">
@@ -521,7 +521,7 @@ function App() {
                 {searchQuery ? (
                   <>Resultados para "<span className="text-emerald-400">{searchQuery}</span>"</>
                 ) : (
-                  selectedCategory === 'featured' ? 'Agentes Destacados' : 
+                  selectedCategory === 'featured' ? 'Agentes Destacados' :
                   categories.find(c => c.id === selectedCategory)?.name || 'Agentes'
                 )}
               </h2>
@@ -530,20 +530,20 @@ function App() {
                 {filteredAgents.length > 0 && ` • ${filteredAgents.filter(a => !a.premium).length} gratuitos • ${filteredAgents.filter(a => a.premium).length} premium`}
               </p>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <SearchFilters
                 filters={filters}
                 onFiltersChange={setFilters}
                 onClear={clearFilters}
               />
-              
+
               <div className="flex items-center border border-slate-600 rounded-lg overflow-hidden">
                 <button
                   onClick={() => setViewMode('grid')}
                   className={`p-2 transition-colors ${
-                    viewMode === 'grid' 
-                      ? 'bg-emerald-500 text-white' 
+                    viewMode === 'grid'
+                      ? 'bg-emerald-500 text-white'
                       : 'text-slate-400 hover:text-white hover:bg-slate-700'
                   }`}
                   title="Vista en cuadrícula"
@@ -553,8 +553,8 @@ function App() {
                 <button
                   onClick={() => setViewMode('list')}
                   className={`p-2 transition-colors ${
-                    viewMode === 'list' 
-                      ? 'bg-emerald-500 text-white' 
+                    viewMode === 'list'
+                      ? 'bg-emerald-500 text-white'
                       : 'text-slate-400 hover:text-white hover:bg-slate-700'
                   }`}
                   title="Vista en lista"
@@ -574,8 +574,8 @@ function App() {
           ) : filteredAgents.length > 0 ? (
             <div className={`${viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6' : 'space-y-4'}`}>
               {filteredAgents.map((agent, index) => (
-                <div 
-                  key={agent.id} 
+                <div
+                  key={agent.id}
                   className="animate-fadeIn"
                   style={{animationDelay: `${index * 0.05}s`}}
                 >
@@ -593,7 +593,7 @@ function App() {
               <div className="text-6xl mb-4">🔍</div>
               <h3 className="text-xl font-semibold text-white mb-2">No se encontraron agentes</h3>
               <p className="text-slate-400 mb-6">
-                {searchQuery ? 
+                {searchQuery ?
                   'Intenta con otros términos de búsqueda o ajusta los filtros' :
                   'No hay agentes en esta categoría aún'
                 }
@@ -624,7 +624,7 @@ function App() {
             Únete a miles de empresas que ya potencian su productividad con AgentHub
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button 
+            <button
               onClick={() => {
                 addNotification('success', '🚀 ¡Bienvenido a AgentHub!', 'Explora nuestros agentes y encuentra el perfecto para tu proyecto');
                 document.getElementById('marketplace')?.scrollIntoView({ behavior: 'smooth' });
@@ -634,7 +634,7 @@ function App() {
               <span>Empezar gratis</span>
               <ArrowRight className="w-5 h-5" />
             </button>
-            <button 
+            <button
               onClick={() => setShowAdmin(true)}
               className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold hover:bg-white hover:text-emerald-600 transition-colors btn-hover-scale"
             >

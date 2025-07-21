@@ -12,16 +12,16 @@ export const useIopeer = () => {
     setConnectionStatus('connecting');
     setError(null);
     setLoading(true);
-    
+
     try {
       const health = await iopeerAPI.getHealth();
       setSystemHealth(health);
       setConnectionStatus('connected');
-      
+
       // Cargar agentes
       const agentsData = await iopeerAPI.getAgents();
       setAgents(agentsData.agents || []);
-      
+
     } catch (error) {
       setConnectionStatus('failed');
       setError(error.message);
@@ -42,11 +42,11 @@ export const useIopeer = () => {
   const installAgent = useCallback(async (agentId) => {
     try {
       const result = await iopeerAPI.installAgent(agentId);
-      
+
       // Actualizar lista de agentes instalados
       const agentsData = await iopeerAPI.getAgents();
       setAgents(agentsData.agents || []);
-      
+
       return result;
     } catch (error) {
       throw error;

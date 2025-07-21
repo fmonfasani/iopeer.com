@@ -1,5 +1,5 @@
 import React from 'react';
-import { 
+import {
   Brain, Twitter, Linkedin, Github, Mail, Phone, MapPin,
   ArrowRight, Heart
 } from 'lucide-react';
@@ -63,10 +63,10 @@ const Footer = () => {
               </div>
               <span className="text-xl font-bold text-white">AgentHub</span>
             </div>
-            
+
             <p className="text-slate-400 mb-6 leading-relaxed">
-              El marketplace líder de agentes IA en Latinoamérica. Conectamos empresas 
-              con la mejor tecnología de inteligencia artificial para potenciar su productividad 
+              El marketplace líder de agentes IA en Latinoamérica. Conectamos empresas
+              con la mejor tecnología de inteligencia artificial para potenciar su productividad
               y acelerar su transformación digital.
             </p>
 
@@ -89,7 +89,7 @@ const Footer = () => {
                 Recibe las últimas noticias y actualizaciones de AgentHub
               </p>
             </div>
-            
+
             {/* Social Links */}
             <div className="flex space-x-4">
               <a href="#" className="text-slate-400 hover:text-white transition-colors">
@@ -111,8 +111,8 @@ const Footer = () => {
               <ul className="space-y-3">
                 {section.links.map((link) => (
                   <li key={link.name}>
-                    <a 
-                      href={link.href} 
+                    <a
+                      href={link.href}
                       className="text-slate-400 hover:text-white transition-colors text-sm"
                     >
                       {link.name}
@@ -136,7 +136,7 @@ const Footer = () => {
                 <p className="text-slate-400 text-sm">contacto@agenthub.com</p>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center">
                 <Phone className="w-5 h-5 text-emerald-400" />
@@ -146,7 +146,7 @@ const Footer = () => {
                 <p className="text-slate-400 text-sm">+52 55 1234 5678</p>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center">
                 <MapPin className="w-5 h-5 text-emerald-400" />
@@ -171,7 +171,7 @@ const Footer = () => {
                 <span>en Latinoamérica</span>
               </span>
             </div>
-            
+
             <div className="flex space-x-6 text-slate-400 text-sm">
               <a href="#privacy" className="hover:text-white transition-colors">
                 Privacidad
@@ -195,7 +195,7 @@ const Footer = () => {
             ¿Necesitas una solución enterprise?
           </h3>
           <p className="text-slate-300 mb-6 max-w-2xl mx-auto">
-            Descubre cómo AgentHub puede transformar tu empresa con integraciones personalizadas, 
+            Descubre cómo AgentHub puede transformar tu empresa con integraciones personalizadas,
             soporte dedicado y la mayor biblioteca de agentes IA de Latinoamérica.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

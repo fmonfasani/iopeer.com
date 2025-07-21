@@ -266,7 +266,7 @@ export const getFeaturedAgents = () => {
 
 export const searchAgents = (query) => {
   const lowercaseQuery = query.toLowerCase();
-  return MARKETPLACE_AGENTS.filter(agent => 
+  return MARKETPLACE_AGENTS.filter(agent =>
     agent.name.toLowerCase().includes(lowercaseQuery) ||
     agent.description.toLowerCase().includes(lowercaseQuery) ||
     agent.tags.some(tag => tag.toLowerCase().includes(lowercaseQuery))

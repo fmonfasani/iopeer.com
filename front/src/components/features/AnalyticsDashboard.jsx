@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   BarChart3, TrendingUp, Users, Download, Eye, Heart,
   ArrowUp, ArrowDown, Calendar, Clock, Globe, Zap
 } from 'lucide-react';
@@ -87,7 +87,7 @@ const AnalyticsDashboard = ({ isVisible, onClose }) => {
             </h2>
             <p className="text-slate-400 mt-1">Métricas en tiempo real de AgentHub</p>
           </div>
-          
+
           <div className="flex items-center space-x-4">
             <select
               value={timeRange}
@@ -100,7 +100,7 @@ const AnalyticsDashboard = ({ isVisible, onClose }) => {
                 </option>
               ))}
             </select>
-            
+
             <button
               onClick={onClose}
               className="text-slate-400 hover:text-white transition-colors"
@@ -117,8 +117,8 @@ const AnalyticsDashboard = ({ isVisible, onClose }) => {
               key={metric.id}
               onClick={() => setActiveMetric(metric.id)}
               className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 transition-colors ${
-                activeMetric === metric.id 
-                  ? 'bg-slate-700 text-white border-b-2 border-emerald-500' 
+                activeMetric === metric.id
+                  ? 'bg-slate-700 text-white border-b-2 border-emerald-500'
                   : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
               }`}
             >
@@ -136,7 +136,7 @@ const AnalyticsDashboard = ({ isVisible, onClose }) => {
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-slate-300 text-sm">{item.label}</h3>
                   <div className={`flex items-center space-x-1 ${
-                    item.trend === 'up' ? 'text-emerald-400' : 
+                    item.trend === 'up' ? 'text-emerald-400' :
                     item.trend === 'down' ? 'text-red-400' : 'text-blue-400'
                   }`}>
                     {item.trend === 'up' && <ArrowUp size={12} />}
@@ -161,7 +161,7 @@ const AnalyticsDashboard = ({ isVisible, onClose }) => {
                 <span>Datos en tiempo real</span>
               </div>
             </div>
-            
+
             {/* Mock Chart */}
             <div className="h-64 flex items-end space-x-2">
               {Array.from({ length: 24 }).map((_, i) => (
@@ -175,7 +175,7 @@ const AnalyticsDashboard = ({ isVisible, onClose }) => {
                 />
               ))}
             </div>
-            
+
             <div className="flex justify-between text-xs text-slate-500 mt-4">
               <span>00:00</span>
               <span>06:00</span>
@@ -191,7 +191,7 @@ const AnalyticsDashboard = ({ isVisible, onClose }) => {
               <Globe className="w-5 h-5 text-cyan-400" />
               <span>Actividad en Tiempo Real</span>
             </h3>
-            
+
             <div className="space-y-3 max-h-32 overflow-y-auto">
               {[
                 { user: 'Carlos M.', action: 'instaló', agent: 'CodeMaster Pro', time: 'hace 2s' },

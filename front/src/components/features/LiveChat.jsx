@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
+import {
   MessageCircle, X, Send, Bot, User, Paperclip,
   Phone, Video, MoreHorizontal, Minimize2
 } from 'lucide-react';
@@ -61,23 +61,23 @@ const LiveChat = ({ isOpen, onToggle, onClose }) => {
 
   const getBotResponse = (userMessage) => {
     const message = userMessage.toLowerCase();
-    
+
     if (message.includes('agente') || message.includes('buscar')) {
       return '¡Perfecto! Tenemos más de 5,000 agentes especializados. ¿Qué tipo de agente necesitas? Por ejemplo: desarrollo, marketing, análisis de datos, etc.';
     }
-    
+
     if (message.includes('precio') || message.includes('costo')) {
       return 'Tenemos agentes gratuitos y premium. Los agentes gratuitos no tienen costo, mientras que los premium van desde $19/mes hasta $99/mes dependiendo de sus capacidades.';
     }
-    
+
     if (message.includes('install') || message.includes('instalar')) {
       return 'Instalar un agente es muy fácil:\n1. Busca el agente que necesitas\n2. Haz clic en "Instalar"\n3. Sigue las instrucciones de configuración\n4. ¡Listo para usar!\n\n¿Necesitas ayuda con algún agente específico?';
     }
-    
+
     if (message.includes('problema') || message.includes('error')) {
       return 'Lamento que tengas problemas. Para ayudarte mejor, ¿podrías contarme:\n• ¿Qué agente estás usando?\n• ¿Cuál es el error específico?\n• ¿Cuándo ocurrió?\n\nTambién puedes contactar a nuestro soporte técnico especializado.';
     }
-    
+
     return 'Gracias por tu mensaje. Un especialista de AgentHub se pondrá en contacto contigo pronto. Mientras tanto, puedes explorar nuestro marketplace o consultar nuestra documentación.';
   };
 
@@ -108,7 +108,7 @@ const LiveChat = ({ isOpen, onToggle, onClose }) => {
               <p className="text-xs text-emerald-400">En línea</p>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setIsMinimized(!isMinimized)}
@@ -158,7 +158,7 @@ const LiveChat = ({ isOpen, onToggle, onClose }) => {
                   </div>
                 </div>
               ))}
-              
+
               {isTyping && (
                 <div className="flex justify-start">
                   <div className="bg-slate-700 text-slate-200 rounded-2xl px-3 py-2">
@@ -170,7 +170,7 @@ const LiveChat = ({ isOpen, onToggle, onClose }) => {
                   </div>
                 </div>
               )}
-              
+
               <div ref={messagesEndRef} />
             </div>
 
@@ -195,7 +195,7 @@ const LiveChat = ({ isOpen, onToggle, onClose }) => {
                   <Send size={16} />
                 </button>
               </div>
-              
+
               <div className="flex items-center justify-between mt-2">
                 <div className="flex items-center space-x-2">
                   <button className="text-slate-400 hover:text-white transition-colors">

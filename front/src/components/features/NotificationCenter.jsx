@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   Bell, X, Check, AlertTriangle, Info, CheckCircle,
   Clock, Settings, Filter, MoreHorizontal
 } from 'lucide-react';
@@ -61,8 +61,8 @@ const NotificationCenter = ({ notifications, onDismiss, onMarkAsRead, onClearAll
 
       {isOpen && (
         <>
-          <div 
-            className="fixed inset-0 z-40" 
+          <div
+            className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
           />
           <div className="absolute top-12 right-0 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl z-50 w-96">
@@ -130,7 +130,7 @@ const NotificationCenter = ({ notifications, onDismiss, onMarkAsRead, onClearAll
                       <div className="flex-shrink-0 mt-1">
                         {getIcon(notification.type)}
                       </div>
-                      
+
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
                           <h4 className={`text-sm font-medium ${
@@ -142,16 +142,16 @@ const NotificationCenter = ({ notifications, onDismiss, onMarkAsRead, onClearAll
                             <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
                           )}
                         </div>
-                        
+
                         <p className="text-xs text-slate-400 leading-relaxed">
                           {notification.message}
                         </p>
-                        
+
                         <div className="flex items-center justify-between mt-2">
                           <span className="text-xs text-slate-500">
                             {new Date(notification.timestamp).toLocaleString()}
                           </span>
-                          
+
                           <div className="flex items-center space-x-1">
                             {!notification.read && (
                               <button
