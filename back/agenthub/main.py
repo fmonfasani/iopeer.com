@@ -140,7 +140,7 @@ async def load_agents_from_registry():
         try:
             agent_id = entry.get("id")
             agent_class_name = entry.get("class")
-            entry.get("config", {})
+            agent_config = entry.get("config", {})
 
             if not agent_id or not agent_class_name:
                 logger.warning(f"Invalid agent entry: {entry}")
@@ -153,6 +153,15 @@ async def load_agents_from_registry():
 
             # Instanciar y registrar agente
             agent_instance = agent_class()
+            agent_instance.agent_id = agent_id
+            if agent_config:
+                existing_config = getattr(agent_instance, "config", {})
+                if isinstance(existing_config, dict):
+                    existing_config.update(agent_config)
+                    agent_instance.config = existing_config
+                else:
+                    agent_instance.config = agent_config
+
             orchestrator.register_agent(agent_instance)
 
             logger.info(
