@@ -1,5 +1,5 @@
 # agenthub/agents/backend_agent.py
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
 
 from .base_agent import BaseAgent
 
