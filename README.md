@@ -542,20 +542,6 @@ curl http://localhost:8000/health
 curl http://localhost:3000
 ```
 
-### 🏢 Modo Enterprise
-
-```bash
-# Activar características enterprise
-cd front
-./start-enterprise.sh
-
-# Características activadas:
-# ✅ WebSocket real-time
-# ✅ Analytics avanzado
-# ✅ Error tracking
-# ✅ 4 temas profesionales
-# ✅ Métricas de performance
-```
 
 ---
 
