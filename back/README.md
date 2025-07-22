@@ -73,6 +73,18 @@ curl -X POST http://localhost:8000/message/send \
   -d '{"agent_id":"backend_agent","action":"analyze_requirements","data":{"requirements":"Simple API"}}'
 ```
 
+## Agent registry
+
+Agents are loaded from `registry.json` on startup. The file must contain a list
+of objects with `id`, `class` and optional `config` fields:
+
+```json
+[
+  {"id": "backend_agent", "class": "BackendAgent", "config": {}},
+  {"id": "qa_agent", "class": "QAAgent", "config": {}}
+]
+```
+
 ## Development commands
 
 Use the supplied `Makefile` for common tasks:

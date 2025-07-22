@@ -1,9 +1,12 @@
 # agenthub/config.py
 import os
+import logging
 from pathlib import Path
 from typing import Any, Dict
 
 import yaml
+
+logger = logging.getLogger(__name__)
 
 
 class Config:
@@ -23,7 +26,7 @@ class Config:
             with open(self.config_path, "r", encoding="utf-8") as f:
                 return yaml.safe_load(f) or {}
         except Exception as e:
-            print(f"Error loading config file {self.config_path}: {e}")
+            logger.error("Error loading config file %s: %s", self.config_path, e)
             return {}
 
     def _apply_defaults(self):
