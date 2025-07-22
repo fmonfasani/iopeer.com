@@ -1,54 +1,34 @@
-/**
- * Constantes globales de Iopeer
- */
-
-export const APP_CONFIG = {
-  NAME: 'Iopeer',
-  VERSION: '1.0.0',
-  DESCRIPTION: 'AI Agent Platform',
-  AUTHOR: 'Iopeer Team'
+// Constantes centralizadas para escalabilidad
+export const ROUTES = {
+  DASHBOARD: '/',
+  AGENTS: '/agents',
+  MARKETPLACE: '/marketplace',
+  WORKFLOWS: '/workflows',
+  ANALYTICS: '/analytics',
+  LEARNING: '/learning',
+  COMMUNITY: '/community',
+  SETTINGS: '/settings'
 };
 
-export const API_CONFIG = {
-  BASE_URL: process.env.REACT_APP_API_URL || 'http://localhost:8000',
-  TIMEOUT: parseInt(process.env.REACT_APP_API_TIMEOUT) || 30000,
-  RETRY_ATTEMPTS: 3,
-  RETRY_DELAY: 1000
+export const NAVIGATION_SECTIONS = {
+  MAIN: 'main',
+  LEARNING: 'learning',
+  SYSTEM: 'system'
 };
 
-export const CONNECTION_STATES = {
-  DISCONNECTED: 'disconnected',
-  CONNECTING: 'connecting',
-  CONNECTED: 'connected',
-  RECONNECTING: 'reconnecting',
-  FAILED: 'failed'
+export const BADGE_TYPES = {
+  NEW: 'new',
+  BETA: 'beta',
+  COUNT: 'count',
+  STATUS: 'status'
 };
 
-export const AGENT_STATUS = {
-  IDLE: 'idle',
-  BUSY: 'busy',
-  ERROR: 'error',
-  OFFLINE: 'offline'
-};
-
-export const EXECUTION_STATUS = {
-  PENDING: 'pending',
-  RUNNING: 'running',
-  SUCCESS: 'success',
-  FAILED: 'failed',
-  CANCELLED: 'cancelled'
-};
-
-export const NOTIFICATION_TYPES = {
-  SUCCESS: 'success',
-  ERROR: 'error',
-  WARNING: 'warning',
-  INFO: 'info'
-};
-
-export const UI_CONFIG = {
-  SIDEBAR_WIDTH: 264,
-  SIDEBAR_COLLAPSED_WIDTH: 64,
-  HEADER_HEIGHT: 64,
-  NOTIFICATION_DURATION: 5000
+export const THEME_COLORS = {
+  primary: '#98CA3F',
+  primaryDark: '#7BA428',
+  blue: '#3b82f6',
+  purple: '#8b5cf6',
+  orange: '#f59e0b',
+  red: '#ef4444',
+  green: '#10b981'
 };

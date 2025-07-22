@@ -15,15 +15,15 @@
     "uuid": "^9.0.1",
     "web-vitals": "^2.1.4"
   },
-  "devDependencies": {       
-    "tailwindcss": "^3.3.0",
-    "postcss": "^8.4.24",
-    "autoprefixer": "^10.4.14",
-    "@tailwindcss/postcss": "^0.1.0",
+  "devDependencies": {
     "@tailwindcss/line-clamp": "^0.4.4",
+    "@tailwindcss/postcss": "^0.1.0",
+    "autoprefixer": "^10.4.14",
     "eslint": "^8.45.0",
     "eslint-plugin-react": "^7.33.0",
-    "eslint-plugin-react-hooks": "^4.6.0"
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "postcss": "^8.4.24",
+    "tailwindcss": "^3.3.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -32,7 +32,9 @@
     "eject": "react-scripts eject",
     "dev": "npm start",
     "build:enterprise": "REACT_APP_ENTERPRISE=true npm run build",
-    "start:enterprise": "REACT_APP_ENTERPRISE=true npm start"
+    "start:enterprise": "REACT_APP_ENTERPRISE=true npm start",
+    "build:optimized": "GENERATE_SOURCEMAP=false INLINE_RUNTIME_CHUNK=false npm run build",
+    "build:analyze": "npm run build:optimized && npx webpack-bundle-analyzer build/static/js/*.js"
   },
   "eslintConfig": {
     "extends": [
