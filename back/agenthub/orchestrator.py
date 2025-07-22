@@ -121,9 +121,7 @@ class Orchestrator:
         """
         for task in tasks:
             if not self.is_valid_task(task):
-                raise ValueError(
-                    f"Invalid task format: {task}. Use 'agent_id.action'"
-                )
+                raise ValueError(f"Invalid task format: {task}. Use 'agent_id.action'")
 
         definition = {
             "tasks": tasks,
