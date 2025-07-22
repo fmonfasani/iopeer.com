@@ -41,11 +41,14 @@ class FastAPIGeneratorAgent(BaseAgent):
 
         model_code = "\n".join(model_lines)
 
-        endpoint_code = f"""
-@app.post('/{model_name.lower()}s/', response_model={model_name})
-def create_{model_name.lower()}(item: {model_name}):
-    {'# TODO: validate auth\n    ' if include_auth else ''}return item
-"""
+        endpoint_lines = [
+            f"@app.post('/{model_name.lower()}s/', response_model={model_name})",
+            f"def create_{model_name.lower()}(item: {model_name}):",
+        ]
+        if include_auth:
+            endpoint_lines.append("    # TODO: validate auth")
+        endpoint_lines.append("    return item")
+        endpoint_code = "\n".join(endpoint_lines)
 
         return {
             "status": "success",
