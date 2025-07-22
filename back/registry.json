@@ -1,75 +1,12 @@
-{
-  "agents": {
-    "fastapi_generator": {
-      "name": "FastAPI Code Generator",
-      "module": "agenthub.agents.fastapi_generator_agent",
-      "class": "FastAPIGeneratorAgent",
-      "description": "Genera código FastAPI automáticamente",
-      "category": "backend_development",
-      "version": "1.0.0",
-      "enabled": true
-    },
-    "database_architect": {
-      "name": "Database Architect",
-      "module": "agenthub.agents.database_architect_agent", 
-      "class": "DatabaseArchitectAgent",
-      "description": "Diseña y optimiza arquitectura de base de datos",
-      "category": "database",
-      "version": "1.0.0",
-      "enabled": true
-    },
-    "test_generator": {
-      "name": "Test Generator",
-      "module": "agenthub.agents.test_generator_agent",
-      "class": "TestGeneratorAgent", 
-      "description": "Genera tests automáticamente",
-      "category": "testing",
-      "version": "1.0.0",
-      "enabled": true
-    },
-    "security_auditor": {
-      "name": "Security Auditor",
-      "module": "agenthub.agents.security_auditor_agent",
-      "class": "SecurityAuditorAgent",
-      "description": "Realiza auditorías de seguridad",
-      "category": "security", 
-      "version": "1.0.0",
-      "enabled": true
-    },
-    "api_documentator": {
-      "name": "API Documentator",
-      "module": "agenthub.agents.api_documentator_agent",
-      "class": "APIDocumentatorAgent",
-      "description": "Genera documentación automática",
-      "category": "documentation",
-      "version": "1.0.0", 
-      "enabled": true
-    }
+[
+  {
+    "id": "backend_agent",
+    "class": "BackendAgent",
+    "config": {}
   },
-  "workflows": {
-    "backend_development": {
-      "name": "Backend Development Complete",
-      "description": "Desarrollo completo de backend desde cero",
-      "tasks": [
-        "database_architect.design_schema",
-        "fastapi_generator.generate_crud_endpoint",
-        "test_generator.generate_api_tests",
-        "security_auditor.scan_vulnerabilities",
-        "api_documentator.generate_openapi_spec"
-      ],
-      "enabled": true
-    },
-    "api_security_audit": {
-      "name": "API Security Audit",
-      "description": "Auditoría completa de seguridad de API",
-      "tasks": [
-        "security_auditor.scan_vulnerabilities",
-        "security_auditor.check_auth_security",
-        "test_generator.generate_security_tests"
-      ],
-      "enabled": true
-    }
-  },
-  "version": "2.0.0",
-  "last_updated": "2024-01-01T00:00:00Z"
-}
+  {
+    "id": "qa_agent",
+    "class": "QAAgent",
+    "config": {}
+  }
+]
