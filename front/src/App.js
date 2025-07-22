@@ -1,18 +1,16 @@
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
-import { AppProvider } from './components/providers/AppProvider';
-import { MainLayout } from './components/common';
-import AppRouter from './components/common/Router/AppRouter';
-import './assets/styles/global.css';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Agents from './components/features/Agents/Agents';
+import Marketplace from './components/features/Marketplace/Marketplace';
 
 function App() {
   return (
     <BrowserRouter>
-      <AppProvider>
-        <MainLayout>
-          <AppRouter />
-        </MainLayout>
-      </AppProvider>
+      <Routes>
+        <Route path="/" element={<h1>Home</h1>} />
+        <Route path="/agents" element={<Agents />} />
+        <Route path="/marketplace" element={<Marketplace />} />
+      </Routes>
     </BrowserRouter>
   );
 }
