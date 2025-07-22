@@ -1,6 +1,7 @@
 fastapi>=0.115.1
 requests
 types-requests
+PyYAML>=6.0
 
 # Compatibilidad con Kubernetes
 urllib3<2.0
