@@ -6,19 +6,14 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        slate: {
-          850: '#1e293b',
-          950: '#0f172a',
+        'iopeer': {
+          50: '#f0f4ff',
+          100: '#e0e7ff',
+          500: '#667eea',
+          600: '#5a67d8',
         }
       },
-      animation: {
-        'fade-in': 'fadeIn 0.6s ease-out',
-        'slide-in-left': 'slideInLeft 0.6s ease-out',
-        'slide-in-right': 'slideInRight 0.6s ease-out',
-      }
     },
   },
-  plugins: [
-    require('@tailwindcss/line-clamp'),
-  ],
+  plugins: [],
 }
