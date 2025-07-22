@@ -114,7 +114,10 @@ class TimerContext:
     """Context manager para medir tiempo"""
 
     def __init__(
-        self, collector: MetricsCollector, name: str, tags: Optional[Dict[str, str]] = None
+        self,
+        collector: MetricsCollector,
+        name: str,
+        tags: Optional[Dict[str, str]] = None,
     ):
         self.collector = collector
         self.name = name
