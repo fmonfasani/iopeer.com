@@ -1,6 +1,5 @@
 import React from 'react';
 import { BookOpen, Search } from 'lucide-react';
-import { Card } from '../../ui';
 
 const Marketplace = () => {
   return (
@@ -17,13 +16,11 @@ const Marketplace = () => {
         </div>
       </div>
       
-      <Card>
-        <Card.Content className="text-center py-12">
-          <BookOpen className="mx-auto text-gray-400 mb-4" size={64} />
-          <h3 className="text-xl font-semibold text-gray-700 mb-2">Marketplace</h3>
-          <p className="text-gray-500">Explora agentes creados por la comunidad</p>
-        </Card.Content>
-      </Card>
+      <div className="border rounded-lg p-6 text-center">
+        <BookOpen className="mx-auto text-gray-400 mb-4" size={64} />
+        <h3 className="text-xl font-semibold text-gray-700 mb-2">Marketplace</h3>
+        <p className="text-gray-500">Explora agentes creados por la comunidad</p>
+      </div>
     </div>
   );
 };
