@@ -1,4 +1,3 @@
-// src/pages/Login.jsx
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Eye, EyeOff } from 'lucide-react';
@@ -9,18 +8,22 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { setIsLoggedIn } = useAuth();
+  const { login } = useAuth();
+  const [error, setError] = useState('');
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
     
-    // Simular login (aquí integrarías con tu API)
-    setTimeout(() => {
-      if (email && password) {
-        setIsLoggedIn(true);
-      }
-      setIsLoading(false);
-    }, 1000);
+    const result = await login(email, password);
+    
+    if (!result.success) {
+      setError(result.error);
+    }
+    
+    setIsLoading(false);
   };
 
   return (
