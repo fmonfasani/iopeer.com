@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
@@ -61,8 +62,11 @@ def signin(user: SignInInput, db: Session = Depends(get_db)):
             
     access_token = create_access_token(data={"sub": db_user.email})
     
-    return {
-        "token": access_token, 
+    return JSONResponse(content={
+        "access_token": access_token,
         "token_type": "bearer",
-        "user": {"email": user.email, "id": user.id}
-    }
+        "user": {
+            "id": db_user.id,
+            "email": db_user.email
+        }
+    })

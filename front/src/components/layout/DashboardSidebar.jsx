@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
-const SuperbaseSidebar = () => {
+const DashboardSidebar = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const location = useLocation();
@@ -124,4 +124,4 @@ const SuperbaseSidebar = () => {
   );
 };
 
-export default SuperbaseSidebar;
+export default DashboardSidebar;

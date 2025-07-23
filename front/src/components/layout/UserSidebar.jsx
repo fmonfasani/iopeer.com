@@ -1,10 +1,10 @@
 import React from 'react';
-import SuperbaseSidebar from './SuperbaseSidebar';
+import DashboardSidebar from './DashboardSidebar'; 
 
-const PlatziLayout = ({ children }) => {
+const UserSidebar = ({ children }) => {
   return (
     <div className="min-h-screen bg-gray-50">
-      <SuperbaseSidebar />
+      <DashboardSidebar />
       
       {/* Main Content */}
       <main className="transition-all duration-300">
@@ -16,4 +16,4 @@ const PlatziLayout = ({ children }) => {
   );
 };
 
-export default PlatziLayout;
+export default UserSidebar;

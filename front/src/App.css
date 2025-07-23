@@ -136,6 +136,64 @@ textarea:focus {
   .slide-in-left {
     animation: slideInLeft 0.3s ease-out;
   }
+  /* Supabase-style Sidebar - Añadir al final */
+.sidebar-trigger {
+  background: linear-gradient(90deg, transparent 0%, rgba(59, 130, 246, 0.1) 100%);
+  transition: all 0.3s ease;
+}
+
+.sidebar-trigger:hover {
+  background: linear-gradient(90deg, transparent 0%, rgba(59, 130, 246, 0.2) 100%);
+}
+
+/* Smooth sidebar animations */
+.sidebar-slide-enter {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.sidebar-slide-enter-active {
+  transform: translateX(0);
+  opacity: 1;
+  transition: all 300ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.sidebar-slide-exit {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.sidebar-slide-exit-active {
+  transform: translateX(-100%);
+  opacity: 0;
+  transition: all 300ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* Backdrop blur effect */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+}
+
+/* Enhanced hover effects */
+.nav-item-hover {
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-item-hover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.nav-item-hover:hover::before {
+  left: 100%;
+}
 
 
 }

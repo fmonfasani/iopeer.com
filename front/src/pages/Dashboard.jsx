@@ -1,7 +1,7 @@
 // src/pages/Dashboard.jsx
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import UserSidebar from '../components/layout/Header';
+import UserSidebar from '../components/layout/UserSidebar';
 import Analytics from './Analytics';
 import Reports from './Reports';
 import Home from '../pages/Home';
