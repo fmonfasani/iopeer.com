@@ -17,7 +17,10 @@ from agenthub.agents.base_agent import BaseAgent
 from agenthub.agents.qa_agent import QAAgent
 from agenthub.config import config
 from agenthub.orchestrator import orchestrator
-from agenthub.auth import router as auth_router
+from agenthub.auth.routes import router as auth_router
+from sqlalchemy import text
+from agenthub.database.connection import SessionLocal
+
 
 # Logging
 logging.basicConfig(
@@ -201,7 +204,19 @@ def run_server():
         host=config.get("host", "0.0.0.0"),
         port=config.get("port", 8000),
         reload=config.get("debug", False),
+        log_level="debug"
     )
+
+@app.on_event("startup")
+def test_db():
+    try:
+        db = SessionLocal()
+        db.execute(text("SELECT 1"))
+        print("✅ Conexión a la base de datos exitosa")
+    except Exception as e:
+        print("❌ Error al conectar a la base de datos:", e)
+    finally:
+        db.close()    
 
 if __name__ == "__main__":
     run_server()
