@@ -1,18 +1,34 @@
 import React from 'react';
+import './App.css';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Agents from './components/features/Agents/Agents';
-import Marketplace from './components/features/Marketplace/Marketplace';
+import ErrorBoundary from './components/ui/ErrorBoundary';
+import Login from './pages/Login';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import Dashboard from './pages/Dashboard';
 
-function App() {
+function AppContent() {
+  const { isLoggedIn } = useAuth();
+  
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<h1>Home</h1>} />
-        <Route path="/agents" element={<Agents />} />
-        <Route path="/marketplace" element={<Marketplace />} />
-      </Routes>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        {!isLoggedIn ? (
+          <Routes>
+            <Route path="*" element={<Login />} />
+          </Routes>
+        ) : (
+          <Dashboard />
+        )}
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
+}
 export default App;

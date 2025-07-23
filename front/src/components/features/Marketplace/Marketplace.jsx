@@ -1,7 +1,48 @@
-import React from 'react';
-import { BookOpen, Search } from 'lucide-react';
+import React, { useState } from 'react';
+import { BookOpen, Search, Star, Download, Shield } from 'lucide-react';
 
 const Marketplace = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Datos mock del marketplace
+  const mockAgents = [
+    {
+      id: 'code-assistant',
+      name: 'Code Assistant',
+      description: 'Asistente de programación inteligente para múltiples lenguajes',
+      rating: 4.8,
+      downloads: 1500,
+      verified: true,
+      tags: ['Python', 'JavaScript', 'React'],
+      avatar: '💻'
+    },
+    {
+      id: 'data-analyst',
+      name: 'Data Analyst',
+      description: 'Análisis automático de datos y generación de insights',
+      rating: 4.6,
+      downloads: 890,
+      verified: true,
+      tags: ['Analytics', 'SQL', 'Charts'],
+      avatar: '📊'
+    },
+    {
+      id: 'content-writer',
+      name: 'Content Writer',
+      description: 'Generación de contenido optimizado para SEO',
+      rating: 4.5,
+      downloads: 1200,
+      verified: false,
+      tags: ['Content', 'SEO', 'Marketing'],
+      avatar: '✍️'
+    }
+  ];
+
+  const filteredAgents = mockAgents.filter(agent =>
+    agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    agent.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -11,16 +52,73 @@ const Marketplace = () => {
           <input
             type="text"
             placeholder="Buscar agentes..."
-            className="pl-10 pr-4 py-2 border rounded-lg w-64"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-64 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
       </div>
-      
-      <div className="border rounded-lg p-6 text-center">
-        <BookOpen className="mx-auto text-gray-400 mb-4" size={64} />
-        <h3 className="text-xl font-semibold text-gray-700 mb-2">Marketplace</h3>
-        <p className="text-gray-500">Explora agentes creados por la comunidad</p>
+
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 text-white">
+        <h2 className="text-xl font-bold mb-2">Descubre Agentes IA</h2>
+        <p className="text-blue-100">
+          Encuentra agentes especializados creados por la comunidad para potenciar tu productividad
+        </p>
       </div>
+
+      {filteredAgents.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredAgents.map((agent) => (
+            <div key={agent.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="text-2xl">{agent.avatar}</div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-gray-900">{agent.name}</h3>
+                      {agent.verified && (
+                        <Shield className="text-blue-500" size={16} />
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1 mt-1">
+                      <Star className="text-yellow-400 fill-current" size={14} />
+                      <span className="text-sm text-gray-600">{agent.rating}</span>
+                      <span className="text-sm text-gray-400">•</span>
+                      <span className="text-sm text-gray-600">{agent.downloads} descargas</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-gray-600 text-sm mb-4">{agent.description}</p>
+
+              <div className="flex flex-wrap gap-1 mb-4">
+                {agent.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              <button className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                <Download size={16} />
+                Instalar
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12">
+          <BookOpen className="mx-auto text-gray-400 mb-4" size={64} />
+          <h3 className="text-xl font-semibold text-gray-700 mb-2">No se encontraron agentes</h3>
+          <p className="text-gray-500">
+            {searchQuery ? 'Intenta con otros términos de búsqueda' : 'El marketplace está cargando...'}
+          </p>
+        </div>
+      )}
     </div>
   );
 };

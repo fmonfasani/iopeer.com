@@ -2,13 +2,11 @@
 <html lang="es">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#98CA3F" />
     <meta name="description" content="Iopeer - Plataforma de Agentes IA" />
     <title>Iopeer - AI Agent Platform</title>
     <style>
-      /* Loading screen */
       #loading {
         position: fixed;
         top: 0;
@@ -43,34 +41,21 @@
         0%, 100% { opacity: 1; transform: scale(1); }
         50% { opacity: 0.8; transform: scale(1.05); }
       }
-      
-      #loading h1 {
-        margin: 0 0 0.5rem 0;
-        font-size: 2rem;
-        font-weight: 800;
-      }
-      
-      #loading p {
-        margin: 0;
-        opacity: 0.9;
-      }
     </style>
   </head>
   <body>
     <noscript>Necesitas habilitar JavaScript para ejecutar Iopeer.</noscript>
     
-    <!-- Loading screen -->
     <div id="loading">
       <div class="logo">io</div>
-      <h1>Iopeer</h1>
-      <p>Cargando plataforma de agentes IA...</p>
+      <h1 style="margin: 0 0 0.5rem 0; font-size: 2rem; font-weight: 800;">Iopeer</h1>
+      <p style="margin: 0; opacity: 0.9;">Cargando plataforma de agentes IA...</p>
     </div>
     
     <div id="root"></div>
     
     <script>
-      // Ocultar loading cuando React se monte
-      window.addEventListener('DOMContentLoaded', function() {
+      window.addEventListener('load', function() {
         setTimeout(function() {
           const loading = document.getElementById('loading');
           if (loading) {
@@ -78,7 +63,7 @@
             loading.style.transition = 'opacity 0.5s ease';
             setTimeout(() => loading.remove(), 500);
           }
-        }, 1000);
+        }, 800);
       });
     </script>
   </body>
