@@ -85,4 +85,57 @@ textarea:focus {
   .responsive-padding {
     padding: 1rem;
   }
+    /* Supabase-style Sidebar Animations */
+  .sidebar-enter {
+    transform: translateX(-100%);
+  }
+
+  .sidebar-enter-active {
+    transform: translateX(0);
+    transition: transform 300ms ease-out;
+  }
+
+  .sidebar-exit {
+    transform: translateX(0);
+  }
+
+  .sidebar-exit-active {
+    transform: translateX(-100%);
+    transition: transform 300ms ease-out;
+  }
+
+  /* Hover effects */
+  .hover-trigger {
+    transition: all 0.2s ease;
+  }
+
+  .hover-trigger:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+    transform: translateX(2px);
+  }
+
+  /* Responsive sidebar */
+  @media (max-width: 768px) {
+    .sidebar-mobile {
+      width: 100vw !important;
+    }
+  }
+
+  /* Animation for sidebar appearance */
+  @keyframes slideInLeft {
+    from {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .slide-in-left {
+    animation: slideInLeft 0.3s ease-out;
+  }
+
+
 }
