@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
 import { Search, Menu, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';  
+import { Link, useNavigate } from 'react-router-dom';
+
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { logout: contextLogout, isLoggedIn } = useAuth();
+  const navigate = useNavigate();
+
+  const logout = () => {
+    contextLogout();  // llamamos la función logout del contexto para limpiar estado y token
+    navigate('/login');  // redirigimos a login
+  };
 
   return (
     <header className="bg-gray-900 text-white">
@@ -52,11 +61,23 @@ const Header = () => {
             </a>
           </nav>
 
-          {/* Login Button - Desktop */}
-          <div className="hidden md:block ml-auto">
-              <Link to="/login" className="border border-green-400 text-green-400 hover:bg-green-400 hover:text-gray-900 px-4 py-2 rounded-md text-sm font-medium transition-colors">
-                Login
-              </Link>
+          {/* Login / Logout Button */}
+            <div className="hidden md:block ml-auto">
+              {isLoggedIn ? (
+                <button
+                  onClick={logout}
+                  className="border border-green-400 text-green-400 hover:bg-green-400 hover:text-gray-900 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                >
+                  Logout
+                </button>
+              ) : (
+                <Link
+                  to="/login"
+                  className="border border-green-400 text-green-400 hover:bg-green-400 hover:text-gray-900 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                >
+                  Login
+                </Link>
+              )}
             </div>
           {/* Mobile menu button */}
           <div className="md:hidden">
