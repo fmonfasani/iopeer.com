@@ -10,14 +10,14 @@ def setup_frontend(app: FastAPI):
     """Configura servir archivos estáticos del frontend"""
 
     # Servir archivos estáticos
-    if os.path.exists("frontend/build"):
+    if os.path.exists("front/build"):
         app.mount(
-            "/static", StaticFiles(directory="frontend/build/static"), name="static"
+            "/static", StaticFiles(directory="front/build/static"), name="static"
         )
 
         @app.get("/", include_in_schema=False)
         async def serve_frontend():
-            return FileResponse("frontend/build/index.html")
+            return FileResponse("front/build/index.html")
 
     # Fallback para desarrollo
     else:
