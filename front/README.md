@@ -239,6 +239,14 @@ npm test -- --coverage
 
 ### Variables de Entorno
 
+Las siguientes variables controlan la configuración del frontend. Al menos
+`REACT_APP_API_URL` es necesaria para que la aplicación conozca la URL base de la
+API.
+
+| Variable            | Descripción                                   |
+|---------------------|-----------------------------------------------|
+| `REACT_APP_API_URL` | URL base del backend utilizado por el frontend |
+
 #### Desarrollo
 ```bash
 REACT_APP_ENV=development

@@ -1,22 +1,27 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
-from agenthub.models.user import User
-from agenthub.database.connection import get_db
-from sqlalchemy.orm import Session
-from passlib.context import CryptContext
-from agenthub.auth.utils import verify_password
-from agenthub.auth.schemas import SignInInput
 import logging
+
+from agenthub.auth.auth import create_access_token
+from agenthub.auth.schemas import SignInInput
+from agenthub.auth.utils import verify_password
+from agenthub.database.connection import get_db
+from agenthub.models.user import User
+from fastapi import APIRouter, Depends, HTTPException, status
+from passlib.context import CryptContext
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
+
 from .schemas import UserCreate
-from .utils import verify_password, create_access_token
+from .utils import create_access_token, verify_password
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
 class SigninRequest(BaseModel):
     email: str
     password: str
+
 
 @router.post("/signup", status_code=status.HTTP_201_CREATED)
 def signup(user: UserCreate, db: Session = Depends(get_db)):
@@ -27,7 +32,7 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
         logger.warning(f"El usuario {user.email} ya existe.")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El correo ya está registrado"
+            detail="El correo ya está registrado",
         )
 
     hashed_password = pwd_context.hash(user.password)
@@ -39,6 +44,7 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
     logger.info(f"Usuario {new_user.email} creado exitosamente.")
     return {"message": "Usuario creado exitosamente", "email": new_user.email}
 
+
 @router.post("/signin")
 def login(user: SignInInput, db: Session = Depends(get_db)):
     logger.info(f"Intentando iniciar sesión con email: {user.email}")
@@ -46,11 +52,17 @@ def login(user: SignInInput, db: Session = Depends(get_db)):
 
     if not db_user:
         logger.warning(f"Usuario {user.email} no encontrado.")
-        raise HTTPException(status_code=400, detail="Credenciales inválidas")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credenciales inválidas",
+        )
 
     if not verify_password(user.password, db_user.hashed_password):
         logger.warning(f"Contraseña incorrecta para {user.email}")
-        raise HTTPException(status_code=400, detail="Credenciales inválidas")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credenciales inválidas",
+        )
 
     token = create_access_token({"sub": user.email})
     logger.info(f"Usuario {user.email} autenticado exitosamente.")
