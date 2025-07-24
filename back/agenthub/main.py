@@ -6,7 +6,10 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-import uvicorn
+try:
+    import uvicorn  # type: ignore
+except Exception:  # pragma: no cover - optional dependency
+    uvicorn = None
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -150,6 +153,21 @@ async def health_check():
     }
     return {"status": "ok", "agents": agent_health}
 
+
+@app.get("/agents")
+async def list_agents():
+    agents = [agent.get_info() for agent in orchestrator.agent_registry.agents.values()]
+    return {"agents": agents, "total": len(agents)}
+
+
+@app.get("/workflows")
+async def list_workflows():
+    workflows = [
+        {"name": name, **definition}
+        for name, definition in orchestrator.workflow_registry.workflows.items()
+    ]
+    return {"workflows": workflows, "total": len(workflows)}
+
 @app.post("/agents/register")
 async def register_agent(req: AgentRegistrationRequest):
     agent_map = {
@@ -171,7 +189,9 @@ async def send_message(req: MessageRequest):
         result = orchestrator.send_message(
             req.agent_id, {"action": req.action, "data": req.data}
         )
-        return {"result": result}
+        return {"result": result, "message_sent": True}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -200,12 +220,14 @@ async def global_error_handler(_, exc):
 
 # Run app
 def run_server():
+    if uvicorn is None:
+        raise RuntimeError("uvicorn is required to run the server")
     uvicorn.run(
         "agenthub.main:app",
         host=config.get("host", "0.0.0.0"),
         port=config.get("port", 8000),
         reload=config.get("debug", False),
-        log_level="debug"
+        log_level="debug",
     )
 
 @app.on_event("startup")
