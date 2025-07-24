@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Eye, EyeOff } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -9,6 +10,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { setIsLoggedIn } = useAuth();
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [error, setError] = useState('');
 
 
@@ -16,13 +18,15 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
-    
+
     const result = await login(email, password);
-    
-    if (!result.success) {
+
+    if (result.success) {
+      navigate('/');
+    } else {
       setError(result.error);
     }
-    
+
     setIsLoading(false);
   };
 
