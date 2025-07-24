@@ -172,6 +172,8 @@ async def send_message(req: MessageRequest):
             req.agent_id, {"action": req.action, "data": req.data}
         )
         return {"result": result}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
