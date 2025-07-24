@@ -1,6 +1,6 @@
 // src/context/AuthContext.jsx
 import { createContext, useContext, useState } from 'react';
-import { loginService } from "../services/auth.service";
+import { loginRequest } from "../api/auth";
 
 const AuthContext = createContext();
 
@@ -11,23 +11,17 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await fetch('http://localhost:8000/auth/signin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-      
-      const data = await response.json();
-      
-      if (response.ok) {
+      const data = await loginRequest(email, password);
+
+      if (data.access_token) {
         setToken(data.access_token);
         localStorage.setItem('token', data.access_token);
         setIsLoggedIn(true);
         setUser(data.user);
         return { success: true };
-      } else {
-        return { success: false, error: data.detail };
       }
+
+      return { success: false, error: data.detail };
     } catch (error) {
       return { success: false, error: 'Error de conexión' };
     }
