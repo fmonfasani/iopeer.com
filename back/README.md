@@ -17,6 +17,11 @@ AgentHub is a lightweight framework for coordinating AI agents. It exposes a RES
    ```
    You can also run `make install` if you have `make` available.
 
+3. Initialize the database tables
+   ```bash
+   python -m agenthub.database.create_tables
+   ```
+
 
 ## Running the server
 

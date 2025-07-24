@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from agenthub.auth.utils import verify_password
 from agenthub.auth.schemas import SignInInput
+from agenthub.auth.auth import create_access_token
 import logging
 from .schemas import UserCreate
 
@@ -45,12 +46,22 @@ def login(user: SignInInput, db: Session = Depends(get_db)):
 
     if not db_user:
         logger.warning(f"Usuario {user.email} no encontrado.")
-        raise HTTPException(status_code=400, detail="Credenciales inválidas")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credenciales inválidas",
+        )
 
     if not verify_password(user.password, db_user.hashed_password):
         logger.warning(f"Contraseña incorrecta para {user.email}")
-        raise HTTPException(status_code=400, detail="Credenciales inválidas")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credenciales inválidas",
+        )
 
-    #token = create_access_token({"sub": user.email})
-    #logger.info(f"Usuario {user.email} autenticado exitosamente.")
-    #return {"access_token": token, "token_type": "bearer"}//
+    token = create_access_token({"sub": db_user.email})
+    logger.info(f"Usuario {user.email} autenticado exitosamente.")
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {"id": db_user.id, "email": db_user.email},
+    }
