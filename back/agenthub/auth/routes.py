@@ -8,6 +8,7 @@ from agenthub.auth.utils import verify_password
 from agenthub.auth.schemas import SignInInput
 import logging
 from .schemas import UserCreate
+from .utils import verify_password, create_access_token
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -51,6 +52,6 @@ def login(user: SignInInput, db: Session = Depends(get_db)):
         logger.warning(f"Contraseña incorrecta para {user.email}")
         raise HTTPException(status_code=400, detail="Credenciales inválidas")
 
-    #token = create_access_token({"sub": user.email})
-    #logger.info(f"Usuario {user.email} autenticado exitosamente.")
-    #return {"access_token": token, "token_type": "bearer"}//
+    token = create_access_token({"sub": user.email})
+    logger.info(f"Usuario {user.email} autenticado exitosamente.")
+    return {"access_token": token, "token_type": "bearer"}

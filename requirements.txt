@@ -21,3 +21,20 @@ pre-commit==3.7.0
 # Para desarrollo/testing
 pytest
 httpx
+
+# ORM
+sqlalchemy
+
+uvicorn
+
+python-dotenv
+
+# PostgreSQL driver
+psycopg2-binary
+
+# Seguridad de contraseñas
+passlib[bcrypt]
+
+Pydantic
+pydantic[email]
+
