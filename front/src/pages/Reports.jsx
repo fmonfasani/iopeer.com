@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Download, Filter, Calendar, TrendingUp, Users, Activity } from 'lucide-react';
+import { FileText, Download, TrendingUp, Users, Activity } from 'lucide-react';
 import { useIopeer } from '../hooks/useIopeer';
 
 const Reports = () => {

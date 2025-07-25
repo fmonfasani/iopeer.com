@@ -1,3 +1,4 @@
+# backend/agenthub/auth/oauth_routes.py (REEMPLAZAR auth0_routes.py)
 import json
 import logging
 from typing import Optional
@@ -6,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
-from .oauth_config import oauth
+from .oauth_config import oauth  # CORREGIDO: import correcto
 from .utils import create_access_token
 from ..database.connection import get_db
 from ..models.user import User
@@ -14,7 +15,7 @@ from ..models.user import User
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-FRONTEND_URL = "http://localhost:3000"
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
 @router.get("/github")
 async def github_login(request: Request):
@@ -55,7 +56,7 @@ async def github_callback(request: Request, db: Session = Depends(get_db)):
             )
 
         # Buscar o crear usuario
-        user = await get_or_create_oauth_user(
+        user = get_or_create_oauth_user(
             db=db,
             email=user_info['email'],
             provider='github',
@@ -109,7 +110,7 @@ async def google_callback(request: Request, db: Session = Depends(get_db)):
             )
 
         # Buscar o crear usuario
-        user = await get_or_create_oauth_user(
+        user = get_or_create_oauth_user(
             db=db,
             email=user_info['email'],
             provider='google',
@@ -137,14 +138,14 @@ async def google_callback(request: Request, db: Session = Depends(get_db)):
             status_code=302
         )
 
-async def get_or_create_oauth_user(
+def get_or_create_oauth_user(
     db: Session, 
     email: str, 
     provider: str, 
     provider_id: str, 
     user_data: dict
 ) -> User:
-    """Buscar o crear usuario OAuth"""
+    """Buscar o crear usuario OAuth - CORREGIDO: función síncrona"""
     
     # Buscar usuario existente por email o provider_id
     user = db.query(User).filter(

@@ -1,7 +1,8 @@
 // src/components/landing/MarketplaceSection.jsx
 import React from 'react';
-import { Star, Download, ChevronRight } from 'lucide-react';
+import { Star, Download, ChevronRight, ArrowRight, Zap, Users, Code } from 'lucide-react';
 import AgentCard from './AgentCard';
+
 
 const MarketplaceSection = ({ featuredAgents, onInstallAgent, onExploreMarketplace }) => {
   return (

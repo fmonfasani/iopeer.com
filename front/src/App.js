@@ -1,10 +1,11 @@
-// src/App.js
+// src/App.js - CORREGIDO CON OAUTH
 import React from 'react';
 import './App.css';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import Login from './pages/Login';
 import LandingPage from './pages/LandingPage';
+import OAuthCallback from './pages/OAuthCallback'; // 🆕 Callback OAuth
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Dashboard from './pages/Dashboard';
 
@@ -65,6 +66,12 @@ function AppContent() {
                 <Login />
               </PublicRoute>
             } 
+          />
+          
+          {/* 🆕 OAuth Callback Route - DEBE SER PÚBLICO */}
+          <Route 
+            path="/auth/callback" 
+            element={<OAuthCallback />} 
           />
           
           {/* Protected Routes */}

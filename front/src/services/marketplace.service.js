@@ -137,6 +137,15 @@ class MarketplaceService {
     }
     return 'BackendAgent'; // Default
   }
+  const healthCheck = async () => {
+  try {
+    const healthResponse = await iopeerAPI.getHealth();
+    return healthResponse; // ✅ Usar la variable
+  } catch (error) {
+    console.error('Health check failed:', error);
+    return null;
+  }
+};
 
   getFallbackAgents() {
     return [

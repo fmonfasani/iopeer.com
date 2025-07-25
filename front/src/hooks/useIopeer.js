@@ -169,7 +169,7 @@ export const useIopeer = () => {
     } finally {
       setLoading(false);
     }
-  }, [connectionStatus, makeRequest, handleError]);
+  }, [connectionStatus, makeRequest, handleError, clearError]); 
 
   const retry = useCallback(() => {
     if (retryTimeoutRef.current) {
@@ -187,7 +187,7 @@ export const useIopeer = () => {
         clearTimeout(retryTimeoutRef.current);
       }
     };
-  }, []); // Solo ejecutar una vez al montar
+  }, [connect]); // Solo ejecutar una vez al montar
 
   return {
     // States

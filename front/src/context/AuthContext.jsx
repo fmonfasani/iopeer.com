@@ -1,5 +1,6 @@
-// src/context/AuthContext.jsx
+// front/src/context/AuthContext.jsx - CORREGIDO CON OAUTH
 import { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const AuthContext = createContext();
 
@@ -8,6 +9,8 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Initialize auth state on mount
   useEffect(() => {
@@ -34,6 +37,51 @@ export const AuthProvider = ({ children }) => {
 
     initializeAuth();
   }, []);
+
+  // Handle OAuth callback
+  useEffect(() => {
+    const handleOAuthCallback = () => {
+      const urlParams = new URLSearchParams(location.search);
+      const token = urlParams.get('token');
+      const provider = urlParams.get('provider');
+      const error = urlParams.get('error');
+
+      if (error) {
+        console.error('OAuth Error:', error);
+        navigate('/login?error=' + error);
+        return;
+      }
+
+      if (token && provider) {
+        console.log(`✅ OAuth success with ${provider}`);
+        
+        // Store token
+        localStorage.setItem('token', token);
+        setToken(token);
+        setIsLoggedIn(true);
+
+        // Try to get user info from token (basic decode)
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          const userData = {
+            email: payload.sub,
+            provider: provider
+          };
+          setUser(userData);
+          localStorage.setItem('user', JSON.stringify(userData));
+        } catch (e) {
+          console.warn('Could not decode token:', e);
+        }
+
+        // Redirect to dashboard
+        navigate('/dashboard');
+      }
+    };
+
+    if (location.pathname === '/auth/callback') {
+      handleOAuthCallback();
+    }
+  }, [location, navigate]);
 
   const login = async (email, password) => {
     try {
@@ -66,6 +114,17 @@ export const AuthProvider = ({ children }) => {
       console.error('Login error:', error);
       return { success: false, error: 'Error de conexión. Verifica que el backend esté ejecutándose.' };
     }
+  };
+
+  // OAuth login functions
+  const loginWithGitHub = () => {
+    console.log('🔄 Iniciando login con GitHub...');
+    window.location.href = 'http://localhost:8000/auth/oauth/github';
+  };
+
+  const loginWithGoogle = () => {
+    console.log('🔄 Iniciando login con Google...');
+    window.location.href = 'http://localhost:8000/auth/oauth/google';
   };
 
   const logout = () => {
@@ -111,6 +170,8 @@ export const AuthProvider = ({ children }) => {
     token,
     loading,
     login,
+    loginWithGitHub,    // 🆕 OAuth GitHub
+    loginWithGoogle,    // 🆕 OAuth Google
     logout,
     verifyToken
   };
