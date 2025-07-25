@@ -1,229 +1,178 @@
-// src/services/marketplace.service.js
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+// front/src/services/marketplace.service.js - CORREGIDO
+import { iopeerAPI } from './iopeerAPI';
 
 class MarketplaceService {
   constructor() {
-    this.baseURL = API_BASE_URL;
+    this.featuredAgents = [
+      {
+        id: 'ui-generator',
+        name: 'UI Component Generator',
+        description: 'Genera componentes React personalizados con solo una descripción',
+        category: 'Frontend',
+        price: 'Gratis',
+        rating: 4.8,
+        installs: 1250,
+        tags: ['React', 'UI', 'Components'],
+        icon: '🎨'
+      },
+      {
+        id: 'api-builder',
+        name: 'API Builder Pro',
+        description: 'Crea APIs REST completas con autenticación y documentación',
+        category: 'Backend',
+        price: '$9.99/mes',
+        rating: 4.9,
+        installs: 890,
+        tags: ['API', 'Node.js', 'REST'],
+        icon: '⚡'
+      },
+      {
+        id: 'data-analyst',
+        name: 'Data Analyst AI',
+        description: 'Analiza datos y genera insights automáticamente',
+        category: 'Analytics',
+        price: '$19.99/mes',
+        rating: 4.7,
+        installs: 2100,
+        tags: ['Analytics', 'AI', 'Data'],
+        icon: '📊'
+      },
+      {
+        id: 'content-writer',
+        name: 'Content Writer Assistant',
+        description: 'Genera contenido optimizado para SEO y engagement',
+        category: 'Marketing',
+        price: '$14.99/mes',
+        rating: 4.6,
+        installs: 1680,
+        tags: ['Content', 'SEO', 'Marketing'],
+        icon: '✍️'
+      },
+      {
+        id: 'qa-tester',
+        name: 'QA Test Generator',
+        description: 'Genera tests automáticos para tus aplicaciones',
+        category: 'Testing',
+        price: '$12.99/mes',
+        rating: 4.5,
+        installs: 750,
+        tags: ['Testing', 'QA', 'Automation'],
+        icon: '🧪'
+      },
+      {
+        id: 'seo-optimizer',
+        name: 'SEO Optimizer',
+        description: 'Optimiza tu contenido para motores de búsqueda',
+        category: 'Marketing',
+        price: '$8.99/mes',
+        rating: 4.4,
+        installs: 920,
+        tags: ['SEO', 'Marketing', 'Optimization'],
+        icon: '🚀'
+      }
+    ];
   }
 
-  async request(endpoint, options = {}) {
-    const url = `${this.baseURL}${endpoint}`;
-    
+  async getFeaturedAgents() {
     try {
-      const response = await fetch(url, {
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers,
-        },
-        ...options,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || response.statusText);
-      }
-
-      return await response.json();
+      // Simular delay de red
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // En producción, esto vendría del backend
+      // const response = await iopeerAPI.request('/marketplace/featured');
+      // return response.agents;
+      
+      return this.featuredAgents;
     } catch (error) {
-      console.error(`Error in ${endpoint}:`, error);
+      console.error('Error loading featured agents:', error);
+      throw new Error('No se pudieron cargar los agentes destacados');
+    }
+  }
+
+  async getAgentById(agentId) {
+    try {
+      const agents = await this.getFeaturedAgents();
+      const agent = agents.find(a => a.id === agentId);
+      
+      if (!agent) {
+        throw new Error(`Agente ${agentId} no encontrado`);
+      }
+      
+      return agent;
+    } catch (error) {
+      console.error(`Error loading agent ${agentId}:`, error);
       throw error;
     }
   }
 
-  // Obtener agentes featured del marketplace
-  async getFeaturedAgents() {
-    try {
-      // Como el backend actual no tiene endpoint específico de marketplace,
-      // vamos a usar los agentes del sistema y transformarlos
-      const agentsResponse = await this.request('/agents');
-      const agents = agentsResponse.agents || [];
-
-      // Transformar agentes del backend a formato del marketplace
-      return agents.map((agent, index) => ({
-        id: agent.agent_id,
-        name: agent.name,
-        description: agent.capabilities?.description || 'Agente especializado en automatización',
-        rating: 4.5 + (Math.random() * 0.5), // Rating simulado
-        downloads: `${Math.floor(Math.random() * 50) + 10}K+`,
-        price: index % 3 === 0 ? 'Gratis' : `$${(index + 1) * 19}/mes`,
-        badge: this.getRandomBadge(index),
-        color: this.getRandomColor(index),
-        icon: this.getRandomIcon(index),
-        features: agent.capabilities?.actions?.slice(0, 4) || ['AI', 'Automation'],
-        capabilities: agent.capabilities
-      }));
-    } catch (error) {
-      // Fallback a agentes estáticos si el backend no está disponible
-      return this.getFallbackAgents();
-    }
-  }
-
-  // Instalar un agente (simular instalación por ahora)
   async installAgent(agent) {
     try {
-      // Intentar registrar el agente en el backend si no existe
-      await this.request('/agents/register', {
-        method: 'POST',
-        body: JSON.stringify({
-          agent_id: agent.id,
-          agent_type: this.mapToBackendType(agent),
-          config: agent.capabilities || {}
-        })
-      });
-
-      return { success: true, message: 'Agente instalado correctamente' };
+      console.log(`📦 Instalando agente: ${agent.name}`);
+      
+      // Simular instalación
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // En producción, esto iría al backend
+      // const response = await iopeerAPI.installAgent(agent.id);
+      
+      console.log(`✅ Agente ${agent.name} instalado correctamente`);
+      
+      return {
+        success: true,
+        message: `${agent.name} se instaló correctamente`,
+        agent: agent
+      };
     } catch (error) {
-      // Simular instalación exitosa si el backend no responde
-      console.warn('Backend not available, simulating installation');
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simular delay
-      return { success: true, message: 'Agente instalado correctamente (simulado)' };
+      console.error(`Error installing agent ${agent.name}:`, error);
+      throw new Error(`No se pudo instalar ${agent.name}`);
     }
   }
 
-  // Obtener estadísticas del marketplace
-  async getMarketplaceStats() {
+  async searchAgents(query) {
     try {
-      const [agentsResponse, healthResponse] = await Promise.all([
-        this.request('/agents'),
-        this.request('/health')
-      ]);
-
-      return {
-        totalAgents: agentsResponse.total || agentsResponse.agents?.length || 0,
-        totalUsers: '10K+', // Hardcoded por ahora
-        uptime: '99.9%', // Hardcoded por ahora
-        activeAgents: agentsResponse.agents?.filter(a => a.status === 'idle').length || 0
-      };
-    } catch (error) {
-      return {
-        totalAgents: 150,
-        totalUsers: '10K+',
-        uptime: '99.9%',
-        activeAgents: 6
-      };
-    }
-  }
-
-  // Métodos auxiliares
-  getRandomBadge(index) {
-    const badges = ['Más vendido', 'Premium', 'Enterprise', 'Nuevo', 'Popular', 'Pro'];
-    return badges[index % badges.length];
-  }
-
-  getRandomColor(index) {
-    const colors = [
-      'from-blue-500 to-purple-600',
-      'from-green-500 to-teal-600',
-      'from-purple-500 to-pink-600',
-      'from-orange-500 to-red-600',
-      'from-cyan-500 to-blue-600',
-      'from-red-500 to-pink-600'
-    ];
-    return colors[index % colors.length];
-  }
-
-  getRandomIcon(index) {
-    const icons = ['💻', '📊', '📈', '🎨', '🔧', '🛡️'];
-    return icons[index % icons.length];
-  }
-
-  mapToBackendType(agent) {
-    // Mapear tipos de agentes del marketplace a tipos del backend
-    if (agent.name.toLowerCase().includes('backend') || agent.name.toLowerCase().includes('code')) {
-      return 'BackendAgent';
-    }
-    if (agent.name.toLowerCase().includes('qa') || agent.name.toLowerCase().includes('test')) {
-      return 'QAAgent';
-    }
-    return 'BackendAgent'; // Default
-  }
-  const healthCheck = async () => {
-  try {
-    const healthResponse = await iopeerAPI.getHealth();
-    return healthResponse; // ✅ Usar la variable
-  } catch (error) {
-    console.error('Health check failed:', error);
-    return null;
-  }
-};
-
-  getFallbackAgents() {
-    return [
-      {
-        id: 'codemaster-pro',
-        name: 'CodeMaster Pro',
-        description: 'Asistente de programación avanzado con IA para múltiples lenguajes',
-        rating: 4.9,
-        downloads: '25K+',
-        price: 'Gratis',
-        badge: 'Más vendido',
-        color: 'from-blue-500 to-purple-600',
-        icon: '💻',
-        features: ['Python', 'JavaScript', 'React', 'Debugging']
-      },
-      {
-        id: 'dataviz-genius',
-        name: 'DataViz Genius',
-        description: 'Visualización de datos empresarial con análisis predictivo',
-        rating: 4.8,
-        downloads: '18K+',
-        price: '$29/mes',
-        badge: 'Premium',
-        color: 'from-green-500 to-teal-600',
-        icon: '📊',
-        features: ['Analytics', 'Charts', 'Excel', 'SQL']
-      },
-      {
-        id: 'marketing-optimizer',
-        name: 'Marketing Optimizer',
-        description: 'Optimización automática de campañas publicitarias',
-        rating: 4.9,
-        downloads: '15K+',
-        price: '$49/mes',
-        badge: 'Enterprise',
-        color: 'from-purple-500 to-pink-600',
-        icon: '📈',
-        features: ['Google Ads', 'Facebook', 'Analytics', 'ROI']
-      },
-      {
-        id: 'ui-generator',
-        name: 'UI Generator',
-        description: 'Genera componentes React automáticamente desde texto',
-        rating: 4.7,
-        downloads: '22K+',
-        price: '$19/mes',
-        badge: 'Nuevo',
-        color: 'from-orange-500 to-red-600',
-        icon: '🎨',
-        features: ['React', 'Tailwind', 'Components', 'Export']
-      },
-      {
-        id: 'api-builder',
-        name: 'API Builder',
-        description: 'Construye APIs REST completas en minutos',
-        rating: 4.6,
-        downloads: '19K+',
-        price: '$39/mes',
-        badge: 'Popular',
-        color: 'from-cyan-500 to-blue-600',
-        icon: '🔧',
-        features: ['FastAPI', 'Database', 'Auth', 'Deploy']
-      },
-      {
-        id: 'security-scanner',
-        name: 'Security Scanner',
-        description: 'Auditoría de seguridad automatizada para aplicaciones',
-        rating: 4.8,
-        downloads: '11K+',
-        price: '$59/mes',
-        badge: 'Pro',
-        color: 'from-red-500 to-pink-600',
-        icon: '🛡️',
-        features: ['Vulnerability', 'Audit', 'Compliance', 'Reports']
+      const allAgents = await this.getFeaturedAgents();
+      
+      if (!query || query.trim() === '') {
+        return allAgents;
       }
-    ];
+      
+      const searchTerm = query.toLowerCase();
+      return allAgents.filter(agent => 
+        agent.name.toLowerCase().includes(searchTerm) ||
+        agent.description.toLowerCase().includes(searchTerm) ||
+        agent.tags.some(tag => tag.toLowerCase().includes(searchTerm)) ||
+        agent.category.toLowerCase().includes(searchTerm)
+      );
+    } catch (error) {
+      console.error('Error searching agents:', error);
+      throw new Error('Error en la búsqueda de agentes');
+    }
+  }
+
+  async getAgentsByCategory(category) {
+    try {
+      const allAgents = await this.getFeaturedAgents();
+      return allAgents.filter(agent => 
+        agent.category.toLowerCase() === category.toLowerCase()
+      );
+    } catch (error) {
+      console.error(`Error loading agents for category ${category}:`, error);
+      throw new Error(`Error cargando agentes de ${category}`);
+    }
+  }
+
+  // ✅ FUNCIÓN ARREGLADA - Ahora está correctamente dentro de la clase
+  async healthCheck() {
+    try {
+      const healthResponse = await iopeerAPI.getHealth();
+      return healthResponse; // ✅ Variable utilizada correctamente
+    } catch (error) {
+      console.error('Health check failed:', error);
+      return null;
+    }
   }
 }
 
+// Singleton instance
 export const marketplaceService = new MarketplaceService();
 export default MarketplaceService;

@@ -17,7 +17,6 @@ const Agents = () => {
     activeAgents,
     agentCount,
     retry,
-    clearError
   } = useAgents();
   
   const navigate = useNavigate();
