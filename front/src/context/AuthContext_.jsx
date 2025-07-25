@@ -1,4 +1,4 @@
-// front/src/context/AuthContext.jsx - AJUSTADO PARA MODELO SIMPLIFICADO
+// front/src/context/AuthContext.jsx - CORREGIDO CON OAUTH
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -65,9 +65,7 @@ export const AuthProvider = ({ children }) => {
           const payload = JSON.parse(atob(token.split('.')[1]));
           const userData = {
             email: payload.sub,
-            provider: provider,
-            // Campos simplificados - solo lo que tenemos en el modelo
-            id: payload.user_id || null
+            provider: provider
           };
           setUser(userData);
           localStorage.setItem('user', JSON.stringify(userData));
@@ -87,8 +85,6 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      console.log('🔄 Attempting login...');
-      
       const response = await fetch('http://localhost:8000/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -96,17 +92,10 @@ export const AuthProvider = ({ children }) => {
       });
 
       const data = await response.json();
-      console.log('📡 Login response:', data);
 
       if (response.ok) {
         const authToken = data.access_token;
-        
-        // Usar datos simplificados - solo lo que necesitamos
-        const userData = {
-          email: email, // Usamos el email del input
-          id: data.user?.id || null,
-          // No incluir campos que no existen en el modelo
-        };
+        const userData = data.user || { email };
 
         // Update state
         setToken(authToken);
@@ -117,18 +106,13 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('token', authToken);
         localStorage.setItem('user', JSON.stringify(userData));
         
-        console.log('✅ Login successful');
         return { success: true, user: userData };
       } else {
-        console.error('❌ Login failed:', data);
         return { success: false, error: data.detail || 'Error de autenticación' };
       }
     } catch (error) {
-      console.error('❌ Login error:', error);
-      return { 
-        success: false, 
-        error: 'Error de conexión. Verifica que el backend esté ejecutándose.' 
-      };
+      console.error('Login error:', error);
+      return { success: false, error: 'Error de conexión. Verifica que el backend esté ejecutándose.' };
     }
   };
 
@@ -153,7 +137,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     
-    console.log('✅ User logged out');
+    console.log('User logged out');
   };
 
   // Check if token is valid (you can expand this to verify with backend)
@@ -186,8 +170,8 @@ export const AuthProvider = ({ children }) => {
     token,
     loading,
     login,
-    loginWithGitHub,
-    loginWithGoogle,
+    loginWithGitHub,    // 🆕 OAuth GitHub
+    loginWithGoogle,    // 🆕 OAuth Google
     logout,
     verifyToken
   };

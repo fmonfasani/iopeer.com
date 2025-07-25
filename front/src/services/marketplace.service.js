@@ -1,4 +1,4 @@
-// front/src/services/marketplace.service.js - CORREGIDO
+// front/src/services/marketplace.service.js - CON FUNCIÓN FALTANTE AGREGADA
 import { iopeerAPI } from './iopeerAPI';
 
 class MarketplaceService {
@@ -13,7 +13,9 @@ class MarketplaceService {
         rating: 4.8,
         installs: 1250,
         tags: ['React', 'UI', 'Components'],
-        icon: '🎨'
+        icon: '🎨',
+        color: 'from-emerald-500 to-cyan-500',
+        badge: 'Más vendido'
       },
       {
         id: 'api-builder',
@@ -24,7 +26,9 @@ class MarketplaceService {
         rating: 4.9,
         installs: 890,
         tags: ['API', 'Node.js', 'REST'],
-        icon: '⚡'
+        icon: '⚡',
+        color: 'from-purple-500 to-pink-500',
+        badge: 'Popular'
       },
       {
         id: 'data-analyst',
@@ -35,7 +39,9 @@ class MarketplaceService {
         rating: 4.7,
         installs: 2100,
         tags: ['Analytics', 'AI', 'Data'],
-        icon: '📊'
+        icon: '📊',
+        color: 'from-blue-500 to-indigo-500',
+        badge: 'Pro'
       },
       {
         id: 'content-writer',
@@ -46,7 +52,9 @@ class MarketplaceService {
         rating: 4.6,
         installs: 1680,
         tags: ['Content', 'SEO', 'Marketing'],
-        icon: '✍️'
+        icon: '✍️',
+        color: 'from-green-500 to-teal-500',
+        badge: 'Nuevo'
       },
       {
         id: 'qa-tester',
@@ -57,7 +65,9 @@ class MarketplaceService {
         rating: 4.5,
         installs: 750,
         tags: ['Testing', 'QA', 'Automation'],
-        icon: '🧪'
+        icon: '🧪',
+        color: 'from-orange-500 to-red-500',
+        badge: 'Beta'
       },
       {
         id: 'seo-optimizer',
@@ -68,7 +78,9 @@ class MarketplaceService {
         rating: 4.4,
         installs: 920,
         tags: ['SEO', 'Marketing', 'Optimization'],
-        icon: '🚀'
+        icon: '🚀',
+        color: 'from-yellow-500 to-orange-500',
+        badge: 'Gratis'
       }
     ];
   }
@@ -86,6 +98,41 @@ class MarketplaceService {
     } catch (error) {
       console.error('Error loading featured agents:', error);
       throw new Error('No se pudieron cargar los agentes destacados');
+    }
+  }
+
+  // ✅ FUNCIÓN FALTANTE AGREGADA
+  async getMarketplaceStats() {
+    try {
+      // Simular delay de red
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // En producción, esto vendría del backend
+      // const response = await iopeerAPI.request('/marketplace/stats');
+      // return response.stats;
+      
+      // Mock stats para la landing page
+      return {
+        totalAgents: 150,
+        totalUsers: 12500,
+        totalDownloads: 89000,
+        uptime: 99.9,
+        categories: [
+          { name: 'Frontend', count: 45 },
+          { name: 'Backend', count: 38 },
+          { name: 'Analytics', count: 22 },
+          { name: 'Marketing', count: 28 },
+          { name: 'Testing', count: 17 }
+        ],
+        recentActivity: [
+          { action: 'Agent installed', agent: 'UI Generator', time: '2 min ago' },
+          { action: 'New agent published', agent: 'Data Sync Pro', time: '15 min ago' },
+          { action: 'User registered', count: 5, time: '1 hour ago' }
+        ]
+      };
+    } catch (error) {
+      console.error('Error loading marketplace stats:', error);
+      throw new Error('No se pudieron cargar las estadísticas del marketplace');
     }
   }
 
@@ -161,11 +208,10 @@ class MarketplaceService {
     }
   }
 
-  // ✅ FUNCIÓN ARREGLADA - Ahora está correctamente dentro de la clase
   async healthCheck() {
     try {
       const healthResponse = await iopeerAPI.getHealth();
-      return healthResponse; // ✅ Variable utilizada correctamente
+      return healthResponse;
     } catch (error) {
       console.error('Health check failed:', error);
       return null;

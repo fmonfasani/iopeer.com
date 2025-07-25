@@ -1,22 +1,51 @@
-# back/agenthub/auth/__init__.py - ARREGLADO
+# ============================================
+# back/agenthub/auth/__init__.py - CORREGIDO
+# ============================================
+
 from fastapi import APIRouter
-from .routes import router as auth_router
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Router principal de autenticación
 router = APIRouter()
 
-# Incluir rutas básicas de auth (signin, signup)
-router.include_router(auth_router, tags=["auth"])
+# ============================================
+# INCLUIR RUTAS BÁSICAS DE AUTH
+# ============================================
 
-# OAuth routes - importar solo si existen
+try:
+    from .routes import router as auth_router
+    router.include_router(auth_router, tags=["auth"])
+    logger.info("✅ Auth routes loaded successfully")
+except ImportError as e:
+    logger.error(f"❌ Failed to load auth routes: {e}")
+    raise
+
+# ============================================
+# INCLUIR RUTAS OAuth
+# ============================================
+
 try:
     from .oauth_routes import router as oauth_router
     router.include_router(oauth_router, prefix="/oauth", tags=["oauth"])
-    print("✅ OAuth routes cargadas correctamente")
+    logger.info("✅ OAuth routes loaded successfully")
 except ImportError as e:
-    print(f"⚠️ OAuth routes no disponibles: {e}")
-    # Crear router vacío para OAuth si no existe
+    logger.warning(f"⚠️ OAuth routes not available: {e}")
+    
+    # Crear router placeholder si oauth_routes no existe
     oauth_router = APIRouter()
+    
+    @oauth_router.get("/status")
+    async def oauth_status_fallback():
+        return {
+            "oauth_enabled": False,
+            "message": "OAuth system not configured",
+            "providers": {
+                "github": {"enabled": False, "configured": False},
+                "google": {"enabled": False, "configured": False}
+            }
+        }
     
     @oauth_router.get("/github")
     async def github_placeholder():
@@ -27,3 +56,23 @@ except ImportError as e:
         return {"message": "OAuth Google no configurado"}
     
     router.include_router(oauth_router, prefix="/oauth", tags=["oauth"])
+    logger.info("✅ OAuth placeholder routes loaded")
+
+# ============================================
+# TESTING ENDPOINT
+# ============================================
+
+@router.get("/test")
+async def auth_test():
+    """Test endpoint para verificar que auth funciona"""
+    return {
+        "message": "Auth system working",
+        "version": "1.0.0",
+        "endpoints": [
+            "/auth/signin",
+            "/auth/signup", 
+            "/auth/oauth/status",
+            "/auth/oauth/github",
+            "/auth/oauth/google"
+        ]
+    }

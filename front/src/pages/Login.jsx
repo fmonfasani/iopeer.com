@@ -1,6 +1,6 @@
 // front/src/pages/Login.jsx - CORREGIDO CON i18n Y OAuth
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext_';
 import { Eye, EyeOff } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

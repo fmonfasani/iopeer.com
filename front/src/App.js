@@ -1,12 +1,12 @@
-// src/App.js - CORREGIDO CON OAUTH
+// src/App.js - ARREGLADO CON ROUTER CONTEXT CORRECTO
 import React from 'react';
 import './App.css';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import Login from './pages/Login';
 import LandingPage from './pages/LandingPage';
-import OAuthCallback from './pages/OAuthCallback'; // 🆕 Callback OAuth
-import { AuthProvider, useAuth } from './context/AuthContext';
+import OAuthCallback from './pages/OAuthCallback';
+import { AuthProvider, useAuth } from './context/AuthContext_';
 import Dashboard from './pages/Dashboard';
 
 // Protected Route Component
@@ -45,56 +45,6 @@ const PublicRoute = ({ children }) => {
   return !isLoggedIn ? children : <Navigate to="/" replace />;
 };
 
-function AppContent() {
-  return (
-    <ErrorBoundary>
-      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <Routes>
-          {/* Public Routes */}
-          <Route 
-            path="/landing" 
-            element={
-              <PublicRoute>
-                <LandingPage />
-              </PublicRoute>
-            } 
-          />
-          <Route 
-            path="/login" 
-            element={
-              <PublicRoute>
-                <Login />
-              </PublicRoute>
-            } 
-          />
-          
-          {/* 🆕 OAuth Callback Route - DEBE SER PÚBLICO */}
-          <Route 
-            path="/auth/callback" 
-            element={<OAuthCallback />} 
-          />
-          
-          {/* Protected Routes */}
-          <Route 
-            path="/*" 
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } 
-          />
-          
-          {/* Default Route */}
-          <Route 
-            path="/" 
-            element={<RootRedirect />} 
-          />
-        </Routes>
-      </BrowserRouter>
-    </ErrorBoundary>
-  );
-}
-
 // Component to handle root redirect logic
 const RootRedirect = () => {
   const { isLoggedIn, loading } = useAuth();
@@ -114,11 +64,63 @@ const RootRedirect = () => {
   return <Navigate to={isLoggedIn ? "/dashboard" : "/landing"} replace />;
 };
 
+// Main App Content (AHORA DENTRO DEL ROUTER)
+function AppContent() {
+  return (
+    <ErrorBoundary>
+      <Routes>
+        {/* Public Routes */}
+        <Route 
+          path="/landing" 
+          element={
+            <PublicRoute>
+              <LandingPage />
+            </PublicRoute>
+          } 
+        />
+        <Route 
+          path="/login" 
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          } 
+        />
+        
+        {/* OAuth Callback Route - DEBE SER PÚBLICO */}
+        <Route 
+          path="/auth/callback" 
+          element={<OAuthCallback />} 
+        />
+        
+        {/* Protected Routes */}
+        <Route 
+          path="/*" 
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Default Route */}
+        <Route 
+          path="/" 
+          element={<RootRedirect />} 
+        />
+      </Routes>
+    </ErrorBoundary>
+  );
+}
+
+// Main App Component - ORDEN CORREGIDO
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
