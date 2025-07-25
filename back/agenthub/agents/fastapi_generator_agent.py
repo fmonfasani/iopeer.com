@@ -41,13 +41,31 @@ class FastAPIGeneratorAgent(BaseAgent):
 
         model_code = "\n".join(model_lines)
 
-        endpoint_lines = [
-            f"@app.post('/{model_name.lower()}s/', response_model={model_name})",
-            f"def create_{model_name.lower()}(item: {model_name}):",
-        ]
+        endpoint_lines: List[str] = []
+
         if include_auth:
-            endpoint_lines.append("    # TODO: validate auth")
+            endpoint_lines.extend(
+                [
+                    "from fastapi import Depends",
+                    "from fastapi.security import OAuth2PasswordBearer",
+                    "",
+                    "oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')",
+                    "",
+                ]
+            )
+
+        endpoint_lines.append(
+            f"@app.post('/{model_name.lower()}s/', response_model={model_name})"
+        )
+
+        signature = f"def create_{model_name.lower()}(item: {model_name}"
+        if include_auth:
+            signature += ", token: str = Depends(oauth2_scheme)"
+        signature += "):"
+        endpoint_lines.append(signature)
+
         endpoint_lines.append("    return item")
+
         endpoint_code = "\n".join(endpoint_lines)
 
         return {
