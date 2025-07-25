@@ -1,101 +1,13 @@
-// front/src/components/ui/LoadingSpinner.jsx (Corregido)
-import React, { useState, useEffect, useCallback } from 'react';
 
-const LoadingSpinner = ({ 
-  size = 'md', 
-  className = '', 
-  color = 'blue',
-  text = null,
-  fullScreen = false,
-  overlay = false 
-}) => {
-  const sizeClasses = {
-    xs: 'w-3 h-3',
-    sm: 'w-4 h-4',
-    md: 'w-6 h-6',
-    lg: 'w-8 h-8',
-    xl: 'w-12 h-12',
-    '2xl': 'w-16 h-16'
-  };
 
-  const colorClasses = {
-    blue: 'border-blue-200 border-t-blue-600',
-    green: 'border-green-200 border-t-green-600',
-    red: 'border-red-200 border-t-red-600',
-    gray: 'border-gray-200 border-t-gray-600',
-    white: 'border-white/30 border-t-white'
-  };
-
-  const spinner = (
-    <div className={`${sizeClasses[size]} ${className}`}>
-      <div className={`animate-spin rounded-full border-2 ${colorClasses[color]}`}></div>
-    </div>
-  );
-
-  const content = (
-    <div className={`flex flex-col items-center justify-center ${text ? 'space-y-3' : ''}`}>
-      {spinner}
-      {text && (
-        <p className="text-sm text-gray-600 animate-pulse">
-          {text}
-        </p>
-      )}
-    </div>
-  );
-
-  if (fullScreen) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        {content}
-      </div>
-    );
-  }
-
-  if (overlay) {
-    return (
-      <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50">
-        {content}
-      </div>
-    );
-  }
-
-  return content;
-};
-
-// Componentes especializados de loading
-export const PageLoader = ({ message = "Cargando..." }) => (
-  <LoadingSpinner 
-    size="xl" 
-    fullScreen 
-    text={message} 
-    color="blue"
-  />
-);
-
-export const ComponentLoader = ({ message = null, overlay = true }) => (
-  <LoadingSpinner 
-    size="lg" 
-    overlay={overlay}
-    text={message}
-    color="blue"
-  />
-);
-
-export const ButtonLoader = () => (
-  <LoadingSpinner 
-    size="sm" 
-    color="white"
-  />
-);
-
-export const InlineLoader = ({ message = "Cargando..." }) => (
-  <div className="flex items-center space-x-2 text-gray-600">
-    <LoadingSpinner size="sm" color="gray" />
-    <span className="text-sm">{message}</span>
-  </div>
-);
-
+// ============================================
+// front/src/components/ui/LoadingStates.jsx
 // Estados de loading específicos para diferentes contextos
+// ============================================
+
+import React from 'react';
+import { Users, Database, Zap, Settings } from 'lucide-react';
+
 export const AgentsLoadingState = () => (
   <div className="space-y-6">
     <div className="flex justify-between items-center">
@@ -204,48 +116,10 @@ export const MarketplaceLoadingState = () => (
   </div>
 );
 
-// Hook para estados de loading
-export const useLoading = (initialState = false) => {
-  const [loading, setLoading] = useState(initialState);
-  const [error, setError] = useState(null);
-
-  const startLoading = useCallback(() => {
-    setLoading(true);
-    setError(null);
-  }, []);
-
-  const stopLoading = useCallback(() => {
-    setLoading(false);
-  }, []);
-
-  const setLoadingError = useCallback((err) => {
-    setLoading(false);
-    setError(err);
-  }, []);
-
-  const withLoading = useCallback(async (asyncFunction) => {
-    startLoading();
-    try {
-      const result = await asyncFunction();
-      stopLoading();
-      return result;
-    } catch (err) {
-      setLoadingError(err);
-      throw err;
-    }
-  }, [startLoading, stopLoading, setLoadingError]);
-
-  return {
-    loading,
-    error,
-    startLoading,
-    stopLoading,
-    setLoadingError,
-    withLoading
-  };
-};
-
+// ============================================
 // Hook para loading inteligente
+// ============================================
+
 export const useSmartLoading = (loadingTime = 500) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
@@ -274,5 +148,3 @@ export const useSmartLoading = (loadingTime = 500) => {
     stopLoading: () => setIsLoading(false)
   };
 };
-
-export default LoadingSpinner;

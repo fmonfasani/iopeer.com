@@ -1,0 +1,12 @@
+[
+  {
+    "id": "backend_agent",
+    "class": "BackendAgent",
+    "config": {}
+  },
+  {
+    "id": "qa_agent",
+    "class": "QAAgent",
+    "config": {}
+  }
+]

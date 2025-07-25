@@ -1,0 +1,38 @@
+# config.yaml
+# Configuración de AgentHub
+
+# Configuración del servidor
+host: "0.0.0.0"
+port: 8000
+debug: false
+log_level: "INFO"
+
+# Configuración de workers
+max_workers: 4
+timeout: 30
+
+# Configuración de Redis (opcional)
+use_redis: false
+redis_url: "redis://localhost:6379"
+
+# Configuración de agentes
+agents:
+  default_timeout: 30
+  max_retries: 3
+
+# Configuración de workflows
+workflows:
+  default_timeout: 300
+  max_parallel_tasks: 5
+
+# Configuración de logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "agenthub.log"
+
+# Configuración de seguridad
+security:
+  api_key_required: false
+  cors_origins: ["*"]
+  rate_limit: 100  # requests per minute

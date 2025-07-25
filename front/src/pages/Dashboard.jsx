@@ -9,6 +9,7 @@ import Agents from '../components/features/Agents/Agents';
 import Marketplace from '../components/features/Marketplace/Marketplace';
 import SettingsPage from '../pages/Settings';
 import UIGeneratorPage from '../pages/UIGeneratorPage';
+import DebugPage from '../pages/DebugPage';
 
 const Dashboard = () => {
   return (
@@ -22,6 +23,7 @@ const Dashboard = () => {
         <Route path="reports" element={<Reports />} />
         <Route path="analytics" element={<Analytics />} />
         <Route path="settings" element={<SettingsPage />} />
+        <Route path="debug" element={<DebugPage />} />
         {/* Catch all route */}
         <Route path="*" element={<Home />} />
       </Routes>
