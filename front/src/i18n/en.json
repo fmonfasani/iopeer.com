@@ -1,0 +1,45 @@
+{
+  "header": {
+    "searchPlaceholder": "What agents are you looking for?",
+    "agents": "Agents",
+    "uiGenerator": "UI Generator",
+    "marketplace": "Marketplace",
+    "api": "API",
+    "docs": "Docs",
+    "pricing": "Pricing",
+    "mobileSearchPlaceholder": "What do you want to learn?",
+    "courses": "Courses",
+    "companies": "Companies",
+    "blog": "Blog",
+    "live": "Live",
+    "conf": "Conf",
+    "access": "Sign In",
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "login": {
+    "title": "Log in to your account",
+    "subtitle": "Access your AI agent platform",
+    "email": "Email",
+    "password": "Password",
+    "remember": "Remember me",
+    "forgot": "Forgot your password?",
+    "submit": "Sign In",
+    "continue": "Or continue with",
+    "google": "Google",
+    "github": "GitHub",
+    "noAccount": "Don't have an account?",
+    "register": "Register here"
+  },
+  "hero": {
+    "titlePart1": "Revolutionize your",
+    "titleHighlight": "Development",
+    "titlePart2": "with AI Agents",
+    "description": "The ultimate platform to create, manage and monetize AI agents. Join over {{count}} developers already automating their future.",
+    "getStarted": "Get Started Free",
+    "watchDemo": "Watch Demo",
+    "agentsLabel": "AI Agents",
+    "developersLabel": "Developers",
+    "uptimeLabel": "Uptime"
+  }
+}
