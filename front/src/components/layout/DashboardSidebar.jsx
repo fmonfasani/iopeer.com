@@ -10,14 +10,15 @@ const DashboardSidebar = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const location = useLocation();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   const navigation = [
-    { name: 'Dashboard', href: '/', icon: BarChart3 },
+    { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
     { name: 'Mis Agentes', href: '/agents', icon: Users },
     { name: 'AI Generator', href: '/ui-generator', icon: Zap },
-    { name: 'Reports', href: '/reports', icon: FileText },
+    { name: 'Marketplace', href: '/marketplace', icon: FileText },
     { name: 'Analytics', href: '/analytics', icon: TrendingUp },
+    { name: 'Reports', href: '/reports', icon: FileText },
     { name: 'Settings', href: '/settings', icon: Settings },
   ];
 
@@ -35,6 +36,10 @@ const DashboardSidebar = () => {
     return () => document.removeEventListener('mousemove', handleMouseMove);
   }, [isHovered]);
 
+  const handleLogout = () => {
+    logout();
+  };
+
   return (
     <>
       {/* Trigger Zone */}
@@ -51,7 +56,7 @@ const DashboardSidebar = () => {
         <div className="w-72 h-full bg-white border-r border-gray-200 shadow-2xl">
           {/* Header */}
           <div className="p-6 border-b border-gray-100">
-            <div className="flex items-center space-x-3">
+            <Link to="/dashboard" className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">io</span>
               </div>
@@ -59,13 +64,16 @@ const DashboardSidebar = () => {
                 <h1 className="text-xl font-bold text-gray-900">Iopeer</h1>
                 <p className="text-sm text-gray-500">AI Agent Platform</p>
               </div>
-            </div>
+            </Link>
           </div>
 
           {/* Navigation */}
           <nav className="flex-1 px-4 py-6 space-y-2">
             {navigation.map((item) => {
-              const isActive = location.pathname === item.href;
+              // Check if current route matches this nav item
+              const isActive = location.pathname === item.href || 
+                             (item.href === '/dashboard' && location.pathname === '/');
+              
               return (
                 <Link
                   key={item.name}
@@ -94,16 +102,22 @@ const DashboardSidebar = () => {
           <div className="p-4 border-t border-gray-100">
             <div className="flex items-center space-x-3 mb-4">
               <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                <span className="text-sm font-medium text-gray-700">U</span>
+                <span className="text-sm font-medium text-gray-700">
+                  {user?.email?.[0]?.toUpperCase() || 'U'}
+                </span>
               </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900">Usuario</p>
-                <p className="text-xs text-gray-500">usuario@email.com</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">
+                  {user?.name || 'Usuario'}
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  {user?.email || 'usuario@email.com'}
+                </p>
               </div>
             </div>
             
             <button
-              onClick={logout}
+              onClick={handleLogout}
               className="w-full flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
             >
               <LogOut className="mr-3 h-4 w-4" />
