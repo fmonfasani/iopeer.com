@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -12,6 +13,7 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState('');
+  const { t } = useTranslation();
 
 
   const handleSubmit = async (e) => {
@@ -40,10 +42,10 @@ const Login = () => {
           </div>
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Inicia sesión en tu cuenta
+          {t('login.title')}
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Accede a tu plataforma de agentes IA
+          {t('login.subtitle')}
         </p>
       </div>
 
@@ -53,7 +55,7 @@ const Login = () => {
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
+                {t('login.email')}
               </label>
               <div className="mt-1">
                 <input
@@ -65,7 +67,7 @@ const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                  placeholder="tu@email.com"
+                  placeholder="email@example.com"
                 />
               </div>
             </div>
@@ -73,7 +75,7 @@ const Login = () => {
             {/* Password */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Contraseña
+                {t('login.password')}
               </label>
               <div className="mt-1 relative">
                 <input
@@ -111,13 +113,13 @@ const Login = () => {
                   className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
                 />
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                  Recordarme
+                  {t('login.remember')}
                 </label>
               </div>
 
               <div className="text-sm">
                 <a href="#" className="font-medium text-green-600 hover:text-green-500">
-                  ¿Olvidaste tu contraseña?
+                  {t('login.forgot')}
                 </a>
               </div>
             </div>
@@ -132,7 +134,7 @@ const Login = () => {
                 {isLoading ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                 ) : (
-                  'Iniciar Sesión'
+                  t('login.submit')
                 )}
               </button>
             </div>
@@ -145,16 +147,16 @@ const Login = () => {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">O continúa con</span>
+                <span className="px-2 bg-white text-gray-500">{t('login.continue')}</span>
               </div>
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-3">
               <button className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                Google
+                {t('login.google')}
               </button>
               <button className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                GitHub
+                {t('login.github')}
               </button>
             </div>
           </div>
@@ -162,9 +164,9 @@ const Login = () => {
           {/* Sign up link */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              ¿No tienes una cuenta?{' '}
+              {t('login.noAccount')}{' '}
               <a href="#" className="font-medium text-green-600 hover:text-green-500">
-                Regístrate aquí
+                {t('login.register')}
               </a>
             </p>
           </div>

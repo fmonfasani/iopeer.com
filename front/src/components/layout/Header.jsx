@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Search, Menu, X } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';  
+import { useAuth } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { logout: contextLogout, isLoggedIn } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const logout = () => {
     contextLogout();  // llamamos la función logout del contexto para limpiar estado y token
@@ -33,7 +35,7 @@ const Header = () => {
               </div>
               <input
                 type="text"
-                placeholder="¿ Que agentes buscas?"
+                placeholder={t('header.searchPlaceholder')}
                 className="block w-full pl-10 pr-3 py-2 border border-transparent rounded-md leading-5 bg-gray-800 text-gray-300 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-white focus:ring-white focus:text-gray-900"
               />
             </div>
@@ -42,22 +44,22 @@ const Header = () => {
           {/* Navigation Menu - Desktop */}
           <nav className="hidden md:flex space-x-8">
             <Link to="/agents" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">
-                Agentes
-            </Link> 
+              {t('header.agents')}
+            </Link>
             <a href="#" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">
-              UI Generator
+              {t('header.uiGenerator')}
             </a>
             <a href="#" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">
-              Marketplace
+              {t('header.marketplace')}
             </a>
             <a href="#" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">
-              Api
+              {t('header.api')}
             </a>
             <a href="#" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">
-              Documentación
+              {t('header.docs')}
             </a>
             <a href="#" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">
-              Precios
+              {t('header.pricing')}
             </a>
           </nav>
 
@@ -68,14 +70,14 @@ const Header = () => {
                   onClick={logout}
                   className="border border-green-400 text-green-400 hover:bg-green-400 hover:text-gray-900 px-4 py-2 rounded-md text-sm font-medium transition-colors"
                 >
-                  Logout
+                  {t('header.logout')}
                 </button>
               ) : (
                 <Link
                   to="/login"
                   className="border border-green-400 text-green-400 hover:bg-green-400 hover:text-gray-900 px-4 py-2 rounded-md text-sm font-medium transition-colors"
                 >
-                  Login
+                  {t('header.login')}
                 </Link>
               )}
             </div>
@@ -101,32 +103,32 @@ const Header = () => {
                 </div>
                 <input
                   type="text"
-                  placeholder="¿Qué quieres aprender?"
+                  placeholder={t('header.mobileSearchPlaceholder')}
                   className="block w-full pl-10 pr-3 py-2 border border-transparent rounded-md leading-5 bg-gray-800 text-gray-300 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-white focus:ring-white focus:text-gray-900"
                 />
               </div>
               
               <a href="#" className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">
-                Cursos
+                {t('header.courses')}
               </a>
               <a href="#" className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">
-                Empresas
+                {t('header.companies')}
               </a>
               <a href="#" className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">
-                Blog
+                {t('header.blog')}
               </a>
               <a href="#" className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">
-                Live
+                {t('header.live')}
               </a>
               <a href="#" className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">
-                Conf
+                {t('header.conf')}
               </a>
               <a href="#" className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">
-                Precios
+                {t('header.pricing')}
               </a>
               <div className="pt-4">
                 <button className="w-full border border-green-400 text-green-400 hover:bg-green-400 hover:text-gray-900 px-4 py-2 rounded-md text-sm font-medium transition-colors">
-                  Acceder
+                  {t('header.access')}
                 </button>
               </div>
             </div>

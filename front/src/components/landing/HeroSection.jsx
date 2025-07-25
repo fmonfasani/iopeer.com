@@ -1,6 +1,7 @@
 // src/components/landing/HeroSection.jsx
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, Play, Code, Zap, BarChart3 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const FloatingElement = ({ children, delay = 0 }) => (
   <div 
@@ -17,6 +18,7 @@ const FloatingElement = ({ children, delay = 0 }) => (
 
 const HeroSection = ({ onGetStarted, onWatchDemo, stats }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     setIsVisible(true);
@@ -69,17 +71,16 @@ const HeroSection = ({ onGetStarted, onWatchDemo, stats }) => {
         </div>
 
         <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-          Revoluciona tu
+          {t('hero.titlePart1')}
           <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-            {" "}Desarrollo
+            {` ${t('hero.titleHighlight')}`}
           </span>
           <br />
-          con Agentes IA
+          {t('hero.titlePart2')}
         </h1>
 
         <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed">
-          La plataforma definitiva para crear, gestionar y monetizar agentes de inteligencia artificial.
-          Únete a más de {stats?.totalUsers || '10,000'} desarrolladores que ya están automatizando su futuro.
+          {t('hero.description', { count: stats?.totalUsers || '10,000' })}
         </p>
 
         {/* CTA Buttons */}
@@ -88,7 +89,7 @@ const HeroSection = ({ onGetStarted, onWatchDemo, stats }) => {
             onClick={onGetStarted}
             className="group bg-gradient-to-r from-emerald-500 to-cyan-500 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:from-emerald-600 hover:to-cyan-600 transform hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl flex items-center space-x-2"
           >
-            <span>Comenzar Gratis</span>
+            <span>{t('hero.getStarted')}</span>
             <ArrowRight className="group-hover:translate-x-1 transition-transform" size={20} />
           </button>
           
@@ -97,7 +98,7 @@ const HeroSection = ({ onGetStarted, onWatchDemo, stats }) => {
             className="group bg-white/10 backdrop-blur-md text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/20 transform hover:scale-105 transition-all duration-300 border border-white/20 flex items-center space-x-2"
           >
             <Play className="group-hover:scale-110 transition-transform" size={20} />
-            <span>Ver Demo</span>
+            <span>{t('hero.watchDemo')}</span>
           </button>
         </div>
 
@@ -105,15 +106,15 @@ const HeroSection = ({ onGetStarted, onWatchDemo, stats }) => {
         <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
           <div className="text-center">
             <div className="text-3xl font-bold text-white mb-2">{stats?.totalAgents || '150+'}+</div>
-            <div className="text-gray-300">Agentes IA</div>
+            <div className="text-gray-300">{t('hero.agentsLabel')}</div>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold text-white mb-2">{stats?.totalUsers || '10K+'}+</div>
-            <div className="text-gray-300">Desarrolladores</div>
+            <div className="text-gray-300">{t('hero.developersLabel')}</div>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold text-white mb-2">{stats?.uptime || '99.9%'}%</div>
-            <div className="text-gray-300">Uptime</div>
+            <div className="text-gray-300">{t('hero.uptimeLabel')}</div>
           </div>
         </div>
       </div>
