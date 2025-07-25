@@ -4,7 +4,7 @@ import { Routes, Route } from 'react-router-dom';
 import UserSidebar from '../components/layout/UserSidebar';
 import Analytics from './Analytics';
 import Reports from './Reports';
-import Home from '../pages/Home';
+import Home from './Home__';
 import Agents from '../components/features/Agents/Agents';
 import Marketplace from '../components/features/Marketplace/Marketplace';
 import SettingsPage from '../pages/Settings';
