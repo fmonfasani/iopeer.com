@@ -91,6 +91,7 @@ async def startup_event():
 
 async def shutdown_event():
     """Cleanup on shutdown"""
+    orchestrator.shutdown()
     logger.info("✅ Shutdown complete")
 
 def test_db_connection():

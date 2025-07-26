@@ -313,6 +313,10 @@ class Orchestrator:
             or 0,
         }
 
+    def shutdown(self) -> None:
+        """Detiene el ejecutor de hilos"""
+        self.executor.shutdown(wait=False)
+
 
 # Instancia global
 orchestrator = Orchestrator()
