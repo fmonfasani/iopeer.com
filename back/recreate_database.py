@@ -59,14 +59,14 @@ def recreate_database():
         # Verificar que se crearon correctamente
         with engine.connect() as conn:
             result = conn.execute(text("""
-                SELECT column_name, data_type 
-                FROM information_schema.columns 
-                WHERE table_name = 'users'
+                SELECT column_name, data_type
+                FROM information_schema.columns
+                WHERE table_name = 'iopeer_users'
                 ORDER BY ordinal_position
             """))
             
             columns = result.fetchall()
-            print("✅ Tabla 'users' creada con columnas:")
+            print("✅ Tabla 'iopeer_users' creada con columnas:")
             for col in columns:
                 print(f"   - {col[0]} ({col[1]})")
         

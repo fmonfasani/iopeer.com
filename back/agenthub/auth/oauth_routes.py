@@ -3,12 +3,16 @@ import os
 import logging
 import httpx
 import jwt
+import json
 from datetime import datetime, timedelta
 from urllib.parse import urlencode
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from dotenv import load_dotenv
+from sqlalchemy.orm import Session
+from ..database.connection import get_db
+from ..models.user import User
 load_dotenv()
 
 logger = logging.getLogger(__name__)
@@ -138,7 +142,7 @@ async def google_login():
         )
 
 @router.get("/google/callback")
-async def google_callback(request: Request):
+async def google_callback(request: Request, db: Session = Depends(get_db)):
     """Callback de Google OAuth"""
     try:
         code = request.query_params.get("code")
@@ -174,15 +178,32 @@ async def google_callback(request: Request):
                 status_code=302
             )
         
-        # Crear usuario y generar JWT
+        # Crear o actualizar usuario en la base de datos
+        user = db.query(User).filter(User.email == user_info["email"]).first()
+        if user:
+            user.provider = "google"
+            user.provider_id = user_info["id"]
+            user.provider_data = json.dumps(user_info)
+        else:
+            user = User(
+                email=user_info["email"],
+                hashed_password="",
+                provider="google",
+                provider_id=user_info["id"],
+                provider_data=json.dumps(user_info),
+            )
+            db.add(user)
+        db.commit()
+        db.refresh(user)
+
         user_data = {
-            "id": user_info["id"],
-            "email": user_info["email"],
+            "id": str(user.id),
+            "email": user.email,
             "name": user_info["name"],
             "avatar_url": user_info.get("picture"),
-            "provider": "google"
+            "provider": "google",
         }
-        
+
         jwt_token = generate_jwt_token(user_data)
         
         # Redirigir al frontend con el token
@@ -280,7 +301,7 @@ async def github_login():
         )
 
 @router.get("/github/callback")
-async def github_callback(request: Request):
+async def github_callback(request: Request, db: Session = Depends(get_db)):
     """Callback de GitHub OAuth"""
     try:
         code = request.query_params.get("code")
@@ -327,15 +348,32 @@ async def github_callback(request: Request):
                 status_code=302
             )
         
-        # Crear usuario y generar JWT
+        # Crear o actualizar usuario en la base de datos
+        user = db.query(User).filter(User.email == user_info["email"]).first()
+        if user:
+            user.provider = "github"
+            user.provider_id = str(user_info["id"])
+            user.provider_data = json.dumps(user_info)
+        else:
+            user = User(
+                email=user_info["email"],
+                hashed_password="",
+                provider="github",
+                provider_id=str(user_info["id"]),
+                provider_data=json.dumps(user_info),
+            )
+            db.add(user)
+        db.commit()
+        db.refresh(user)
+
         user_data = {
-            "id": str(user_info["id"]),
-            "email": user_info["email"],
+            "id": str(user.id),
+            "email": user.email,
             "name": user_info["name"] or user_info["login"],
             "avatar_url": user_info.get("avatar_url"),
-            "provider": "github"
+            "provider": "github",
         }
-        
+
         jwt_token = generate_jwt_token(user_data)
         
         # Redirigir al frontend con el token
