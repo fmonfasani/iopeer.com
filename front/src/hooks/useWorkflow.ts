@@ -1,31 +1,39 @@
 import { useState, useEffect, useCallback } from 'react';
-import { apiRequest, ENDPOINTS } from '../config/api';
 
-export interface WorkflowExecution {
-  workflow_id: string;
-  status?: string;
-  [key: string]: any;
+import { iopeerAPI } from '../services/iopeerAPI';
+
+export interface WorkflowDefinition {
+  name: string;
+  tasks: string[];
+  parallel?: boolean;
+  timeout?: number;
+  executions?: number;
 }
 
-export interface Workflow {
-  id: string;
-  name: string;
-  description?: string;
-  [key: string]: any;
+export interface WorkflowExecution {
+  execution_id: string;
+  workflow: string;
+  status: string;
+  execution_time: number;
+  result: any;
 }
 
 export const useWorkflow = () => {
-  const [workflows, setWorkflows] = useState<Workflow[]>([]);
+  const [workflows, setWorkflows] = useState<WorkflowDefinition[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastExecution, setLastExecution] = useState<WorkflowExecution | null>(null);
+
 
   const loadWorkflows = useCallback(async () => {
     setLoading(true);
     setError(null);
+
+
     try {
-      const response = await apiRequest(ENDPOINTS.WORKFLOWS);
-      // API returns { workflows: [...] } but fallback to raw array
-      setWorkflows(response.workflows ?? response);
+      const data = await iopeerAPI.getWorkflows();
+      setWorkflows(data.workflows || []);
+
     } catch (err: any) {
       setError(err.message || 'Failed to load workflows');
     } finally {
@@ -33,27 +41,24 @@ export const useWorkflow = () => {
     }
   }, []);
 
-  const startWorkflow = useCallback(
-    async (workflowName: string, data: Record<string, any> = {}) => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await apiRequest(ENDPOINTS.WORKFLOW_START, {
-          method: 'POST',
-          body: JSON.stringify({ workflow: workflowName, data }),
-        });
-        // Some backends return workflow_id at root level
-        const workflowId = response.workflow_id ?? response.data?.workflow_id;
-        return { ...response, workflow_id: workflowId } as WorkflowExecution;
-      } catch (err: any) {
-        setError(err.message || 'Failed to start workflow');
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [],
-  );
+
+  const startWorkflow = useCallback(async (workflowName: string, data: Record<string, any> = {}) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await iopeerAPI.startWorkflow(workflowName, data);
+      setLastExecution(result);
+      return result;
+    } catch (err: any) {
+      setError(err.message || 'Failed to execute workflow');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const clearError = () => setError(null);
+
 
   useEffect(() => {
     loadWorkflows();
@@ -63,7 +68,12 @@ export const useWorkflow = () => {
     workflows,
     loading,
     error,
-    reload: loadWorkflows,
+
+    lastExecution,
+    loadWorkflows,
     startWorkflow,
+    clearError,
   };
 };
+
+export default useWorkflow;
