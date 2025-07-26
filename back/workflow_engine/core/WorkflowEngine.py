@@ -64,6 +64,17 @@ class Workflow:
         self.created_at = datetime.now()
         self.metadata: Dict[str, Any] = {}
 
+    def add_node(self, node: "WorkflowNode") -> None:
+        """Añade un nodo al workflow"""
+        self.nodes[node.id] = node
+
+    def add_connection(self, connection: "WorkflowConnection") -> None:
+        """Registra una conexión entre nodos"""
+        self.connections.append(connection)
+        target = self.nodes.get(connection.target_id)
+        if target and connection.source_id not in target.inputs:
+            target.inputs.append(connection.source_id)
+
 
 class WorkflowEngine:
     """Motor principal de ejecución de workflows"""
@@ -186,12 +197,16 @@ class WorkflowExecution:
             # Preparar datos de entrada
             input_data = self._prepare_node_input(node)
 
-            # Ejecutar agente
-            result = await agent.handle({
+            # Ejecutar agente (permite funciones síncronas o asíncronas)
+            call_result = agent.handle({
                 "action": node.config.get("action", "process"),
                 "data": input_data,
-                "config": node.config
+                "config": node.config,
             })
+            if asyncio.iscoroutine(call_result):
+                result = await call_result
+            else:
+                result = call_result
 
             # Guardar resultado
             node.result = result
@@ -287,17 +302,55 @@ class WorkflowExecution:
         return True
 
     def _evaluate_condition(self, condition: str) -> bool:
-        """Evalúa una condición lógica"""
-        # Implementación simple - en producción usar un parser más robusto
-        try:
-            # Reemplazar variables del contexto en la condición
-            for key, value in self.execution_context.items():
-                condition = condition.replace(f"{{{key}}}", str(value))
+        """Evalúa una condición lógica de forma segura."""
 
-            # Evaluar condición (¡CUIDADO: eval es peligroso en producción!)
-            return eval(condition)
+        import ast
+
+        def _safe_eval(expr: str, variables: Dict[str, Any]) -> bool:
+            """Evalúa la expresión permitiendo solo operaciones seguras."""
+
+            allowed_nodes = (
+                ast.Expression,
+                ast.BoolOp,
+                ast.BinOp,
+                ast.UnaryOp,
+                ast.Compare,
+                ast.Name,
+                ast.Load,
+                ast.Constant,
+                ast.And,
+                ast.Or,
+                ast.Not,
+                ast.Eq,
+                ast.NotEq,
+                ast.Lt,
+                ast.LtE,
+                ast.Gt,
+                ast.GtE,
+                ast.In,
+                ast.NotIn,
+                ast.Dict,
+                ast.Subscript,
+            )
+
+            tree = ast.parse(expr, mode="eval")
+            for node in ast.walk(tree):
+                if not isinstance(node, allowed_nodes):
+                    raise ValueError("Unsafe expression")
+                if isinstance(node, ast.Name) and node.id not in variables and node.id not in {"True", "False"}:
+                    raise ValueError(f"Unknown variable '{node.id}'")
+
+            compiled = compile(tree, "<expr>", "eval")
+            return bool(eval(compiled, {"__builtins__": {}}, variables))
+
+        try:
+            for key, value in self.execution_context.items():
+                condition = condition.replace(f"{{{key}}}", repr(value))
+
+            return _safe_eval(condition, self.execution_context)
         except Exception:
-            return True  # Default to execute if condition fails
+            # Si la expresión es maliciosa o inválida, no ejecutar el nodo
+            return False
 
     def get_duration(self) -> float:
         """Retorna la duración de la ejecución en segundos"""
@@ -407,6 +460,23 @@ class EventBus:
             "timestamp": datetime.now().isoformat(),
         }
 
-        # Implementar broadcast a WebSocket connections
-        # (esto se integraría con FastAPI WebSocket)
-        pass
+        # Enviar mensaje a todas las websockets registradas
+        for ws in list(self.websocket_connections):
+            try:
+                await ws.send_json(message)
+            except Exception:
+                try:
+                    await ws.close()
+                finally:
+                    if ws in self.websocket_connections:
+                        self.websocket_connections.remove(ws)
+
+    def register_websocket(self, ws: Any) -> None:
+        """Registra una conexión WebSocket para recibir eventos"""
+        if ws not in self.websocket_connections:
+            self.websocket_connections.append(ws)
+
+    def unregister_websocket(self, ws: Any) -> None:
+        """Elimina una conexión WebSocket"""
+        if ws in self.websocket_connections:
+            self.websocket_connections.remove(ws)

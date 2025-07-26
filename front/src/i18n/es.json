@@ -23,13 +23,13 @@
     "email": "Email",
     "password": "Contraseña",
     "remember": "Recordarme",
-    "forgot": "¿Olvidaste tu contraseña?",
+    "forgot": "¿Olvidaste tu contraseña? (no disponible)",
     "submit": "Iniciar Sesión",
     "continue": "O continúa con",
     "google": "Google",
     "github": "GitHub",
     "noAccount": "¿No tienes cuenta?",
-    "register": "Regístrate aquí"
+    "register": "Registro próximamente"
   },
   "signup": {
     "title": "Crea una cuenta",

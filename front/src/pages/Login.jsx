@@ -66,7 +66,9 @@ const Login = () => {
 
   const handleSignUp = (e) => {
     e.preventDefault();
+
     navigate('/signup');
+
   };
 
   return (

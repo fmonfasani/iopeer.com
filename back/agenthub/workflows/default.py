@@ -55,7 +55,3 @@ def register_default_workflows():
         ],
         parallel=True,
     )
-
-
-# Auto-registrar al importar
-register_default_workflows()
