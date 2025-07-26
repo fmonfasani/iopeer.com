@@ -3,7 +3,7 @@ import { FileText, Download, TrendingUp, Users, Activity } from 'lucide-react';
 import { useIopeer } from '../hooks/useIopeer';
 
 const Reports = () => {
-  const { agents, systemHealth } = useIopeer();
+  const { agents } = useIopeer();
   const [timeRange, setTimeRange] = useState('week');
   const [reportData, setReportData] = useState(null);
 
