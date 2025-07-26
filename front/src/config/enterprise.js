@@ -12,7 +12,11 @@ const config = {
 
   api: {
     baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8000',
-    wsURL: process.env.REACT_APP_WS_URL || 'ws://localhost:8000/ws',
+    wsURL:
+      process.env.REACT_APP_WS_URL ||
+      (process.env.REACT_APP_API_URL
+        ? process.env.REACT_APP_API_URL.replace(/^http/, 'ws') + '/ws'
+        : 'ws://localhost:8000/ws'),
     timeout: parseInt(process.env.REACT_APP_API_TIMEOUT) || 30000,
     maxRetries: parseInt(process.env.REACT_APP_MAX_RETRIES) || 3
   },

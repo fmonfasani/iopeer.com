@@ -1,21 +1,28 @@
 import logging
 
-from agenthub.auth.auth import create_access_token
 from agenthub.auth.schemas import SignInInput
-from agenthub.auth.utils import verify_password
+
+
 from agenthub.database.connection import get_db
 from agenthub.models.user import User
+
 from fastapi import APIRouter, Depends, HTTPException, status
+
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
 from passlib.context import CryptContext
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from .schemas import UserCreate
-from .utils import create_access_token, verify_password
+
+from .utils import create_access_token, verify_password, verify_access_token
+
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+security = HTTPBearer()
 
 
 class SigninRequest(BaseModel):
@@ -134,5 +141,6 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found",
         )
+
 
     return {"id": user.id, "email": user.email, "is_active": user.is_active}
