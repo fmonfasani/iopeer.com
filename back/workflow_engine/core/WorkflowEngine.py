@@ -302,17 +302,55 @@ class WorkflowExecution:
         return True
 
     def _evaluate_condition(self, condition: str) -> bool:
-        """Evalúa una condición lógica"""
-        # Implementación simple - en producción usar un parser más robusto
-        try:
-            # Reemplazar variables del contexto en la condición
-            for key, value in self.execution_context.items():
-                condition = condition.replace(f"{{{key}}}", str(value))
+        """Evalúa una condición lógica de forma segura."""
 
-            # Evaluar condición (¡CUIDADO: eval es peligroso en producción!)
-            return eval(condition)
+        import ast
+
+        def _safe_eval(expr: str, variables: Dict[str, Any]) -> bool:
+            """Evalúa la expresión permitiendo solo operaciones seguras."""
+
+            allowed_nodes = (
+                ast.Expression,
+                ast.BoolOp,
+                ast.BinOp,
+                ast.UnaryOp,
+                ast.Compare,
+                ast.Name,
+                ast.Load,
+                ast.Constant,
+                ast.And,
+                ast.Or,
+                ast.Not,
+                ast.Eq,
+                ast.NotEq,
+                ast.Lt,
+                ast.LtE,
+                ast.Gt,
+                ast.GtE,
+                ast.In,
+                ast.NotIn,
+                ast.Dict,
+                ast.Subscript,
+            )
+
+            tree = ast.parse(expr, mode="eval")
+            for node in ast.walk(tree):
+                if not isinstance(node, allowed_nodes):
+                    raise ValueError("Unsafe expression")
+                if isinstance(node, ast.Name) and node.id not in variables and node.id not in {"True", "False"}:
+                    raise ValueError(f"Unknown variable '{node.id}'")
+
+            compiled = compile(tree, "<expr>", "eval")
+            return bool(eval(compiled, {"__builtins__": {}}, variables))
+
+        try:
+            for key, value in self.execution_context.items():
+                condition = condition.replace(f"{{{key}}}", repr(value))
+
+            return _safe_eval(condition, self.execution_context)
         except Exception:
-            return True  # Default to execute if condition fails
+            # Si la expresión es maliciosa o inválida, no ejecutar el nodo
+            return False
 
     def get_duration(self) -> float:
         """Retorna la duración de la ejecución en segundos"""

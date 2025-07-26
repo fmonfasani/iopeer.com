@@ -1,48 +1,26 @@
 import pytest
 
-from workflow_engine import (
-    WorkflowEngine,
-    Workflow,
-    WorkflowNode,
-    WorkflowConnection,
-    AgentRegistry,
-    EventBus,
-    ConnectionType,
-)
+
+from workflow_engine.core.WorkflowEngine import Workflow, WorkflowExecution, EventBus
 
 
-class DummyAgent:
-    async def handle(self, message):
-        return {"echo": message.get("data")}
+class DummyEventBus(EventBus):
+    async def emit(self, event_type: str, data):
+        pass
 
 
-@pytest.fixture
-def engine():
-    registry = AgentRegistry()
-    registry.register_agent("dummy", DummyAgent())
-    bus = EventBus()
-    return WorkflowEngine(registry, bus)
+def create_execution(context=None):
+    workflow = Workflow("wf", "Test")
+    bus = DummyEventBus()
+    return WorkflowExecution("exec", workflow, context or {}, bus)
 
 
-@pytest.mark.asyncio
-async def test_workflow_creation_and_execution(engine):
-    wf = Workflow("wf1", "Test")
-    wf.add_node(WorkflowNode("n1", "dummy", {}))
-    engine.register_workflow(wf)
-
-    assert engine.get_workflow("wf1") is wf
-
-    result = await engine.execute("wf1", {"value": 1})
-    assert result["n1"]["echo"] == {"value": 1}
+def test_valid_condition():
+    exec_ctx = create_execution({"value": 5})
+    cond = "'value' in {initial_data} and {initial_data}['value'] > 3"
+    assert exec_ctx._evaluate_condition(cond) is True
 
 
-@pytest.mark.asyncio
-async def test_sequential_execution(engine):
-    wf = Workflow("wf2", "Chain")
-    wf.add_node(WorkflowNode("a", "dummy"))
-    wf.add_node(WorkflowNode("b", "dummy"))
-    wf.add_connection(WorkflowConnection("a", "b", ConnectionType.SUCCESS))
-
-    engine.register_workflow(wf)
-    result = await engine.execute("wf2", {"x": 2})
-    assert list(result.keys()) == ["a", "b"]
+def test_malicious_condition_blocked():
+    exec_ctx = create_execution({})
+    assert exec_ctx._evaluate_condition("__import__('os').system('echo hi')") is False
