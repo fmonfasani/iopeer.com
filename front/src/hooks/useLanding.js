@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { marketplaceService } from '../services/marketplace.service';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { startWorkflowDemo } from '../demos/workflowDemo';
 
 export const useLanding = () => {
   const [featuredAgents, setFeaturedAgents] = useState([]);
@@ -82,9 +83,7 @@ export const useLanding = () => {
 
   // Manejar botón "Ver Demo"
   const handleWatchDemo = useCallback(() => {
-    // Aquí podrías abrir un modal con video o navegar a una página de demo
-    console.log('Showing demo...');
-    // navigate('/demo');
+    startWorkflowDemo();
   }, []);
 
   // Manejar "Explorar Marketplace"
