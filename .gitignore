@@ -98,3 +98,7 @@ backups/
 # Temporary database files
 *.sqlite
 *.sqlite3
+
+# Temporary pip output files
+=*
+
