@@ -169,7 +169,41 @@ export const useIopeer = () => {
     } finally {
       setLoading(false);
     }
-  }, [connectionStatus, makeRequest, handleError, clearError]); 
+  }, [connectionStatus, makeRequest, handleError, clearError]);
+
+  const createWorkflow = useCallback(async ({ name, tasks, parallel = false, timeout = null }) => {
+    setLoading(true);
+    clearError();
+
+    try {
+      return await makeRequest('/workflows/register', {
+        method: 'POST',
+        body: JSON.stringify({ name, tasks, parallel, timeout }),
+      });
+    } catch (error) {
+      handleError(error, 'CreateWorkflow');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, [makeRequest, handleError, clearError]);
+
+  const executeWorkflow = useCallback(async (workflowName, data = {}) => {
+    setLoading(true);
+    clearError();
+
+    try {
+      return await makeRequest('/workflow/start', {
+        method: 'POST',
+        body: JSON.stringify({ workflow: workflowName, data }),
+      });
+    } catch (error) {
+      handleError(error, 'ExecuteWorkflow');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, [makeRequest, handleError, clearError]);
 
   const retry = useCallback(() => {
     if (retryTimeoutRef.current) {
@@ -207,6 +241,8 @@ export const useIopeer = () => {
     // Actions
     connect,
     sendMessage,
+    createWorkflow,
+    executeWorkflow,
     retry,
     clearError,
     

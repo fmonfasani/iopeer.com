@@ -20,6 +20,7 @@ const Dashboard = () => {
         <Route index element={<Home />} />
         <Route path="dashboard" element={<Home />} />
         <Route path="agents" element={<Agents />} />
+        <Route path="workflows" element={<Workflows />} />
         <Route path="ui-generator" element={<UIGeneratorPage />} />
         <Route path="workflows" element={<WorkflowEditorPage />} />
         <Route path="marketplace" element={<Marketplace />} />
