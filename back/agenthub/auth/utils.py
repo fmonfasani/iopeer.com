@@ -1,7 +1,7 @@
 """Utility functions for authentication."""
 from datetime import datetime, timedelta
-from passlib.context import CryptContext
-from jose import jwt, JWTError
+
+from fastapi import HTTPException, status
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -31,5 +31,11 @@ def create_access_token(data: dict) -> str:
 
 
 def verify_access_token(token: str) -> dict:
-    """Return the decoded token payload if valid or raise JWTError."""
-    return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    """Decode a JWT and return its payload.
+
+    Raises HTTPException if the token is invalid."""
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except JWTError as exc:  # pragma: no cover - simple error mapping
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token") from exc
