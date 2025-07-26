@@ -1,53 +1,12 @@
-fastapi>=0.115.1
-requests
+-r requirements.txt
+
+# Development tools
 types-requests
-PyYAML>=6.0
-
-# Compatibilidad con Kubernetes
-urllib3<2.0
-
-# Linter, formatter y orden de imports
 black==24.4.2
 isort==5.12.0
 flake8==6.1.0
 autoflake==2.2.1
-
-# Tipado estático
 mypy==1.10.0
-
-# Pre-commit hooks
 pre-commit==3.7.0
-
-# HTTP cliente asíncrono (NECESARIO PARA OAUTH)
-httpx>=0.25.2
-
-# ORM
-sqlalchemy
-
-# PostgreSQL driver
-psycopg2-binary
-
-# Seguridad de contraseñas
-passlib[bcrypt]
-
-pydantic==2.5.0
-pydantic[email]
-
-uvicorn[standard]==0.24.0
-
-# JWT tokens (NECESARIO PARA OAUTH)
-python-jose[cryptography]==3.3.0
-PyJWT==2.8.0
-
-# Dependencias existentes
-redis==5.0.1
 pytest==7.4.3
 pytest-asyncio==0.21.1
-python-multipart==0.0.6
-sqlalchemy==2.0.23
-passlib[bcrypt]==1.7.4
-python-dotenv==1.0.0
-
-# OAuth dependencies
-authlib==1.2.1
-itsdangerous==2.1.2
