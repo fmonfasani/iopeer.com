@@ -22,16 +22,15 @@ pre-commit==3.7.0
 httpx>=0.25.2
 
 # ORM
-sqlalchemy
+sqlalchemy==2.0.23
 
 # PostgreSQL driver
 psycopg2-binary
 
 # Seguridad de contraseñas
-passlib[bcrypt]
+passlib[bcrypt]==1.7.4
 
-pydantic==2.5.0
-pydantic[email]
+pydantic[email]==2.5.0
 
 uvicorn[standard]==0.24.0
 
@@ -44,8 +43,6 @@ redis==5.0.1
 pytest==7.4.3
 pytest-asyncio==0.21.1
 python-multipart==0.0.6
-sqlalchemy==2.0.23
-passlib[bcrypt]==1.7.4
 python-dotenv==1.0.0
 
 # OAuth dependencies
