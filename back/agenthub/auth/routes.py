@@ -96,8 +96,43 @@ def login(user: SignInInput, db: Session = Depends(get_db)):
         }
     }
 
+from fastapi import Request
+from jose import JWTError, jwt
+from .utils import SECRET_KEY, ALGORITHM
+
+
 @router.get("/me")
-def get_current_user(db: Session = Depends(get_db)):
-    """Obtener información del usuario actual - placeholder"""
-    # TODO: Implementar verificación de token JWT
-    return {"message": "Endpoint de usuario actual - por implementar"}
+def get_current_user(request: Request, db: Session = Depends(get_db)):
+    """Return authenticated user information from JWT token."""
+
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or missing token",
+        )
+
+    token = auth_header.split(" ", 1)[1]
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("user_id")
+        if user_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token payload",
+            )
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+        )
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+        )
+
+    return {"id": user.id, "email": user.email, "is_active": user.is_active}
