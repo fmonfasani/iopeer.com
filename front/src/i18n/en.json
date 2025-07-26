@@ -31,6 +31,17 @@
     "noAccount": "Don't have an account?",
     "register": "Register here"
   },
+  "signup": {
+    "title": "Create an account",
+    "submit": "Sign Up",
+    "haveAccount": "Already have an account?",
+    "login": "Log in"
+  },
+  "reset": {
+    "title": "Reset your password",
+    "submit": "Send reset link",
+    "success": "If that email exists, you'll receive reset instructions."
+  },
   "hero": {
     "titlePart1": "Revolutionize your",
     "titleHighlight": "Development",

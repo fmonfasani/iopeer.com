@@ -31,6 +31,17 @@
     "noAccount": "¿No tienes cuenta?",
     "register": "Regístrate aquí"
   },
+  "signup": {
+    "title": "Crea una cuenta",
+    "submit": "Registrarse",
+    "haveAccount": "¿Ya tienes cuenta?",
+    "login": "Inicia sesión"
+  },
+  "reset": {
+    "title": "Restablecer contraseña",
+    "submit": "Enviar enlace",
+    "success": "Si el correo existe, recibirás instrucciones."
+  },
   "hero": {
     "titlePart1": "Revoluciona tu",
     "titleHighlight": "Desarrollo",
