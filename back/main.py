@@ -26,6 +26,9 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import text
 
+from workflow_engine import runtime as wf_runtime
+from workflow_engine.core.WorkflowEngine import AgentRegistry, EventBus, WorkflowEngine
+
 # Imports de agenthub
 from agenthub.agents.backend_agent import BackendAgent
 from agenthub.agents.base_agent import BaseAgent
@@ -38,7 +41,9 @@ from workflow_engine.core.WorkflowEngine import EventBus
 from agenthub.auth import router as auth_router
 from agenthub.database.connection import SessionLocal, engine, Base
 from agenthub.auth.oauth_routes import router as oauth_router
-from api.workflows import router as workflows_router
+
+from api.workflows import router as workflow_engine_router
+
 
 # Logging
 logging.basicConfig(
@@ -86,6 +91,19 @@ async def startup_event():
             logger.info("✅ Default workflows loaded")
         except ImportError:
             logger.warning("⚠️ Default workflows not available")
+
+
+        # 5. Initialize workflow engine and register agents
+        wf_runtime.agent_registry = AgentRegistry()
+        wf_runtime.event_bus = EventBus()
+        wf_runtime.workflow_engine = WorkflowEngine(
+            wf_runtime.agent_registry, wf_runtime.event_bus
+        )
+        for agent_id, agent in orchestrator.agent_registry.agents.items():
+            definition = agent.get_capabilities()
+            wf_runtime.agent_registry.register_agent(agent_id, agent, definition)
+        logger.info("✅ Workflow engine initialized")
+
 
         logger.info("✅ IOPeer Agent Hub started successfully")
 
@@ -189,7 +207,9 @@ app.add_middleware(
 # Include auth routes
 app.include_router(auth_router, prefix="/auth", tags=["authentication"])
 app.include_router(oauth_router, prefix="/auth/oauth", tags=["oauth"])
-app.include_router(workflows_router)
+
+app.include_router(workflow_engine_router)
+
 
 
 # ============================================
@@ -248,22 +268,11 @@ async def root():
             "/agents",
             "/message/send",
             "/workflows",
-            "/ws/events",
+
+            "/workflow_engine",
         ],
     }
 
-
-@app.websocket("/ws/events")
-async def websocket_events(websocket: WebSocket):
-    """WebSocket para recibir eventos en tiempo real."""
-    await websocket.accept()
-    event_bus.websocket_connections.append(websocket)
-    try:
-        while True:
-            await websocket.receive_text()
-    except WebSocketDisconnect:
-        if websocket in event_bus.websocket_connections:
-            event_bus.websocket_connections.remove(websocket)
 
 
 @app.get("/health")
@@ -352,8 +361,9 @@ async def send_message(req: MessageRequest):
         logger.info(f"📤 Sending message to {req.agent_id}: {req.action}")
 
         result = orchestrator.send_message(
-            req.agent_id,
-            {"action": req.action, "data": req.data},
+
+            req.agent_id, {"action": req.action, "data": req.data}
+
         )
 
         logger.info(f"📨 Response from {req.agent_id}: {result}")
