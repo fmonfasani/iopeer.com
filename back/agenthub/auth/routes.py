@@ -1,8 +1,6 @@
 import logging
 
-from agenthub.auth.auth import create_access_token
 from agenthub.auth.schemas import SignInInput
-from agenthub.auth.utils import verify_password
 from agenthub.database.connection import get_db
 from agenthub.models.user import User
 from fastapi import APIRouter, Depends, HTTPException, status, Header
