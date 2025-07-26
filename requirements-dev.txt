@@ -1,22 +1,14 @@
-fastapi>=0.115.1
-requests
+-r requirements.txt
+
+# Development tools
 types-requests
-PyYAML>=6.0
-
-# Compatibilidad con Kubernetes
-urllib3<2.0
-
-# Linter, formatter y orden de imports
 black==24.4.2
 isort==5.12.0
 flake8==6.1.0
 autoflake==2.2.1
-
-# Tipado estático
 mypy==1.10.0
-
-# Pre-commit hooks
 pre-commit==3.7.0
+
 
 # HTTP cliente asíncrono (NECESARIO PARA OAUTH)
 httpx>=0.25.2
@@ -48,3 +40,4 @@ python-dotenv==1.0.0
 # OAuth dependencies
 authlib==1.2.1
 itsdangerous==2.1.2
+

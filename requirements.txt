@@ -1,22 +1,10 @@
+# Runtime dependencies
 fastapi>=0.115.1
 requests
-types-requests
 PyYAML>=6.0
 
 # Compatibilidad con Kubernetes
 urllib3<2.0
-
-# Linter, formatter y orden de imports
-black==24.4.2
-isort==5.12.0
-flake8==6.1.0
-autoflake==2.2.1
-
-# Tipado estático
-mypy==1.10.0
-
-# Pre-commit hooks
-pre-commit==3.7.0
 
 # HTTP cliente asíncrono (NECESARIO PARA OAUTH)
 httpx>=0.25.2
@@ -40,8 +28,6 @@ PyJWT==2.8.0
 
 # Dependencias existentes
 redis==5.0.1
-pytest==7.4.3
-pytest-asyncio==0.21.1
 python-multipart==0.0.6
 python-dotenv==1.0.0
 
