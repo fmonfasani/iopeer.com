@@ -7,7 +7,9 @@ export interface WorkflowDefinition {
   tasks: string[];
   parallel?: boolean;
   timeout?: number;
-  executions?: number;
+
+  [key: string]: any;
+
 }
 
 export interface WorkflowExecution {
@@ -22,17 +24,17 @@ export const useWorkflow = () => {
   const [workflows, setWorkflows] = useState<WorkflowDefinition[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [lastExecution, setLastExecution] = useState<WorkflowExecution | null>(null);
+
+  const [currentExecution, setCurrentExecution] = useState<WorkflowExecution | null>(null);
 
 
   const loadWorkflows = useCallback(async () => {
     setLoading(true);
     setError(null);
 
-
     try {
-      const data = await iopeerAPI.getWorkflows();
-      setWorkflows(data.workflows || []);
+      const response = await iopeerAPI.getWorkflows();
+      setWorkflows(response.workflows || []);
 
     } catch (err: any) {
       setError(err.message || 'Failed to load workflows');
@@ -42,22 +44,28 @@ export const useWorkflow = () => {
   }, []);
 
 
-  const startWorkflow = useCallback(async (workflowName: string, data: Record<string, any> = {}) => {
+  const startWorkflow = useCallback(async (workflowName: string, data: any = {}) => {
     setLoading(true);
     setError(null);
     try {
-      const result = await iopeerAPI.startWorkflow(workflowName, data);
-      setLastExecution(result);
-      return result;
+      const response = await iopeerAPI.startWorkflow(workflowName, data);
+      const execution: WorkflowExecution = {
+        execution_id: response.execution_id,
+        workflow: response.workflow,
+        status: response.status,
+        execution_time: response.execution_time,
+        result: response.result,
+      };
+      setCurrentExecution(execution);
+      return execution;
     } catch (err: any) {
-      setError(err.message || 'Failed to execute workflow');
+      setError(err.message || 'Failed to start workflow');
+
       throw err;
     } finally {
       setLoading(false);
     }
   }, []);
-
-  const clearError = () => setError(null);
 
 
   useEffect(() => {
@@ -69,11 +77,12 @@ export const useWorkflow = () => {
     loading,
     error,
 
-    lastExecution,
-    loadWorkflows,
+    currentExecution,
+    reload: loadWorkflows,
     startWorkflow,
-    clearError,
   };
 };
 
+
 export default useWorkflow;
+
