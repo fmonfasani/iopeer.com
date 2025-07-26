@@ -137,7 +137,7 @@ export const useIopeer = () => {
     } finally {
       setLoading(false);
     }
-  }, [makeRequest, handleError, retryAttempts, maxRetries, agents]);
+  }, [makeRequest, handleError, retryAttempts, maxRetries, agents, clearError]);
 
   const sendMessage = useCallback(async (agentId, action, data = {}) => {
     if (connectionStatus !== 'connected') {
