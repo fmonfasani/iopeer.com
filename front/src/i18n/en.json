@@ -23,13 +23,13 @@
     "email": "Email",
     "password": "Password",
     "remember": "Remember me",
-    "forgot": "Forgot your password?",
+    "forgot": "Forgot your password? (not supported yet)",
     "submit": "Sign In",
     "continue": "Or continue with",
     "google": "Google",
     "github": "GitHub",
     "noAccount": "Don't have an account?",
-    "register": "Register here"
+    "register": "Registration coming soon"
   },
   "hero": {
     "titlePart1": "Revolutionize your",
