@@ -79,6 +79,10 @@ config.local.yaml
 registry.local.json
 .secrets/
 
+# Debug scripts
+debug_*.py
+*_debug.py
+
 # Docker
 .dockerignore
 

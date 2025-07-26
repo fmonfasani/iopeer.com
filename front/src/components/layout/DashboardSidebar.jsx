@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
+
   BarChart3,
   Users,
   Zap,
@@ -10,6 +11,7 @@ import {
   Activity,
   ChevronRight,
   LogOut,
+
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -24,7 +26,9 @@ const DashboardSidebar = () => {
     { name: 'Mis Agentes', href: '/agents', icon: Users },
     { name: 'Workflows', href: '/workflows', icon: Activity },
     { name: 'AI Generator', href: '/ui-generator', icon: Zap },
+    { name: 'Workflows', href: '/workflows', icon: Workflow },
     { name: 'Marketplace', href: '/marketplace', icon: FileText },
+    { name: 'Workflows', href: '/workflows', icon: Workflow },
     { name: 'Analytics', href: '/analytics', icon: TrendingUp },
     { name: 'Reports', href: '/reports', icon: FileText },
     { name: 'Settings', href: '/settings', icon: Settings },
