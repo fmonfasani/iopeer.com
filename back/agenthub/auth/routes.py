@@ -1,16 +1,25 @@
 import logging
 
 from agenthub.auth.schemas import SignInInput
+
+from .utils import create_access_token, verify_password, verify_access_token
+
 from agenthub.database.connection import get_db
 from agenthub.models.user import User
-from fastapi import APIRouter, Depends, HTTPException, status, Header
-from jose import jwt, JWTError
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError
+
 from passlib.context import CryptContext
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from .schemas import UserCreate
-from .utils import create_access_token, verify_password, SECRET_KEY, ALGORITHM
+
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -97,26 +106,32 @@ def login(user: SignInInput, db: Session = Depends(get_db)):
 
 @router.get("/me")
 def get_current_user(
+
+    token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
-    authorization: str | None = Header(default=None)
 ):
-    """Return the currently authenticated user."""
-
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-
-    token = authorization.split(" ", 1)[1]
+    """Return info for the authenticated user."""
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = verify_access_token(token)
+        email = payload.get("sub")
     except JWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+        )
 
-    user_id = payload.get("user_id")
-    if user_id is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    if not email:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+        )
 
-    user = db.query(User).filter(User.id == user_id).first()
+    user = db.query(User).filter(User.email == email).first()
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+        )
+
 
     return {"id": user.id, "email": user.email, "is_active": user.is_active}
