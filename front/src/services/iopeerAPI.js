@@ -82,7 +82,14 @@ class IopeerAPI {
     return this.request('/workflows');
   }
 
-  async startWorkflow(workflowName, data = {}) {
+  async createWorkflow({ name, tasks = [], parallel = false, timeout = 30 }) {
+    return this.request('/workflows/register', {
+      method: 'POST',
+      body: JSON.stringify({ name, tasks, parallel, timeout }),
+    });
+  }
+
+  async executeWorkflow(workflowName, data = {}) {
     return this.request('/workflow/start', {
       method: 'POST',
       body: JSON.stringify({
