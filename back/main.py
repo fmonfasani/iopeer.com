@@ -37,6 +37,7 @@ from agenthub.orchestrator import orchestrator
 from agenthub.auth import router as auth_router
 from agenthub.database.connection import SessionLocal, engine, Base
 from agenthub.auth.oauth_routes import router as oauth_router
+from api.workflows import router as workflows_router
 
 # Logging
 logging.basicConfig(
@@ -179,6 +180,7 @@ app.add_middleware(
 # Include auth routes
 app.include_router(auth_router, prefix="/auth", tags=["authentication"])
 app.include_router(oauth_router, prefix="/auth/oauth", tags=["oauth"])
+app.include_router(workflows_router)
 
 
 # ============================================
