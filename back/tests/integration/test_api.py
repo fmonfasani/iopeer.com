@@ -65,3 +65,8 @@ class TestAPI:
         data = response.json()
         assert "ghost" in data["detail"]
         assert "Available agents" in data["detail"]
+
+    def test_get_agent_route_not_available(self, client):
+        """Requesting a single agent should return 404 when route is absent."""
+        response = client.get("/agents/ghost")
+        assert response.status_code == 404

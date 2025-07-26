@@ -2,16 +2,22 @@ import logging
 
 from agenthub.auth.schemas import SignInInput
 
+
 from agenthub.database.connection import get_db
 from agenthub.models.user import User
+
 from fastapi import APIRouter, Depends, HTTPException, status
+
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
 from passlib.context import CryptContext
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from .schemas import UserCreate
+
 from .utils import create_access_token, verify_password, verify_access_token
+
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -99,6 +105,7 @@ def login(user: SignInInput, db: Session = Depends(get_db)):
 
 @router.get("/me")
 def get_current_user(
+
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db),
 ):

@@ -64,6 +64,17 @@ class Workflow:
         self.created_at = datetime.now()
         self.metadata: Dict[str, Any] = {}
 
+    def add_node(self, node: "WorkflowNode") -> None:
+        """Añade un nodo al workflow"""
+        self.nodes[node.id] = node
+
+    def add_connection(self, connection: "WorkflowConnection") -> None:
+        """Registra una conexión entre nodos"""
+        self.connections.append(connection)
+        target = self.nodes.get(connection.target_id)
+        if target and connection.source_id not in target.inputs:
+            target.inputs.append(connection.source_id)
+
 
 class WorkflowEngine:
     """Motor principal de ejecución de workflows"""
@@ -186,12 +197,16 @@ class WorkflowExecution:
             # Preparar datos de entrada
             input_data = self._prepare_node_input(node)
 
-            # Ejecutar agente
-            result = await agent.handle({
+            # Ejecutar agente (permite funciones síncronas o asíncronas)
+            call_result = agent.handle({
                 "action": node.config.get("action", "process"),
                 "data": input_data,
-                "config": node.config
+                "config": node.config,
             })
+            if asyncio.iscoroutine(call_result):
+                result = await call_result
+            else:
+                result = call_result
 
             # Guardar resultado
             node.result = result
@@ -407,6 +422,23 @@ class EventBus:
             "timestamp": datetime.now().isoformat(),
         }
 
-        # Implementar broadcast a WebSocket connections
-        # (esto se integraría con FastAPI WebSocket)
-        pass
+        # Enviar mensaje a todas las websockets registradas
+        for ws in list(self.websocket_connections):
+            try:
+                await ws.send_json(message)
+            except Exception:
+                try:
+                    await ws.close()
+                finally:
+                    if ws in self.websocket_connections:
+                        self.websocket_connections.remove(ws)
+
+    def register_websocket(self, ws: Any) -> None:
+        """Registra una conexión WebSocket para recibir eventos"""
+        if ws not in self.websocket_connections:
+            self.websocket_connections.append(ws)
+
+    def unregister_websocket(self, ws: Any) -> None:
+        """Elimina una conexión WebSocket"""
+        if ws in self.websocket_connections:
+            self.websocket_connections.remove(ws)
