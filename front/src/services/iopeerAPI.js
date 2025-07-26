@@ -16,13 +16,19 @@ class IopeerAPI {
 
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
+    const token = localStorage.getItem('token');
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      ...options.headers,
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     try {
       const response = await fetch(url, {
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest',
-          ...options.headers,
-        },
+        headers,
         signal: controller.signal,
         ...options,
       });
