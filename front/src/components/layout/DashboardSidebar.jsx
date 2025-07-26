@@ -4,7 +4,7 @@ import {
   BarChart3, Users, Zap, FileText, TrendingUp, Settings,
   ChevronRight, LogOut
 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext_';
+import { useAuth } from '../../context/AuthContext';
 
 const DashboardSidebar = () => {
   const [isHovered, setIsHovered] = useState(false);

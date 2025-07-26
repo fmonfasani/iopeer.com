@@ -16,7 +16,7 @@ import {
   Workflow,
   AlertTriangle
 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext_';
+import { useAuth } from '../../context/AuthContext';
 import { useIopeer } from '../../hooks/useIopeer';
 import LoadingSpinner from '../ui/LoadingSpinner';
 

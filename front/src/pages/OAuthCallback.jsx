@@ -1,7 +1,7 @@
 // front/src/pages/OAuthCallback.jsx - NUEVO COMPONENTE
 import React, { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext_';
+import { useAuth } from '../context/AuthContext';
 
 const OAuthCallback = () => {
   const [searchParams] = useSearchParams();

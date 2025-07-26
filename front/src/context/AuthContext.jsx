@@ -1,6 +1,9 @@
-// front/src/context/AuthContext.jsx - AJUSTADO PARA MODELO SIMPLIFICADO
+// front/src/context/AuthContext.jsx - VERSIÓN CORREGIDA
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+
+// 🆕 DEFINIR API_URL
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 const AuthContext = createContext();
 
@@ -66,7 +69,6 @@ export const AuthProvider = ({ children }) => {
           const userData = {
             email: payload.sub,
             provider: provider,
-            // Campos simplificados - solo lo que tenemos en el modelo
             id: payload.user_id || null
           };
           setUser(userData);
@@ -89,7 +91,7 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log('🔄 Attempting login...');
       
-      const response = await fetch('http://localhost:8000/auth/signin', {
+      const response = await fetch(`${API_URL}/auth/signin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -101,11 +103,9 @@ export const AuthProvider = ({ children }) => {
       if (response.ok) {
         const authToken = data.access_token;
         
-        // Usar datos simplificados - solo lo que necesitamos
         const userData = {
-          email: email, // Usamos el email del input
+          email: email,
           id: data.user?.id || null,
-          // No incluir campos que no existen en el modelo
         };
 
         // Update state
@@ -132,15 +132,47 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // OAuth login functions
-  const loginWithGitHub = () => {
+  // OAuth login functions - USING DIRECT OAUTH
+  const loginWithGitHub = async () => {
     console.log('🔄 Iniciando login con GitHub...');
-    window.location.href = 'http://localhost:8000/auth/oauth/github';
+    
+    // Verificar si OAuth está configurado
+    try {
+      const statusResponse = await fetch(`${API_URL}/auth/oauth/status`);
+      const status = await statusResponse.json();
+      
+      if (!status.oauth_enabled || !status.github_configured) {
+        console.error('🔴 GitHub OAuth no está configurado');
+        alert('GitHub OAuth no está configurado. Verifica las variables de entorno.');
+        return;
+      }
+    } catch (error) {
+      console.error('🔴 Error checking OAuth status:', error);
+    }
+    
+    // Redirigir a GitHub OAuth
+    window.location.href = `${API_URL}/auth/oauth/github`;
   };
 
-  const loginWithGoogle = () => {
+  const loginWithGoogle = async () => {
     console.log('🔄 Iniciando login con Google...');
-    window.location.href = 'http://localhost:8000/auth/oauth/google';
+    
+    // Verificar si OAuth está configurado
+    try {
+      const statusResponse = await fetch(`${API_URL}/auth/oauth/status`);
+      const status = await statusResponse.json();
+      
+      if (!status.oauth_enabled || !status.google_configured) {
+        console.error('🔴 Google OAuth no está configurado');
+        alert('Google OAuth no está configurado. Verifica las variables de entorno.');
+        return;
+      }
+    } catch (error) {
+      console.error('🔴 Error checking OAuth status:', error);
+    }
+    
+    // Redirigir a Google OAuth
+    window.location.href = `${API_URL}/auth/oauth/google`;
   };
 
   const logout = () => {
@@ -156,12 +188,12 @@ export const AuthProvider = ({ children }) => {
     console.log('✅ User logged out');
   };
 
-  // Check if token is valid (you can expand this to verify with backend)
+  // Check if token is valid
   const verifyToken = async () => {
     if (!token) return false;
 
     try {
-      const response = await fetch('http://localhost:8000/auth/verify', {
+      const response = await fetch(`${API_URL}/auth/verify`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -195,8 +227,11 @@ export const AuthProvider = ({ children }) => {
   // Show loading spinner while initializing
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando...</p>
+        </div>
       </div>
     );
   }

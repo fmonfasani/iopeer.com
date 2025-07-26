@@ -1,7 +1,13 @@
 # ============================================
-# back/main.py - ADAPTADO DESDE agenthub/main.py CON AUTH
+# back/main.py - ORDEN DE IMPORTS CORREGIDO
 # ============================================
 
+# 1. PRIMERO: Cargar variables de entorno
+import os
+from dotenv import load_dotenv
+load_dotenv()  # ← CARGAR VARIABLES ANTES DE CUALQUIER IMPORT DE OAUTH
+
+# 2. SEGUNDO: Imports estándar
 import json
 import logging
 from contextlib import asynccontextmanager
@@ -14,22 +20,26 @@ try:
 except Exception:  # pragma: no cover - optional dependency
     uvicorn = None
 
+# 3. TERCERO: FastAPI imports
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import text
 
-# Imports de agenthub
+# 4. CUARTO: Imports de agenthub (sin oauth)
 from agenthub.agents.backend_agent import BackendAgent
 from agenthub.agents.base_agent import BaseAgent
 from agenthub.agents.qa_agent import QAAgent
 from agenthub.config import config
 from agenthub.orchestrator import orchestrator
 
-# Imports de auth y database
+# 5. QUINTO: Imports de auth y database (sin oauth)
 from agenthub.auth import router as auth_router
 from agenthub.database.connection import SessionLocal, engine, Base
+
+# 6. ¡POR ÚLTIMO!: Import de oauth (DESPUÉS de load_dotenv)
+from agenthub.auth.oauth_routes import router as oauth_router
 
 # Logging
 logging.basicConfig(

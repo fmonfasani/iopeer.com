@@ -18,12 +18,11 @@ mypy==1.10.0
 # Pre-commit hooks
 pre-commit==3.7.0
 
-
-httpx
+# HTTP cliente asíncrono (NECESARIO PARA OAUTH)
+httpx>=0.25.2
 
 # ORM
 sqlalchemy
-
 
 # PostgreSQL driver
 psycopg2-binary
@@ -36,23 +35,19 @@ pydantic[email]
 
 uvicorn[standard]==0.24.0
 
-# JWT tokens
-python-jose
+# JWT tokens (NECESARIO PARA OAUTH)
+python-jose[cryptography]==3.3.0
+PyJWT==2.8.0
 
 # Dependencias existentes
-
-pydantic==2.5.0
 redis==5.0.1
 pytest==7.4.3
 pytest-asyncio==0.21.1
-httpx==0.25.2
 python-multipart==0.0.6
 sqlalchemy==2.0.23
-python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 python-dotenv==1.0.0
 
-# Nuevas dependencias para OAuth
+# OAuth dependencies
 authlib==1.2.1
 itsdangerous==2.1.2
-requests==2.31.0

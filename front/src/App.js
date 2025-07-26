@@ -6,7 +6,7 @@ import ErrorBoundary from './components/ui/ErrorBoundary';
 import Login from './pages/Login';
 import LandingPage from './pages/LandingPage';
 import OAuthCallback from './pages/OAuthCallback';
-import { AuthProvider, useAuth } from './context/AuthContext_';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import Dashboard from './pages/Dashboard';
 
 // Protected Route Component

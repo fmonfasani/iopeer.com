@@ -1,7 +1,7 @@
 // src/hooks/useLanding.js
 import { useState, useEffect, useCallback } from 'react';
 import { marketplaceService } from '../services/marketplace.service';
-import { useAuth } from '../context/AuthContext_';
+import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 export const useLanding = () => {
