@@ -16,13 +16,19 @@ class IopeerAPI {
 
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
+    const token = localStorage.getItem('token');
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      ...options.headers,
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     try {
       const response = await fetch(url, {
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest',
-          ...options.headers,
-        },
+        headers,
         signal: controller.signal,
         ...options,
       });
@@ -76,7 +82,14 @@ class IopeerAPI {
     return this.request('/workflows');
   }
 
-  async startWorkflow(workflowName, data = {}) {
+  async createWorkflow({ name, tasks = [], parallel = false, timeout = 30 }) {
+    return this.request('/workflows/register', {
+      method: 'POST',
+      body: JSON.stringify({ name, tasks, parallel, timeout }),
+    });
+  }
+
+  async executeWorkflow(workflowName, data = {}) {
     return this.request('/workflow/start', {
       method: 'POST',
       body: JSON.stringify({

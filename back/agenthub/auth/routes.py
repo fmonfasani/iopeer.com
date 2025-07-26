@@ -1,17 +1,16 @@
 import logging
 
-from agenthub.auth.auth import create_access_token
 from agenthub.auth.schemas import SignInInput
-from agenthub.auth.utils import verify_password
 from agenthub.database.connection import get_db
 from agenthub.models.user import User
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Header
+from jose import jwt, JWTError
 from passlib.context import CryptContext
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from .schemas import UserCreate
-from .utils import create_access_token, verify_password
+from .utils import create_access_token, verify_password, SECRET_KEY, ALGORITHM
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -97,7 +96,27 @@ def login(user: SignInInput, db: Session = Depends(get_db)):
     }
 
 @router.get("/me")
-def get_current_user(db: Session = Depends(get_db)):
-    """Obtener información del usuario actual - placeholder"""
-    # TODO: Implementar verificación de token JWT
-    return {"message": "Endpoint de usuario actual - por implementar"}
+def get_current_user(
+    db: Session = Depends(get_db),
+    authorization: str | None = Header(default=None)
+):
+    """Return the currently authenticated user."""
+
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+    token = authorization.split(" ", 1)[1]
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+    user_id = payload.get("user_id")
+    if user_id is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+    return {"id": user.id, "email": user.email, "is_active": user.is_active}
