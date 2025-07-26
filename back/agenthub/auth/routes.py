@@ -5,13 +5,14 @@ from agenthub.auth.schemas import SignInInput
 from agenthub.auth.utils import verify_password
 from agenthub.database.connection import get_db
 from agenthub.models.user import User
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from passlib.context import CryptContext
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from .schemas import UserCreate
-from .utils import create_access_token, verify_password
+from .utils import create_access_token, verify_password, SECRET_KEY, ALGORITHM
+from jose import jwt, JWTError
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -97,7 +98,28 @@ def login(user: SignInInput, db: Session = Depends(get_db)):
     }
 
 @router.get("/me")
-def get_current_user(db: Session = Depends(get_db)):
-    """Obtener información del usuario actual - placeholder"""
-    # TODO: Implementar verificación de token JWT
-    return {"message": "Endpoint de usuario actual - por implementar"}
+def get_current_user(request: Request, db: Session = Depends(get_db)):
+    """Return current user info based on the bearer token."""
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or missing token")
+
+    token = auth_header.split(" ", 1)[1]
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("user_id")
+        email = payload.get("sub")
+        if user_id is None or email is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+
+    user = db.query(User).filter(User.id == user_id, User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+
+    return {
+        "id": user.id,
+        "email": user.email,
+        "is_active": user.is_active,
+    }
