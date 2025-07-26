@@ -86,6 +86,18 @@ class IopeerAPI {
     });
   }
 
+  async createWorkflow({ name, tasks = [], parallel = false, timeout }) {
+    return this.request('/workflows/register', {
+      method: 'POST',
+      body: JSON.stringify({
+        name,
+        tasks,
+        parallel,
+        timeout,
+      }),
+    });
+  }
+
   // Stats
   async getStats() {
     return this.request('/stats');
