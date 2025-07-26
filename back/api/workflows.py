@@ -4,8 +4,8 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-from ..workflow_engine import runtime
-from ..workflow_engine.core.WorkflowEngine import (
+from workflow_engine import runtime
+from workflow_engine.core.WorkflowEngine import (
     Workflow,
     WorkflowNode,
     WorkflowConnection,
