@@ -11,6 +11,7 @@ import SettingsPage from '../pages/Settings';
 import UIGeneratorPage from '../pages/UIGeneratorPage';
 import WorkflowEditorPage from '../pages/WorkflowEditorPage';
 import DebugPage from '../pages/DebugPage';
+import Workflows from './Workflows';
 
 const Dashboard = () => {
   return (
@@ -22,6 +23,7 @@ const Dashboard = () => {
         <Route path="ui-generator" element={<UIGeneratorPage />} />
         <Route path="workflows" element={<WorkflowEditorPage />} />
         <Route path="marketplace" element={<Marketplace />} />
+        <Route path="workflows" element={<Workflows />} />
         <Route path="reports" element={<Reports />} />
         <Route path="analytics" element={<Analytics />} />
         <Route path="settings" element={<SettingsPage />} />

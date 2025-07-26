@@ -18,6 +18,7 @@ const DashboardSidebar = () => {
     { name: 'AI Generator', href: '/ui-generator', icon: Zap },
     { name: 'Workflows', href: '/workflows', icon: Workflow },
     { name: 'Marketplace', href: '/marketplace', icon: FileText },
+    { name: 'Workflows', href: '/workflows', icon: Workflow },
     { name: 'Analytics', href: '/analytics', icon: TrendingUp },
     { name: 'Reports', href: '/reports', icon: FileText },
     { name: 'Settings', href: '/settings', icon: Settings },
