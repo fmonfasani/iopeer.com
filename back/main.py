@@ -324,7 +324,7 @@ async def send_message(req: MessageRequest):
         )
         
         logger.info(f"📨 Response from {req.agent_id}: {result}")
-        return {"result": result, "status": "success"}
+        return {"message_sent": True, "result": result, "status": "success"}
 
     except ValueError as e:
         logger.error(f"Agent not found: {e}")

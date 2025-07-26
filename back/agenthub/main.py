@@ -40,6 +40,7 @@ from agenthub.database.connection import SessionLocal, engine, Base
 
 # 6. ¡POR ÚLTIMO!: Import de oauth (DESPUÉS de load_dotenv)
 from agenthub.auth.oauth_routes import router as oauth_router
+from api.workflows import router as workflows_router
 
 # Logging
 logging.basicConfig(
@@ -181,6 +182,7 @@ app.add_middleware(
 
 # Include auth routes
 app.include_router(auth_router, prefix="/auth", tags=["authentication"])
+app.include_router(workflows_router, prefix="/workflows", tags=["workflows"])
 
 # ============================================
 # PYDANTIC MODELS
@@ -323,7 +325,7 @@ async def send_message(req: MessageRequest):
         )
         
         logger.info(f"📨 Response from {req.agent_id}: {result}")
-        return {"result": result, "status": "success"}
+        return {"message_sent": True, "result": result, "status": "success"}
 
     except ValueError as e:
         logger.error(f"Agent not found: {e}")

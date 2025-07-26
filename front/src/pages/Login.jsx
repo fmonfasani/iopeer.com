@@ -67,8 +67,7 @@ const Login = () => {
 
   const handleSignUp = (e) => {
     e.preventDefault();
-    // TODO: Implementar registro
-    navigate('/signup'); // Redirect to signup page when implemented
+    alert('Registro no disponible aún');
   };
 
   return (
