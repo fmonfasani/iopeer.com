@@ -7,6 +7,7 @@ from agenthub.database.connection import get_db
 from agenthub.models.user import User
 
 from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi.security import HTTPBearer
 
 from passlib.context import CryptContext
 from pydantic import BaseModel
