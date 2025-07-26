@@ -2,6 +2,8 @@
 from datetime import datetime, timedelta
 
 from fastapi import HTTPException, status
+from passlib.context import CryptContext
+from jose import jwt, JWTError
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
