@@ -450,6 +450,18 @@ const metrics = {
 }
 ```
 
+### 📡 API en Tiempo Real
+
+Conéctate al endpoint de WebSocket `/ws/events` para recibir notificaciones en directo sobre la ejecución de los agentes y workflows.
+
+```javascript
+const ws = new WebSocket('ws://localhost:8000/ws/events');
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  console.log('Evento recibido:', data);
+};
+```
+
 ---
 
 ## 🔧 Demo 5: Casos de Uso Avanzados
@@ -520,7 +532,7 @@ cd iopeer
 cd back
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
+pip install -r requirements-dev.txt  # para producción usa requirements.txt
 
 # Ejecutar backend
 python -m agenthub.main

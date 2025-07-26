@@ -3,11 +3,12 @@
 # Motor de workflows visuales para IOPeer
 # ============================================
 
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional
 from datetime import datetime
 import asyncio
 import json
 from enum import Enum
+from fastapi import WebSocket
 
 
 class NodeStatus(Enum):
@@ -19,8 +20,8 @@ class NodeStatus(Enum):
 
 
 class ConnectionType(Enum):
-    SUCCESS = "success"      # Flujo normal
-    ERROR = "error"         # En caso de error
+    SUCCESS = "success"  # Flujo normal
+    ERROR = "error"  # En caso de error
     CONDITIONAL = "conditional"  # Basado en condición
 
 
@@ -43,9 +44,13 @@ class WorkflowNode:
 class WorkflowConnection:
     """Conexión entre dos nodos"""
 
-    def __init__(self, source_id: str, target_id: str,
-                 connection_type: ConnectionType = ConnectionType.SUCCESS,
-                 condition: Optional[str] = None):
+    def __init__(
+        self,
+        source_id: str,
+        target_id: str,
+        connection_type: ConnectionType = ConnectionType.SUCCESS,
+        condition: Optional[str] = None,
+    ):
         self.source_id = source_id
         self.target_id = target_id
         self.type = connection_type
@@ -64,6 +69,17 @@ class Workflow:
         self.created_at = datetime.now()
         self.metadata: Dict[str, Any] = {}
 
+    def add_node(self, node: "WorkflowNode") -> None:
+        """Añade un nodo al workflow"""
+        self.nodes[node.id] = node
+
+    def add_connection(self, connection: "WorkflowConnection") -> None:
+        """Registra una conexión entre nodos"""
+        self.connections.append(connection)
+        target = self.nodes.get(connection.target_id)
+        if target and connection.source_id not in target.inputs:
+            target.inputs.append(connection.source_id)
+
 
 class WorkflowEngine:
     """Motor principal de ejecución de workflows"""
@@ -71,10 +87,11 @@ class WorkflowEngine:
     def __init__(self, agent_registry, event_bus):
         self.agent_registry = agent_registry
         self.event_bus = event_bus
-        self.active_executions: Dict[str, 'WorkflowExecution'] = {}
+        self.active_executions: Dict[str, "WorkflowExecution"] = {}
 
-    async def execute_workflow(self, workflow: Workflow,
-                               initial_data: Dict[str, Any] = None) -> str:
+    async def execute_workflow(
+        self, workflow: Workflow, initial_data: Dict[str, Any] = None
+    ) -> str:
         """Ejecuta un workflow completo"""
 
         execution_id = f"exec_{workflow.id}_{int(datetime.now().timestamp())}"
@@ -88,29 +105,34 @@ class WorkflowEngine:
 
         try:
             # Emitir evento de inicio
-            await self.event_bus.emit("workflow_started", {
-                "execution_id": execution_id,
-                "workflow_id": workflow.id,
-                "workflow_name": workflow.name
-            })
+            await self.event_bus.emit(
+                "workflow_started",
+                {
+                    "execution_id": execution_id,
+                    "workflow_id": workflow.id,
+                    "workflow_name": workflow.name,
+                },
+            )
 
             # Ejecutar workflow
             result = await execution.run(self.agent_registry)
 
             # Emitir evento de finalización
-            await self.event_bus.emit("workflow_completed", {
-                "execution_id": execution_id,
-                "result": result,
-                "duration": execution.get_duration()
-            })
+            await self.event_bus.emit(
+                "workflow_completed",
+                {
+                    "execution_id": execution_id,
+                    "result": result,
+                    "duration": execution.get_duration(),
+                },
+            )
 
             return execution_id
 
         except Exception as e:
-            await self.event_bus.emit("workflow_failed", {
-                "execution_id": execution_id,
-                "error": str(e)
-            })
+            await self.event_bus.emit(
+                "workflow_failed", {"execution_id": execution_id, "error": str(e)}
+            )
             raise
         finally:
             # Limpiar ejecución activa
@@ -121,8 +143,13 @@ class WorkflowEngine:
 class WorkflowExecution:
     """Contexto de ejecución de un workflow específico"""
 
-    def __init__(self, execution_id: str, workflow: Workflow,
-                 initial_data: Dict[str, Any], event_bus):
+    def __init__(
+        self,
+        execution_id: str,
+        workflow: Workflow,
+        initial_data: Dict[str, Any],
+        event_bus,
+    ):
         self.execution_id = execution_id
         self.workflow = workflow
         self.initial_data = initial_data or {}
@@ -161,7 +188,7 @@ class WorkflowExecution:
             "execution_id": self.execution_id,
             "status": self._get_overall_status(),
             "results": self._collect_results(),
-            "duration": self.get_duration()
+            "duration": self.get_duration(),
         }
 
     async def _execute_node(self, node: WorkflowNode, agent_registry):
@@ -171,11 +198,14 @@ class WorkflowExecution:
         node.started_at = datetime.now()
 
         # Emitir evento de inicio de nodo
-        await self.event_bus.emit("node_started", {
-            "execution_id": self.execution_id,
-            "node_id": node.id,
-            "agent_type": node.agent_type
-        })
+        await self.event_bus.emit(
+            "node_started",
+            {
+                "execution_id": self.execution_id,
+                "node_id": node.id,
+                "agent_type": node.agent_type,
+            },
+        )
 
         try:
             # Obtener agente del registro
@@ -186,12 +216,16 @@ class WorkflowExecution:
             # Preparar datos de entrada
             input_data = self._prepare_node_input(node)
 
+
             # Ejecutar agente
-            result = await agent.handle({
-                "action": node.config.get("action", "process"),
-                "data": input_data,
-                "config": node.config
-            })
+            result = await agent.handle(
+                {
+                    "action": node.config.get("action", "process"),
+                    "data": input_data,
+                    "config": node.config,
+                }
+            )
+
 
             # Guardar resultado
             node.result = result
@@ -202,23 +236,29 @@ class WorkflowExecution:
             self.execution_context[f"node_{node.id}"] = result
 
             # Emitir evento de nodo completado
-            await self.event_bus.emit("node_completed", {
-                "execution_id": self.execution_id,
-                "node_id": node.id,
-                "result": result,
-                "duration": (node.completed_at - node.started_at).total_seconds()
-            })
+            await self.event_bus.emit(
+                "node_completed",
+                {
+                    "execution_id": self.execution_id,
+                    "node_id": node.id,
+                    "result": result,
+                    "duration": (node.completed_at - node.started_at).total_seconds(),
+                },
+            )
 
         except Exception as e:
             node.status = NodeStatus.FAILED
             node.error = str(e)
             node.completed_at = datetime.now()
 
-            await self.event_bus.emit("node_failed", {
-                "execution_id": self.execution_id,
-                "node_id": node.id,
-                "error": str(e)
-            })
+            await self.event_bus.emit(
+                "node_failed",
+                {
+                    "execution_id": self.execution_id,
+                    "node_id": node.id,
+                    "error": str(e),
+                },
+            )
 
             raise
 
@@ -287,17 +327,55 @@ class WorkflowExecution:
         return True
 
     def _evaluate_condition(self, condition: str) -> bool:
-        """Evalúa una condición lógica"""
-        # Implementación simple - en producción usar un parser más robusto
-        try:
-            # Reemplazar variables del contexto en la condición
-            for key, value in self.execution_context.items():
-                condition = condition.replace(f"{{{key}}}", str(value))
+        """Evalúa una condición lógica de forma segura."""
 
-            # Evaluar condición (¡CUIDADO: eval es peligroso en producción!)
-            return eval(condition)
+        import ast
+
+        def _safe_eval(expr: str, variables: Dict[str, Any]) -> bool:
+            """Evalúa la expresión permitiendo solo operaciones seguras."""
+
+            allowed_nodes = (
+                ast.Expression,
+                ast.BoolOp,
+                ast.BinOp,
+                ast.UnaryOp,
+                ast.Compare,
+                ast.Name,
+                ast.Load,
+                ast.Constant,
+                ast.And,
+                ast.Or,
+                ast.Not,
+                ast.Eq,
+                ast.NotEq,
+                ast.Lt,
+                ast.LtE,
+                ast.Gt,
+                ast.GtE,
+                ast.In,
+                ast.NotIn,
+                ast.Dict,
+                ast.Subscript,
+            )
+
+            tree = ast.parse(expr, mode="eval")
+            for node in ast.walk(tree):
+                if not isinstance(node, allowed_nodes):
+                    raise ValueError("Unsafe expression")
+                if isinstance(node, ast.Name) and node.id not in variables and node.id not in {"True", "False"}:
+                    raise ValueError(f"Unknown variable '{node.id}'")
+
+            compiled = compile(tree, "<expr>", "eval")
+            return bool(eval(compiled, {"__builtins__": {}}, variables))
+
+        try:
+            for key, value in self.execution_context.items():
+                condition = condition.replace(f"{{{key}}}", repr(value))
+
+            return _safe_eval(condition, self.execution_context)
         except Exception:
-            return True  # Default to execute if condition fails
+            # Si la expresión es maliciosa o inválida, no ejecutar el nodo
+            return False
 
     def get_duration(self) -> float:
         """Retorna la duración de la ejecución en segundos"""
@@ -329,7 +407,8 @@ class WorkflowExecution:
                     "result": node.result,
                     "duration": (
                         (node.completed_at - node.started_at).total_seconds()
-                        if node.completed_at and node.started_at else 0
+                        if node.completed_at and node.started_at
+                        else 0
                     ),
                     "status": node.status.value,
                 }
@@ -349,7 +428,9 @@ class AgentRegistry:
         self.agents: Dict[str, Any] = {}
         self.agent_definitions: Dict[str, Dict[str, Any]] = {}
 
-    def register_agent(self, agent_type: str, agent_instance, definition: Dict[str, Any]):
+    def register_agent(
+        self, agent_type: str, agent_instance, definition: Dict[str, Any]
+    ):
         """Registra un agente en el sistema"""
         self.agents[agent_type] = agent_instance
         self.agent_definitions[agent_type] = definition
@@ -407,6 +488,14 @@ class EventBus:
             "timestamp": datetime.now().isoformat(),
         }
 
-        # Implementar broadcast a WebSocket connections
-        # (esto se integraría con FastAPI WebSocket)
-        pass
+
+        disconnects: List[WebSocket] = []
+        for websocket in list(self.websocket_connections):
+            try:
+                await websocket.send_json(message)
+            except Exception:
+                disconnects.append(websocket)
+
+        for websocket in disconnects:
+            if websocket in self.websocket_connections:
+                self.websocket_connections.remove(websocket)

@@ -16,6 +16,7 @@ const DashboardSidebar = () => {
     { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
     { name: 'Mis Agentes', href: '/agents', icon: Users },
     { name: 'AI Generator', href: '/ui-generator', icon: Zap },
+    { name: 'Workflows', href: '/workflows', icon: Workflow },
     { name: 'Marketplace', href: '/marketplace', icon: FileText },
     { name: 'Workflows', href: '/workflows', icon: Workflow },
     { name: 'Analytics', href: '/analytics', icon: TrendingUp },

@@ -12,7 +12,9 @@ export const ENDPOINTS = {
   AGENTS_REGISTER: '/agents/register',
   MESSAGE_SEND: '/message/send',
   WORKFLOWS: '/workflows',
+
   WORKFLOW_REGISTER: '/workflows/register',
+
   WORKFLOW_START: '/workflow/start',
   AUTH_LOGIN: '/auth/signin',
   AUTH_SIGNUP: '/auth/signup',
