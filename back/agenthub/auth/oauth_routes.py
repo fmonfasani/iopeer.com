@@ -27,27 +27,6 @@ FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 JWT_SECRET = os.getenv("JWT_SECRET", "your-secret-key-change-in-production")
 
-# Check if OAuth is configured
-def get_oauth_config():
-    """Get OAuth configuration with lazy loading"""
-    google_id = os.getenv("GOOGLE_CLIENT_ID")
-    google_secret = os.getenv("GOOGLE_CLIENT_SECRET")
-    github_id = os.getenv("GITHUB_CLIENT_ID")
-    github_secret = os.getenv("GITHUB_CLIENT_SECRET")
-        
-    oauth_enabled = all([google_id, google_secret, github_id, github_secret])
-        
-    return {
-        "oauth_enabled": oauth_enabled,
-        "google_configured": bool(google_id and google_secret),
-        "github_configured": bool(github_id and github_secret),
-        "google_id": google_id,
-        "google_secret": google_secret,
-        "github_id": github_id,
-        "github_secret": github_secret
-    }
-
-
 class OAuthUser(BaseModel):
     id: str
     email: str
@@ -105,6 +84,9 @@ def get_oauth_config():
     }
 
 
+OAUTH_ENABLED = get_oauth_config()["oauth_enabled"]
+
+
 # ============================================
 # GOOGLE OAUTH
 # ============================================
@@ -114,7 +96,10 @@ async def google_login():
     config = get_oauth_config()
     if not config["google_configured"]:
         logger.error("Google OAuth no configurado")
-        return RedirectResponse(...)
+        return RedirectResponse(
+            url=f"{FRONTEND_URL}/login?error=google_not_configured",
+            status_code=302,
+        )
     
     try:
         # Construir URL de autorización de Google
