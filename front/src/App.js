@@ -6,6 +6,8 @@ import ErrorBoundary from './components/ui/ErrorBoundary';
 import Login from './pages/Login';
 import LandingPage from './pages/LandingPage';
 import OAuthCallback from './pages/OAuthCallback';
+import SignUp from './pages/SignUp';
+import ForgotPassword from './pages/ForgotPassword';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Dashboard from './pages/Dashboard';
 
@@ -78,13 +80,29 @@ function AppContent() {
             </PublicRoute>
           } 
         />
-        <Route 
-          path="/login" 
+        <Route
+          path="/login"
           element={
             <PublicRoute>
               <Login />
             </PublicRoute>
-          } 
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <PublicRoute>
+              <SignUp />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/forgot-password"
+          element={
+            <PublicRoute>
+              <ForgotPassword />
+            </PublicRoute>
+          }
         />
         
         {/* OAuth Callback Route - DEBE SER PÚBLICO */}

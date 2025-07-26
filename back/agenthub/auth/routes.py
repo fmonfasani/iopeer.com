@@ -1,22 +1,26 @@
 import logging
 
-from agenthub.auth.auth import create_access_token
 from agenthub.auth.schemas import SignInInput
-from agenthub.auth.utils import verify_password
+
+
 from agenthub.database.connection import get_db
 from agenthub.models.user import User
+
 from fastapi import APIRouter, Depends, HTTPException, status, Request
+
 from passlib.context import CryptContext
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from .schemas import UserCreate
+
 from .utils import create_access_token, verify_password, SECRET_KEY, ALGORITHM
 from jose import jwt, JWTError
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+security = HTTPBearer()
 
 
 class SigninRequest(BaseModel):
@@ -97,8 +101,14 @@ def login(user: SignInInput, db: Session = Depends(get_db)):
         }
     }
 
+from fastapi import Request
+from jose import JWTError, jwt
+from .utils import SECRET_KEY, ALGORITHM
+
+
 @router.get("/me")
 def get_current_user(request: Request, db: Session = Depends(get_db)):
+
     """Return current user info based on the bearer token."""
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):

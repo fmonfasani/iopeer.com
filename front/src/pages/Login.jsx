@@ -61,14 +61,14 @@ const Login = () => {
 
   const handleForgotPassword = (e) => {
     e.preventDefault();
-    // TODO: Implementar recuperación de contraseña
-    alert('Funcionalidad de recuperación de contraseña pendiente');
+    navigate('/forgot-password');
   };
 
   const handleSignUp = (e) => {
     e.preventDefault();
-    // TODO: Implementar registro
-    navigate('/signup'); // Redirect to signup page when implemented
+
+    navigate('/signup');
+
   };
 
   return (
