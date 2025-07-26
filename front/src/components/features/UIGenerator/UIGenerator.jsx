@@ -70,12 +70,12 @@ const UIGenerator = () => {
   // Cargar componentes soportados al inicializar
   useEffect(() => {
     loadSupportedComponents();
-  }, []);
+  }, [loadSupportedComponents]);
 
   // Actualizar props cuando cambia el componente seleccionado
   useEffect(() => {
     setComponentProps(defaultProps[selectedComponent] || {});
-  }, [selectedComponent]);
+  }, [selectedComponent, defaultProps]);
 
   const loadSupportedComponents = async () => {
     try {

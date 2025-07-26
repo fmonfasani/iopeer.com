@@ -140,7 +140,7 @@ const IntegrationTest = () => {
     if (isLoggedIn && isConnected) {
       setTimeout(runAllTests, 1000);
     }
-  }, [isLoggedIn, isConnected]);
+  }, [isLoggedIn, isConnected, runAllTests]);
 
   // Función para login de prueba
   const testLogin = async () => {
