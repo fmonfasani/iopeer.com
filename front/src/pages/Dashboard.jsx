@@ -10,6 +10,7 @@ import Marketplace from '../components/features/Marketplace/Marketplace';
 import SettingsPage from '../pages/Settings';
 import UIGeneratorPage from '../pages/UIGeneratorPage';
 import DebugPage from '../pages/DebugPage';
+import Workflows from './Workflows';
 
 const Dashboard = () => {
   return (
@@ -18,6 +19,7 @@ const Dashboard = () => {
         <Route index element={<Home />} />
         <Route path="dashboard" element={<Home />} />
         <Route path="agents" element={<Agents />} />
+        <Route path="workflows" element={<Workflows />} />
         <Route path="ui-generator" element={<UIGeneratorPage />} />
         <Route path="marketplace" element={<Marketplace />} />
         <Route path="reports" element={<Reports />} />

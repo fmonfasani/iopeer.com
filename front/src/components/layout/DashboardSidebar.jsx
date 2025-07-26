@@ -1,8 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  BarChart3, Users, Zap, FileText, TrendingUp, Settings,
-  ChevronRight, LogOut
+import {
+  BarChart3,
+  Users,
+  Zap,
+  FileText,
+  TrendingUp,
+  Settings,
+  Activity,
+  ChevronRight,
+  LogOut,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -15,6 +22,7 @@ const DashboardSidebar = () => {
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
     { name: 'Mis Agentes', href: '/agents', icon: Users },
+    { name: 'Workflows', href: '/workflows', icon: Activity },
     { name: 'AI Generator', href: '/ui-generator', icon: Zap },
     { name: 'Marketplace', href: '/marketplace', icon: FileText },
     { name: 'Analytics', href: '/analytics', icon: TrendingUp },
