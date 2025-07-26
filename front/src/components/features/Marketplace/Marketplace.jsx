@@ -1,44 +1,30 @@
 import React, { useState } from 'react';
 import { BookOpen, Search, Star, Download, Shield } from 'lucide-react';
+import { useMarketplace } from '../../../hooks/useIopeer';
+import { MarketplaceLoadingState } from '../../ui/LoadingSpinner';
+import ErrorDisplay from '../../ui/ErrorDisplay';
+import { useNavigate } from 'react-router-dom';
 
 const Marketplace = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const { featuredAgents, loading, error, reload } = useMarketplace();
+  const navigate = useNavigate();
 
-  // Datos mock del marketplace
-  const mockAgents = [
-    {
-      id: 'code-assistant',
-      name: 'Code Assistant',
-      description: 'Asistente de programación inteligente para múltiples lenguajes',
-      rating: 4.8,
-      downloads: 1500,
-      verified: true,
-      tags: ['Python', 'JavaScript', 'React'],
-      avatar: '💻'
-    },
-    {
-      id: 'data-analyst',
-      name: 'Data Analyst',
-      description: 'Análisis automático de datos y generación de insights',
-      rating: 4.6,
-      downloads: 890,
-      verified: true,
-      tags: ['Analytics', 'SQL', 'Charts'],
-      avatar: '📊'
-    },
-    {
-      id: 'content-writer',
-      name: 'Content Writer',
-      description: 'Generación de contenido optimizado para SEO',
-      rating: 4.5,
-      downloads: 1200,
-      verified: false,
-      tags: ['Content', 'SEO', 'Marketing'],
-      avatar: '✍️'
-    }
-  ];
+  if (loading) {
+    return <MarketplaceLoadingState />;
+  }
 
-  const filteredAgents = mockAgents.filter(agent =>
+  if (error) {
+    return (
+      <ErrorDisplay
+        error={{ message: error }}
+        onRetry={reload}
+        onGoHome={() => navigate('/dashboard')}
+      />
+    );
+  }
+
+  const filteredAgents = featuredAgents.filter(agent =>
     agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     agent.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -72,19 +58,19 @@ const Marketplace = () => {
             <div key={agent.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="text-2xl">{agent.avatar}</div>
+                  <div className="text-2xl">{agent.icon}</div>
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="font-semibold text-gray-900">{agent.name}</h3>
-                      {agent.verified && (
-                        <Shield className="text-blue-500" size={16} />
+                      {agent.badge && (
+                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">{agent.badge}</span>
                       )}
                     </div>
                     <div className="flex items-center gap-1 mt-1">
                       <Star className="text-yellow-400 fill-current" size={14} />
                       <span className="text-sm text-gray-600">{agent.rating}</span>
                       <span className="text-sm text-gray-400">•</span>
-                      <span className="text-sm text-gray-600">{agent.downloads} descargas</span>
+                      <span className="text-sm text-gray-600">{agent.installs} descargas</span>
                     </div>
                   </div>
                 </div>
@@ -115,7 +101,7 @@ const Marketplace = () => {
           <BookOpen className="mx-auto text-gray-400 mb-4" size={64} />
           <h3 className="text-xl font-semibold text-gray-700 mb-2">No se encontraron agentes</h3>
           <p className="text-gray-500">
-            {searchQuery ? 'Intenta con otros términos de búsqueda' : 'El marketplace está cargando...'}
+            {searchQuery ? 'Intenta con otros términos de búsqueda' : 'No hay agentes disponibles en este momento.'}
           </p>
         </div>
       )}
