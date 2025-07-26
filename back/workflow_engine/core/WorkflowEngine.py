@@ -3,11 +3,12 @@
 # Motor de workflows visuales para IOPeer
 # ============================================
 
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional
 from datetime import datetime
 import asyncio
 import json
 from enum import Enum
+from fastapi import WebSocket
 
 
 class NodeStatus(Enum):
@@ -19,8 +20,8 @@ class NodeStatus(Enum):
 
 
 class ConnectionType(Enum):
-    SUCCESS = "success"      # Flujo normal
-    ERROR = "error"         # En caso de error
+    SUCCESS = "success"  # Flujo normal
+    ERROR = "error"  # En caso de error
     CONDITIONAL = "conditional"  # Basado en condición
 
 
@@ -43,9 +44,13 @@ class WorkflowNode:
 class WorkflowConnection:
     """Conexión entre dos nodos"""
 
-    def __init__(self, source_id: str, target_id: str,
-                 connection_type: ConnectionType = ConnectionType.SUCCESS,
-                 condition: Optional[str] = None):
+    def __init__(
+        self,
+        source_id: str,
+        target_id: str,
+        connection_type: ConnectionType = ConnectionType.SUCCESS,
+        condition: Optional[str] = None,
+    ):
         self.source_id = source_id
         self.target_id = target_id
         self.type = connection_type
@@ -82,10 +87,11 @@ class WorkflowEngine:
     def __init__(self, agent_registry, event_bus):
         self.agent_registry = agent_registry
         self.event_bus = event_bus
-        self.active_executions: Dict[str, 'WorkflowExecution'] = {}
+        self.active_executions: Dict[str, "WorkflowExecution"] = {}
 
-    async def execute_workflow(self, workflow: Workflow,
-                               initial_data: Dict[str, Any] = None) -> str:
+    async def execute_workflow(
+        self, workflow: Workflow, initial_data: Dict[str, Any] = None
+    ) -> str:
         """Ejecuta un workflow completo"""
 
         execution_id = f"exec_{workflow.id}_{int(datetime.now().timestamp())}"
@@ -99,29 +105,34 @@ class WorkflowEngine:
 
         try:
             # Emitir evento de inicio
-            await self.event_bus.emit("workflow_started", {
-                "execution_id": execution_id,
-                "workflow_id": workflow.id,
-                "workflow_name": workflow.name
-            })
+            await self.event_bus.emit(
+                "workflow_started",
+                {
+                    "execution_id": execution_id,
+                    "workflow_id": workflow.id,
+                    "workflow_name": workflow.name,
+                },
+            )
 
             # Ejecutar workflow
             result = await execution.run(self.agent_registry)
 
             # Emitir evento de finalización
-            await self.event_bus.emit("workflow_completed", {
-                "execution_id": execution_id,
-                "result": result,
-                "duration": execution.get_duration()
-            })
+            await self.event_bus.emit(
+                "workflow_completed",
+                {
+                    "execution_id": execution_id,
+                    "result": result,
+                    "duration": execution.get_duration(),
+                },
+            )
 
             return execution_id
 
         except Exception as e:
-            await self.event_bus.emit("workflow_failed", {
-                "execution_id": execution_id,
-                "error": str(e)
-            })
+            await self.event_bus.emit(
+                "workflow_failed", {"execution_id": execution_id, "error": str(e)}
+            )
             raise
         finally:
             # Limpiar ejecución activa
@@ -132,8 +143,13 @@ class WorkflowEngine:
 class WorkflowExecution:
     """Contexto de ejecución de un workflow específico"""
 
-    def __init__(self, execution_id: str, workflow: Workflow,
-                 initial_data: Dict[str, Any], event_bus):
+    def __init__(
+        self,
+        execution_id: str,
+        workflow: Workflow,
+        initial_data: Dict[str, Any],
+        event_bus,
+    ):
         self.execution_id = execution_id
         self.workflow = workflow
         self.initial_data = initial_data or {}
@@ -172,7 +188,7 @@ class WorkflowExecution:
             "execution_id": self.execution_id,
             "status": self._get_overall_status(),
             "results": self._collect_results(),
-            "duration": self.get_duration()
+            "duration": self.get_duration(),
         }
 
     async def _execute_node(self, node: WorkflowNode, agent_registry):
@@ -182,11 +198,14 @@ class WorkflowExecution:
         node.started_at = datetime.now()
 
         # Emitir evento de inicio de nodo
-        await self.event_bus.emit("node_started", {
-            "execution_id": self.execution_id,
-            "node_id": node.id,
-            "agent_type": node.agent_type
-        })
+        await self.event_bus.emit(
+            "node_started",
+            {
+                "execution_id": self.execution_id,
+                "node_id": node.id,
+                "agent_type": node.agent_type,
+            },
+        )
 
         try:
             # Obtener agente del registro
@@ -197,16 +216,16 @@ class WorkflowExecution:
             # Preparar datos de entrada
             input_data = self._prepare_node_input(node)
 
-            # Ejecutar agente (permite funciones síncronas o asíncronas)
-            call_result = agent.handle({
-                "action": node.config.get("action", "process"),
-                "data": input_data,
-                "config": node.config,
-            })
-            if asyncio.iscoroutine(call_result):
-                result = await call_result
-            else:
-                result = call_result
+
+            # Ejecutar agente
+            result = await agent.handle(
+                {
+                    "action": node.config.get("action", "process"),
+                    "data": input_data,
+                    "config": node.config,
+                }
+            )
+
 
             # Guardar resultado
             node.result = result
@@ -217,23 +236,29 @@ class WorkflowExecution:
             self.execution_context[f"node_{node.id}"] = result
 
             # Emitir evento de nodo completado
-            await self.event_bus.emit("node_completed", {
-                "execution_id": self.execution_id,
-                "node_id": node.id,
-                "result": result,
-                "duration": (node.completed_at - node.started_at).total_seconds()
-            })
+            await self.event_bus.emit(
+                "node_completed",
+                {
+                    "execution_id": self.execution_id,
+                    "node_id": node.id,
+                    "result": result,
+                    "duration": (node.completed_at - node.started_at).total_seconds(),
+                },
+            )
 
         except Exception as e:
             node.status = NodeStatus.FAILED
             node.error = str(e)
             node.completed_at = datetime.now()
 
-            await self.event_bus.emit("node_failed", {
-                "execution_id": self.execution_id,
-                "node_id": node.id,
-                "error": str(e)
-            })
+            await self.event_bus.emit(
+                "node_failed",
+                {
+                    "execution_id": self.execution_id,
+                    "node_id": node.id,
+                    "error": str(e),
+                },
+            )
 
             raise
 
@@ -382,7 +407,8 @@ class WorkflowExecution:
                     "result": node.result,
                     "duration": (
                         (node.completed_at - node.started_at).total_seconds()
-                        if node.completed_at and node.started_at else 0
+                        if node.completed_at and node.started_at
+                        else 0
                     ),
                     "status": node.status.value,
                 }
@@ -402,7 +428,9 @@ class AgentRegistry:
         self.agents: Dict[str, Any] = {}
         self.agent_definitions: Dict[str, Dict[str, Any]] = {}
 
-    def register_agent(self, agent_type: str, agent_instance, definition: Dict[str, Any]):
+    def register_agent(
+        self, agent_type: str, agent_instance, definition: Dict[str, Any]
+    ):
         """Registra un agente en el sistema"""
         self.agents[agent_type] = agent_instance
         self.agent_definitions[agent_type] = definition
@@ -460,23 +488,14 @@ class EventBus:
             "timestamp": datetime.now().isoformat(),
         }
 
-        # Enviar mensaje a todas las websockets registradas
-        for ws in list(self.websocket_connections):
+
+        disconnects: List[WebSocket] = []
+        for websocket in list(self.websocket_connections):
             try:
-                await ws.send_json(message)
+                await websocket.send_json(message)
             except Exception:
-                try:
-                    await ws.close()
-                finally:
-                    if ws in self.websocket_connections:
-                        self.websocket_connections.remove(ws)
+                disconnects.append(websocket)
 
-    def register_websocket(self, ws: Any) -> None:
-        """Registra una conexión WebSocket para recibir eventos"""
-        if ws not in self.websocket_connections:
-            self.websocket_connections.append(ws)
-
-    def unregister_websocket(self, ws: Any) -> None:
-        """Elimina una conexión WebSocket"""
-        if ws in self.websocket_connections:
-            self.websocket_connections.remove(ws)
+        for websocket in disconnects:
+            if websocket in self.websocket_connections:
+                self.websocket_connections.remove(websocket)
