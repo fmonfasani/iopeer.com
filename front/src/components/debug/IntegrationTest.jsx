@@ -22,14 +22,12 @@ import LoadingSpinner from '../ui/LoadingSpinner';
 
 const IntegrationTest = () => {
   const { isLoggedIn, user, login } = useAuth();
-  const { 
-    connectionStatus, 
-    agents, 
-    sendMessage, 
+  const {
+    connectionStatus,
+    agents,
+    sendMessage,
     isConnected,
-    loading,
-    error,
-    retry 
+    error
   } = useIopeer();
 
   const [testResults, setTestResults] = useState({});

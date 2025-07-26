@@ -3,7 +3,7 @@ import { TrendingUp, BarChart3, PieChart, Activity } from 'lucide-react';
 import { useIopeer } from '../hooks/useIopeer';
 
 const Analytics = () => {
-  const { agents, systemHealth } = useIopeer();
+  const { agents } = useIopeer();
   const [analyticsData, setAnalyticsData] = useState(null);
   const [timeframe, setTimeframe] = useState('7days');
 
