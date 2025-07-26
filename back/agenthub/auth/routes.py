@@ -4,16 +4,20 @@ from agenthub.auth.schemas import SignInInput
 from .utils import create_access_token, verify_password, verify_access_token
 from agenthub.database.connection import get_db
 from agenthub.models.user import User
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
+
 from passlib.context import CryptContext
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from .schemas import UserCreate
 
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -100,6 +104,7 @@ def login(user: SignInInput, db: Session = Depends(get_db)):
 
 @router.get("/me")
 def get_current_user(
+
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
 ):
@@ -125,5 +130,6 @@ def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials",
         )
+
 
     return {"id": user.id, "email": user.email, "is_active": user.is_active}
