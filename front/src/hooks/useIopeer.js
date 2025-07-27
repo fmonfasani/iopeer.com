@@ -1,331 +1,405 @@
-// src/hooks/useIopeer.js - CON WORKFLOWS INTEGRADOS
+// frontend/src/hooks/useIopeer.js - CORREGIDO
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { iopeerAPI } from '../services/iopeerAPI';
-import { useWorkflow } from './useWorkflow';
 
-// Hook principal de IOPeer que incluye workflows
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+
+// Hook principal de Iopeer
 export const useIopeer = () => {
-  // Estado principal
+  const [connectionStatus, setConnectionStatus] = useState('disconnected');
   const [agents, setAgents] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [systemHealth, setSystemHealth] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [lastUpdate, setLastUpdate] = useState(null);
-  
-  // Estado de agentes
-  const [agentStats, setAgentStats] = useState({
-    total: 0,
-    active: 0,
-    idle: 0,
-    error: 0
-  });
-
-  // Integración con workflows
-  const workflowHook = useWorkflow();
-
-  // Referencias
-  const retryTimeoutRef = useRef(null);
+  const [retryAttempts, setRetryAttempts] = useState(0);
   const maxRetries = 3;
-  const retryDelay = 2000;
-
-  // Función para cargar agentes
-  const loadAgents = useCallback(async (retryCount = 0) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await iopeerAPI.getAgents();
-      
-      if (response && Array.isArray(response.agents)) {
-        setAgents(response.agents);
-        setIsConnected(true);
-        setLastUpdate(new Date().toISOString());
-        
-        // Calcular estadísticas
-        const stats = response.agents.reduce((acc, agent) => {
-          acc.total++;
-          switch (agent.status) {
-            case 'idle':
-              acc.idle++;
-              break;
-            case 'busy':
-              acc.active++;
-              break;
-            case 'error':
-              acc.error++;
-              break;
-            default:
-              acc.idle++;
-          }
-          return acc;
-        }, { total: 0, active: 0, idle: 0, error: 0 });
-        
-        setAgentStats(stats);
-        
-        // Limpiar retry timeout si existe
-        if (retryTimeoutRef.current) {
-          clearTimeout(retryTimeoutRef.current);
-          retryTimeoutRef.current = null;
-        }
-        
-      } else {
-        throw new Error('Invalid response format from agents API');
-      }
-      
-    } catch (err) {
-      console.error('Error loading agents:', err);
-      setIsConnected(false);
-      
-      const processedError = {
-        type: 'CONNECTION_ERROR',
-        message: 'No se pudo conectar con el backend de IOPeer',
-        technical: err.message,
-        retryCount
-      };
-      
-      setError(processedError);
-      
-      // Auto-retry con backoff exponencial
-      if (retryCount < maxRetries) {
-        const delay = retryDelay * Math.pow(2, retryCount);
-        retryTimeoutRef.current = setTimeout(() => {
-          loadAgents(retryCount + 1);
-        }, delay);
-      }
-      
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  // Función para enviar mensaje a agente
-  const sendMessage = useCallback(async (agentId, action, data) => {
-    try {
-      setError(null);
-      const result = await iopeerAPI.sendMessage(agentId, action, data);
-      
-      // Actualizar estado del agente después de enviar mensaje
-      setAgents(prev => prev.map(agent => 
-        agent.agent_id === agentId 
-          ? { ...agent, last_activity: new Date().toISOString() }
-          : agent
-      ));
-      
-      return result;
-    } catch (error) {
-      const processedError = {
-        type: 'MESSAGE_ERROR',
-        message: `Error enviando mensaje al agente ${agentId}`,
-        technical: error.message
-      };
-      setError(processedError);
-      throw error;
-    }
-  }, []);
-
-  // Función de retry manual
-  const retry = useCallback(() => {
-    if (retryTimeoutRef.current) {
-      clearTimeout(retryTimeoutRef.current);
-      retryTimeoutRef.current = null;
-    }
-    loadAgents(0);
-  }, [loadAgents]);
-
-  // Cargar datos iniciales
-  useEffect(() => {
-    loadAgents();
-    
-    // Cleanup timeout al desmontar
-    return () => {
-      if (retryTimeoutRef.current) {
-        clearTimeout(retryTimeoutRef.current);
-      }
-    };
-  }, [loadAgents]);
-
-  // Polling periódico (cada 30 segundos)
-  useEffect(() => {
-    if (!isConnected) return;
-    
-    const interval = setInterval(() => {
-      loadAgents();
-    }, 30000);
-    
-    return () => clearInterval(interval);
-  }, [isConnected, loadAgents]);
-
-  // Funciones de utilidad
-  const getAgentById = useCallback((id) => {
-    return agents.find(agent => agent.agent_id === id);
-  }, [agents]);
-
-  const getAgentsByType = useCallback((type) => {
-    return agents.filter(agent => agent.type === type);
-  }, [agents]);
-
-  const getActiveAgents = useCallback(() => {
-    return agents.filter(agent => agent.status === 'idle');
-  }, [agents]);
+  const retryTimeoutRef = useRef(null);
 
   const clearError = useCallback(() => {
     setError(null);
   }, []);
 
-  // Health check
-  const healthCheck = useCallback(async () => {
+  const handleError = useCallback((err, context) => {
+    console.error(`[${context}] Error:`, err);
+    
+    let processedError = {
+      type: 'UNKNOWN_ERROR',
+      message: 'Ocurrió un error inesperado. Intenta nuevamente.',
+      action: 'Reintentar',
+      technical: err.message
+    };
+
+    // Determinar tipo de error
+    if (err.name === 'TypeError' && err.message.includes('fetch')) {
+      processedError = {
+        type: 'CONNECTION_ERROR',
+        message: 'No se pudo conectar con el servidor. Verifica que el backend esté ejecutándose.',
+        action: 'Reintentar',
+        technical: err.message
+      };
+    } else if (err.message.includes('timeout')) {
+      processedError = {
+        type: 'TIMEOUT_ERROR', 
+        message: 'La solicitud tardó demasiado. Intenta nuevamente.',
+        action: 'Reintentar',
+        technical: err.message
+      };
+    }
+
+    setError(processedError);
+    setConnectionStatus('failed');
+    return processedError;
+  }, []);
+
+  const makeRequest = useCallback(async (endpoint, options = {}) => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+
     try {
-      const health = await iopeerAPI.getHealth();
-      return health;
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+        signal: controller.signal,
+        ...options,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      return await response.json();
     } catch (error) {
-      console.error('Health check failed:', error);
-      return { status: 'unhealthy', error: error.message };
+      clearTimeout(timeoutId);
+      
+      if (error.name === 'AbortError') {
+        throw new Error('Request timeout - El servidor tardó demasiado en responder');
+      }
+      
+      throw error;
     }
   }, []);
 
-  return {
-    // Datos principales
-    agents,
-    agentStats,
-    
-    // Estados
-    loading,
-    error,
-    isConnected,
-    lastUpdate,
-    
-    // Acciones de agentes
-    sendMessage,
-    loadAgents,
-    retry,
-    clearError,
-    healthCheck,
-    
-    // Utilidades de agentes
-    getAgentById,
-    getAgentsByType,
-    getActiveAgents,
-    
-    // Datos computados
-    hasAgents: agents.length > 0,
-    hasError: !!error,
-    needsRetry: !!error && error.retryCount < maxRetries,
-    
-    // WORKFLOWS - Integración completa
-    workflows: {
-      // Estado
-      list: workflowHook.workflows,
-      templates: workflowHook.templates,
-      availableAgents: workflowHook.availableAgents,
-      loading: workflowHook.loading,
-      error: workflowHook.error,
-      isExecuting: workflowHook.isExecuting,
-      executionEvents: workflowHook.executionEvents,
-      activeExecution: workflowHook.activeExecution,
-      
-      // Estadísticas
-      stats: workflowHook.workflowStats,
-      agentStats: workflowHook.agentStats,
-      
-      // Acciones principales
-      create: workflowHook.createWorkflow,
-      get: workflowHook.getWorkflow,
-      execute: workflowHook.executeWorkflow,
-      createFromTemplate: workflowHook.createFromTemplate,
-      
-      // Acciones de carga
-      loadWorkflows: workflowHook.loadWorkflows,
-      loadAgents: workflowHook.loadAvailableAgents,
-      loadTemplates: workflowHook.loadTemplates,
-      
-      // Utilidades
-      getAgentsByCategory: workflowHook.getAgentsByCategory,
-      getTemplatesByCategory: workflowHook.getTemplatesByCategory,
-      clearError: workflowHook.clearError,
-      clearExecutionEvents: workflowHook.clearExecutionEvents,
-      
-      // Estado de conexión
-      isConnected: workflowHook.isConnected,
-      wsConnected: workflowHook.wsConnected
+  const connect = useCallback(async (isRetry = false) => {
+    if (!isRetry) {
+      setRetryAttempts(0);
     }
-  };
-};
+    
+    setConnectionStatus('connecting');
+    setLoading(true);
+    clearError();
 
-// Hook específico para agentes (mantenido para compatibilidad)
-export const useAgents = () => {
-  const { agents, loading, error, isConnected, sendMessage, getAgentById, getAgentsByType, getActiveAgents, retry } = useIopeer();
-  const [selectedAgent, setSelectedAgent] = useState(null);
+    try {
+      // 1. Verificar salud del sistema
+      console.log('🔍 Verificando conexión con el backend...');
+      const health = await makeRequest('/health');
+      setSystemHealth(health);
+      console.log('✅ Backend conectado:', health);
 
-  const selectAgent = useCallback((agent) => {
-    setSelectedAgent(agent);
-  }, []);
+      // 2. Cargar agentes disponibles
+      console.log('🤖 Cargando agentes...');
+      try {
+        const agentsResponse = await makeRequest('/agents');
+        setAgents(agentsResponse.agents || []);
+        console.log(`✅ ${agentsResponse.agents?.length || 0} agentes cargados`);
+      } catch (agentsError) {
+        console.warn('⚠️ Error cargando agentes (continuando):', agentsError.message);
+        setAgents([]);
+      }
+
+      setConnectionStatus('connected');
+      setRetryAttempts(0);
+      
+      return { success: true, data: { health, agents: agents } };
+
+    } catch (error) {
+      console.error('❌ Error de conexión:', error);
+      
+      const processedError = handleError(error, 'Connection');
+      
+      // Auto-retry logic
+      if (retryAttempts < maxRetries && !isRetry) {
+        const nextAttempt = retryAttempts + 1;
+        setRetryAttempts(nextAttempt);
+        
+        console.log(`🔄 Reintentando conexión (${nextAttempt}/${maxRetries}) en 2 segundos...`);
+        
+        retryTimeoutRef.current = setTimeout(() => {
+          connect(true);
+        }, 2000 * nextAttempt);
+      }
+      
+      return { success: false, error: processedError };
+    } finally {
+      setLoading(false);
+    }
+  }, [makeRequest, handleError, retryAttempts, maxRetries, agents, clearError]);
+
+  const retry = useCallback(() => {
+    if (retryTimeoutRef.current) {
+      clearTimeout(retryTimeoutRef.current);
+    }
+    connect();
+  }, [connect]);
+
+  // Auto-connect on mount
+  useEffect(() => {
+    connect();
+    
+    return () => {
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+      }
+    };
+  }, [connect]); // Solo ejecutar una vez al montar
+
+  const sendMessage = useCallback(async (agentId, action, data = {}) => {
+    try {
+      return await makeRequest('/message/send', {
+        method: 'POST',
+        body: JSON.stringify({
+          agent_id: agentId,
+          action: action,
+          data: data
+        })
+      });
+    } catch (error) {
+      console.error('Send message error:', error);
+      throw error;
+    }
+  }, [makeRequest]);
 
   return {
-    // Data
+    // States
+    connectionStatus,
     agents,
-    selectedAgent,
-    
-    // States  
+    systemHealth,
     loading,
     error,
-    isConnected,
+    retryAttempts,
     
     // Computed
-    activeAgents: getActiveAgents(),
-    agentCount: agents.length,
-    hasSelectedAgent: !!selectedAgent,
+    isConnected: connectionStatus === 'connected',
+    isConnecting: connectionStatus === 'connecting',
+    isFailed: connectionStatus === 'failed',
+    hasAgents: agents.length > 0,
     
     // Actions
-    selectAgent,
-    sendMessage,
+    connect,
     retry,
+    clearError,
+    sendMessage,
     
     // Utilities
-    getAgentById,
-    getAgentsByType,
-    filterAgentsByType: getAgentsByType,
+    makeRequest
   };
 };
 
-// Hook específico para marketplace (mantenido para compatibilidad)
-export const useMarketplace = () => {
-  const [featuredAgents, setFeaturedAgents] = useState([]);
-  const [loading, setLoading] = useState(false);
+// Hook useAgents - CORREGIDO COMPLETAMENTE
+export const useAgents = () => {
+  const [agents, setAgents] = useState([]);
+  const [selectedAgent, setSelectedAgent] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [connectionStatus, setConnectionStatus] = useState('disconnected');
 
-  const loadFeaturedAgents = useCallback(async () => {
+  const fetchAgents = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
+      setConnectionStatus('connecting');
       
-      const response = await iopeerAPI.getFeaturedAgents();
-      setFeaturedAgents(response.agents || []);
+      const response = await fetch(`${API_BASE_URL}/agents`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch agents: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      const agentsData = result.agents || [];
+      setAgents(agentsData);
+      setConnectionStatus('connected');
+      
+      console.log(`✅ useAgents: ${agentsData.length} agentes cargados`);
       
     } catch (err) {
-      setError(err.message);
-      console.error('Error loading featured agents:', err);
+      const errorMessage = err.message || 'Error desconocido';
+      setError(errorMessage);
+      setConnectionStatus('failed');
+      console.error('useAgents error:', err);
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    loadFeaturedAgents();
-  }, [loadFeaturedAgents]);
+    fetchAgents();
+  }, [fetchAgents]);
+
+  const sendMessage = useCallback(async (agentId, action, data) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/message/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agent_id: agentId,
+          action: action,
+          data: data
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to send message: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (err) {
+      console.error('Send message error:', err);
+      throw err;
+    }
+  }, []);
+
+  const getAgentDetails = useCallback(async (agentId) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/agents/${agentId}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch agent details: ${response.status}`);
+      }
+      return await response.json();
+    } catch (err) {
+      console.error('Get agent details error:', err);
+      throw err;
+    }
+  }, []);
+
+  // Función para seleccionar agente
+  const selectAgent = useCallback((agent) => {
+    setSelectedAgent(agent);
+  }, []);
+
+  // Calcular propiedades derivadas
+  const activeAgents = agents.filter(agent => agent.status === 'idle' || agent.status === 'busy') || [];
+  const agentCount = agents.length;
+  const isConnected = connectionStatus === 'connected';
 
   return {
-    featuredAgents,
+    // Estados básicos
+    agents,
+    selectedAgent,
     loading,
     error,
-    loadFeaturedAgents,
-    agentCount: featuredAgents.length
+    
+    // Estados de conexión
+    isConnected,
+    connectionStatus,
+    
+    // Propiedades calculadas
+    activeAgents,
+    agentCount,
+    
+    // Acciones
+    selectAgent,
+    refresh: fetchAgents,
+    retry: fetchAgents, // Alias para compatibilidad
+    sendMessage,
+    getAgentDetails
   };
 };
 
-// Hook específico para workflows (para uso directo)
-export const useWorkflowManagement = () => {
-  const { workflows } = useIopeer();
-  return workflows;
-};
+// Hook useMarketplace - CORREGIDO
+export const useMarketplace = () => {
+  const [featuredAgents, setFeaturedAgents] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-export default useIopeer;
+  const fetchMarketplaceData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Primero intentar el endpoint específico de marketplace
+      try {
+        const response = await fetch(`${API_BASE_URL}/marketplace/featured`);
+        if (response.ok) {
+          const result = await response.json();
+          const agents = result.agents || [];
+          setFeaturedAgents(agents);
+          
+          // Extract unique categories
+          const uniqueCategories = [...new Set(agents.map(agent => agent.category || 'general'))];
+          setCategories(uniqueCategories);
+          return;
+        }
+      } catch (marketplaceError) {
+        console.warn('Marketplace endpoint not available, falling back to agents list');
+      }
+      
+      // Fallback: usar lista de agentes
+      const response = await fetch(`${API_BASE_URL}/agents`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch marketplace data: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      const agents = result.agents || [];
+      
+      setFeaturedAgents(agents);
+      
+      // Extract unique categories
+      const uniqueCategories = [...new Set(agents.map(agent => agent.type || 'general'))];
+      setCategories(uniqueCategories);
+      
+    } catch (err) {
+      const errorMessage = err.message || 'Error desconocido';
+      setError(errorMessage);
+      console.error('useMarketplace error:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchMarketplaceData();
+  }, [fetchMarketplaceData]);
+
+  const installAgent = useCallback(async (agentId) => {
+    try {
+      // For MVP: simulate installation
+      console.log(`Installing agent: ${agentId}`);
+      return { success: true, message: 'Agent installed successfully' };
+    } catch (err) {
+      console.error('Install agent error:', err);
+      throw err;
+    }
+  }, []);
+
+  const searchAgents = useCallback(async (query) => {
+    try {
+      if (!query) return featuredAgents;
+      
+      const filtered = featuredAgents.filter(agent => 
+        agent.name.toLowerCase().includes(query.toLowerCase()) ||
+        (agent.description && agent.description.toLowerCase().includes(query.toLowerCase()))
+      );
+      
+      return filtered;
+    } catch (err) {
+      console.error('Search agents error:', err);
+      throw err;
+    }
+  }, [featuredAgents]);
+
+  return {
+    featuredAgents,
+    categories,
+    loading,
+    error,
+    refresh: fetchMarketplaceData,
+    reload: fetchMarketplaceData, // Alias para compatibilidad
+    installAgent,
+    searchAgents
+  };
+};
