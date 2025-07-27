@@ -32,10 +32,10 @@ from agenthub.oauth_routes import router as oauth_router
     logger.info("✅ OAuth routes loaded successfully")
 except ImportError as e:
     logger.warning(f"⚠️ OAuth routes not available: {e}")
-    
+
     # Crear router placeholder si oauth_routes no existe
     oauth_router = APIRouter()
-    
+
     @oauth_router.get("/status")
     async def oauth_status_fallback():
         return {
@@ -46,15 +46,15 @@ except ImportError as e:
                 "google": {"enabled": False, "configured": False}
             }
         }
-    
+
     @oauth_router.get("/github")
     async def github_placeholder():
         return {"message": "OAuth GitHub no configurado"}
-        
-    @oauth_router.get("/google") 
+
+    @oauth_router.get("/google")
     async def google_placeholder():
         return {"message": "OAuth Google no configurado"}
-    
+
     router.include_router(oauth_router, prefix="/oauth", tags=["oauth"])
     logger.info("✅ OAuth placeholder routes loaded")
 
@@ -70,7 +70,7 @@ async def auth_test():
         "version": "1.0.0",
         "endpoints": [
             "/auth/signin",
-            "/auth/signup", 
+            "/auth/signup",
             "/auth/oauth/status",
             "/auth/oauth/github",
             "/auth/oauth/google"

@@ -46,31 +46,32 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
     # Crear nuevo usuario
     hashed_password = pwd_context.hash(user.password)
     new_user = User(email=user.email, hashed_password=hashed_password)
-    
+
     try:
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
         logger.info(f"✅ Usuario {new_user.email} creado exitosamente en iopeer_users.")
-        
+
         return {
-            "message": "Usuario creado exitosamente", 
+            "message": "Usuario creado exitosamente",
             "email": new_user.email,
-            "id": new_user.id
+            "id": new_user.id,
         }
     except Exception as e:
         db.rollback()
         logger.error(f"❌ Error creando usuario: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error interno del servidor"
+            detail="Error interno del servidor",
         )
+
 
 @router.post("/signin")
 def login(user: SignInInput, db: Session = Depends(get_db)):
     """Login usando la tabla iopeer_users"""
     logger.info(f"🔄 Intentando login con email: {user.email}")
-    
+
     # Buscar en NUESTRA tabla (iopeer_users)
     db_user = db.query(User).filter(User.email == user.email).first()
 
@@ -91,16 +92,17 @@ def login(user: SignInInput, db: Session = Depends(get_db)):
     # Crear token
     token = create_access_token({"sub": user.email, "user_id": db_user.id})
     logger.info(f"✅ Usuario {user.email} autenticado exitosamente.")
-    
+
     return {
-        "access_token": token, 
+        "access_token": token,
         "token_type": "bearer",
         "user": {
             "id": db_user.id,
             "email": db_user.email,
-            "is_active": db_user.is_active
-        }
+            "is_active": db_user.is_active,
+        },
     }
+
 
 from fastapi import Request
 from jose import JWTError, jwt
@@ -109,11 +111,12 @@ from agenthub.utils import SECRET_KEY, ALGORITHM
 
 @router.get("/me")
 def get_current_user(request: Request, db: Session = Depends(get_db)):
-
     """Return current user info based on the bearer token."""
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or missing token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or missing token"
+        )
 
     token = auth_header.split(" ", 1)[1]
     try:
@@ -121,13 +124,19 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
         user_id = payload.get("user_id")
         email = payload.get("sub")
         if user_id is None or email is None:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+            )
     except JWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+        )
 
     user = db.query(User).filter(User.id == user_id, User.email == email).first()
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+        )
 
     return {
         "id": user.id,

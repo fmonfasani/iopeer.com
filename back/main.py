@@ -64,7 +64,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-
 # ============================================
 # STARTUP Y SHUTDOWN EVENTS
 # ============================================
@@ -105,7 +104,6 @@ async def startup_event():
         except ImportError:
             logger.warning("⚠️ Default workflows not available")
 
-
         # 5. Initialize workflow engine and register agents
         wf_runtime.agent_registry = AgentRegistry()
         wf_runtime.event_bus = EventBus()
@@ -116,7 +114,6 @@ async def startup_event():
             definition = agent.get_capabilities()
             wf_runtime.agent_registry.register_agent(agent_id, agent, definition)
         logger.info("✅ Workflow engine initialized")
-
 
         logger.info("✅ IOPeer Agent Hub started successfully")
 
@@ -202,6 +199,7 @@ def load_agents():
     # Load NEW agents
     try:
         from agenthub.agents.ui_generator_agent import UIGeneratorAgent
+
         registry.register_agent(UIGeneratorAgent())
         logger.info("✅ Loaded agent: ui_generator")
     except ImportError as e:
@@ -209,6 +207,7 @@ def load_agents():
 
     try:
         from agenthub.agents.data_analyst_agent import DataAnalystAgent
+
         registry.register_agent(DataAnalystAgent())
         logger.info("✅ Loaded agent: data_analyst")
     except ImportError as e:
@@ -264,7 +263,6 @@ app.include_router(auth_router, prefix="/auth", tags=["authentication"])
 app.include_router(oauth_router, prefix="/auth/oauth", tags=["oauth"])
 
 app.include_router(workflow_engine_router)
-
 
 
 # ============================================
@@ -323,12 +321,10 @@ async def root():
             "/agents",
             "/message/send",
             "/workflows",
-
             "/workflow_engine",
             "/ws",
         ],
     }
-
 
 
 @app.get("/health")
@@ -472,7 +468,8 @@ async def execute_agent(agent_id: str, req: MessageRequest):
             {"action": req.action, "data": req.data},
         )
         await event_bus.emit(
-            "message_sent", {"agent_id": agent_id, "action": req.action, "result": result}
+            "message_sent",
+            {"agent_id": agent_id, "action": req.action, "result": result},
         )
         return {"result": result, "status": "success"}
     except ValueError as e:
@@ -490,13 +487,10 @@ async def send_message(req: MessageRequest):
         logger.info(f"📤 Sending message to {req.agent_id}: {req.action}")
 
         result = orchestrator.send_message(
-
             req.agent_id, {"action": req.action, "data": req.data}
-
         )
 
         logger.info(f"📨 Response from {req.agent_id}: {result}")
-
 
         if wf_runtime.event_bus:
             await wf_runtime.event_bus.emit(
@@ -505,7 +499,6 @@ async def send_message(req: MessageRequest):
             )
 
         return {"result": result, "status": "success"}
-
 
     except ValueError as e:
         logger.error(f"Agent not found: {e}")
