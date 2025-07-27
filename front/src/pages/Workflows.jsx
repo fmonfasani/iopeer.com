@@ -34,7 +34,7 @@ const Workflows = () => {
     executeWorkflow: execute,
     createWorkflowFromTemplate: createFromTemplate,
     loadWorkflows,
-    loadWorkflowTemplates: loadTemplates,
+    loadTemplates,
     clearWorkflowError: clearError
 
   } = useIopeer();
