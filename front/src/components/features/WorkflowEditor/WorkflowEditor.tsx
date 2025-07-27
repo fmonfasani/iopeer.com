@@ -17,7 +17,6 @@ import { useIopeer } from '../../../hooks/useIopeer';
 
 import { workflowService } from '../../../services/workflowService';
 
-
 // Tipos para el workflow
 interface WorkflowNode {
   id: string;
