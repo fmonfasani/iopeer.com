@@ -198,6 +198,17 @@ Health check del sistema y agentes.
 ```json
 {
   "status": "ok",
+  "database": "healthy",
+  "disk_usage": {
+    "total": 1000000000,
+    "used": 500000000,
+    "free": 500000000
+  },
+  "memory_usage": {
+    "total": 8000000000,
+    "available": 4000000000,
+    "percent": 50.0
+  },
   "agents": {
     "backend_agent": {
       "healthy": true,
@@ -206,7 +217,7 @@ Health check del sistema y agentes.
     },
     "qa_agent": {
       "healthy": true,
-      "status": "idle", 
+      "status": "idle",
       "uptime": 3600.5
     }
   }
