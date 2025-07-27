@@ -1,14 +1,21 @@
 """Utility functions for authentication."""
+
 from datetime import datetime, timedelta
+import os
 
 from fastapi import HTTPException, status
 from passlib.context import CryptContext
 from jose import jwt, JWTError
+from agenthub.config import config
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-SECRET_KEY = "your-secret-key-change-in-production"
+# Load secret key from env or config with a sensible default
+SECRET_KEY = os.getenv(
+    "AGENTHUB_SECRET_KEY",
+    config.get("secret_key", "dev-secret-key"),
+)
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
