@@ -1,5 +1,5 @@
 # ============================================
-# back/main.py - UNIFICADO Y CORREGIDO
+# back/main.py - WORKFLOWS INTEGRADOS CORRECTAMENTE
 # ============================================
 
 # 1. PRIMERO: Cargar variables de entorno
@@ -11,7 +11,7 @@ load_dotenv()
 import json
 import logging
 from contextlib import asynccontextmanager
-from datetime import datetime  # ✅ AGREGADO - Necesario para endpoints mejorados
+from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -22,63 +22,58 @@ except Exception:
     uvicorn = None
 
 # 3. TERCERO: FastAPI imports
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import text
 
-# 4. CUARTO: Imports de agenthub (CORE - SOLO LOS QUE EXISTEN)
+# 4. CUARTO: Imports de agenthub
 from agenthub.agents.backend_agent import BackendAgent
 from agenthub.agents.base_agent import BaseAgent
 from agenthub.agents.qa_agent import QAAgent
-
-# ✅ AGENTES ADICIONALES - COMENTADOS HASTA QUE EXISTAN
-# from agenthub.agents.content_writer_agent import ContentWriterAgent
-# from agenthub.agents.ui_component_generator import UIComponentGeneratorAgent
-# from agenthub.agents.data_analyst_agent import DataAnalystAgent
-# from agenthub.agents.fastapi_generator_agent import FastAPIGeneratorAgent
-# from agenthub.agents.database_architect_agent import DatabaseArchitectAgent
-# from agenthub.agents.security_auditor_agent import SecurityAuditorAgent
-# from agenthub.agents.test_generator_agent import TestGeneratorAgent
-# from agenthub.agents.api_documentator_agent import APIDocumentatorAgent
-# from agenthub.agents.ui_generator_agent import UIGeneratorAgent
+from agenthub.agents.data_analyst_agent import DataAnalystAgent
+from agenthub.agents.ui_generator_agent import UIGeneratorAgent
 
 from agenthub.config import config
 from agenthub.orchestrator import orchestrator
 
-# 5. QUINTO: Database y Auth básico
+# 5. QUINTO: Database y Auth
 from agenthub.auth import router as auth_router
 from agenthub.database.connection import SessionLocal, engine, Base
 
-# 6. SEXTO: Workflow engine (CORREGIDO - SIN DUPLICADOS)
-try:
-    from workflow_engine import runtime as wf_runtime
-    from workflow_engine.core.WorkflowEngine import (
-        AgentRegistry, 
-        EventBus, 
-        WorkflowEngine
-    )
-    WORKFLOW_ENGINE_AVAILABLE = True
-except ImportError as e:
-    print(f"⚠️ Workflow engine no disponible: {e}")
-    WORKFLOW_ENGINE_AVAILABLE = False
+# 6. SEXTO: Workflow Engine CORREGIDO
+from workflow_engine.core.WorkflowEngine import (
+    WorkflowEngine,
+    Workflow, 
+    WorkflowNode,
+    WorkflowConnection,
+    AgentRegistry,
+    EventBus,
+    ConnectionType,
+    NodeStatus
+)
 
-# 7. SÉPTIMO: OAuth (OPCIONAL)
+# 7. SÉPTIMO: OAuth (opcional)
 try:
     from agenthub.auth.oauth_routes import router as oauth_router
     OAUTH_AVAILABLE = True
 except ImportError:
     OAUTH_AVAILABLE = False
-    print("⚠️ OAuth no disponible - funcionando sin OAuth")
 
-# 8. OCTAVO: API workflows (CONDICIONAL)
-try:
-    from api.workflows import router as workflow_engine_router
-    API_WORKFLOWS_AVAILABLE = True
-except ImportError:
-    API_WORKFLOWS_AVAILABLE = False
-    print("⚠️ API workflows no disponible")
+# ============================================
+# CONFIGURACIÓN GLOBAL WORKFLOWS
+# ============================================
+
+# Runtime global para workflows
+workflow_runtime = {
+    "agent_registry": None,
+    "event_bus": None, 
+    "workflow_engine": None,
+    "workflows": {},
+    "active_executions": {},
+    "websocket_connections": []
+}
 
 # ============================================
 # LOGGING SETUP
@@ -90,27 +85,19 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # ============================================
-# EVENT BUS GLOBAL
-# ============================================
-if WORKFLOW_ENGINE_AVAILABLE:
-    event_bus = EventBus()
-else:
-    event_bus = None
-
-# ============================================
 # STARTUP Y SHUTDOWN EVENTS
 # ============================================
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("🚀 Starting IOPeer Agent Hub...")
+    logger.info("🚀 Starting IOPeer Agent Hub with Workflows...")
     await startup_event()
     yield
     logger.info("🛑 Shutting down IOPeer Agent Hub...")
     await shutdown_event()
 
 async def startup_event():
-    """Initialize database and load agents"""
+    """Initialize database, agents and workflow engine"""
     try:
         # 1. Create database tables
         logger.info("📁 Creating database tables...")
@@ -120,33 +107,16 @@ async def startup_event():
         # 2. Test database connection
         test_db_connection()
 
-        # 3. Load agents from registry
+        # 3. Initialize workflow engine FIRST
+        await initialize_workflow_engine()
+
+        # 4. Load agents from registry  
         await load_agents_from_registry()
 
-        # 4. Load default workflows
-        try:
-            from agenthub.workflows.default import register_default_workflows
-            register_default_workflows()
-            logger.info("✅ Default workflows loaded")
-        except ImportError:
-            logger.warning("⚠️ Default workflows not available")
+        # 5. Load predefined workflows
+        await load_predefined_workflows()
 
-        # 5. Initialize workflow engine (SI ESTÁ DISPONIBLE)
-        if WORKFLOW_ENGINE_AVAILABLE:
-            wf_runtime.agent_registry = AgentRegistry()
-            wf_runtime.event_bus = EventBus()
-            wf_runtime.workflow_engine = WorkflowEngine(
-                wf_runtime.agent_registry, wf_runtime.event_bus
-            )
-            
-            # Registrar agentes en workflow engine
-            for agent_id, agent in orchestrator.agent_registry.agents.items():
-                definition = agent.get_capabilities()
-                wf_runtime.agent_registry.register_agent(agent_id, agent, definition)
-            
-            logger.info("✅ Workflow engine initialized")
-
-        logger.info("✅ IOPeer Agent Hub started successfully")
+        logger.info("✅ IOPeer Agent Hub with Workflows started successfully")
 
     except Exception as e:
         logger.error(f"❌ Startup failed: {e}")
@@ -154,6 +124,13 @@ async def startup_event():
 
 async def shutdown_event():
     """Cleanup on shutdown"""
+    # Close all websocket connections
+    for ws in workflow_runtime["websocket_connections"]:
+        try:
+            await ws.close()
+        except:
+            pass
+    
     if hasattr(orchestrator, 'shutdown'):
         orchestrator.shutdown()
     logger.info("✅ Shutdown complete")
@@ -170,8 +147,25 @@ def test_db_connection():
     finally:
         db.close()
 
+async def initialize_workflow_engine():
+    """Initialize the workflow engine system"""
+    try:
+        # Create workflow engine components
+        workflow_runtime["agent_registry"] = AgentRegistry()
+        workflow_runtime["event_bus"] = EventBus()
+        workflow_runtime["workflow_engine"] = WorkflowEngine(
+            workflow_runtime["agent_registry"], 
+            workflow_runtime["event_bus"]
+        )
+        
+        logger.info("✅ Workflow engine initialized")
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to initialize workflow engine: {e}")
+        raise
+
 async def load_agents_from_registry():
-    """Load agents from registry file"""
+    """Load agents and register them in both systems"""
     registry_file = config.get("registry_file", "registry.json")
     path = Path(registry_file)
 
@@ -185,20 +179,12 @@ async def load_agents_from_registry():
         logger.error(f"❌ Error loading registry: {e}")
         return
 
-    # ✅ SOLO AGENTES QUE REALMENTE EXISTEN
+    # Agent classes disponibles
     agent_classes = {
         "BackendAgent": BackendAgent,
         "QAAgent": QAAgent,
-        # ✅ ESTRUCTURA LISTA PARA AGREGAR MÁS AGENTES CUANDO EXISTAN:
-        # "ContentWriterAgent": ContentWriterAgent,
-        # "UIComponentGeneratorAgent": UIComponentGeneratorAgent,
-        # "DataAnalystAgent": DataAnalystAgent,
-        # "FastAPIGeneratorAgent": FastAPIGeneratorAgent,
-        # "DatabaseArchitectAgent": DatabaseArchitectAgent,
-        # "SecurityAuditorAgent": SecurityAuditorAgent,
-        # "TestGeneratorAgent": TestGeneratorAgent,
-        # "APIDocumentatorAgent": APIDocumentatorAgent,
-        # "UIGeneratorAgent": UIGeneratorAgent,
+        "DataAnalystAgent": DataAnalystAgent,
+        "UIGeneratorAgent": UIGeneratorAgent,
     }
 
     agents_loaded = 0
@@ -211,26 +197,36 @@ async def load_agents_from_registry():
             continue
 
         try:
+            # Create agent instance
             agent = agent_class()
             agent.agent_id = agent_id
             agent.config = entry.get("config", {})
+            
+            # Register in orchestrator (traditional system)
             orchestrator.register_agent(agent)
+            
+            # Register in workflow engine (new system)
+            if workflow_runtime["agent_registry"]:
+                definition = agent.get_capabilities()
+                workflow_runtime["agent_registry"].register_agent(
+                    agent_id, agent, definition
+                )
+            
             agents_loaded += 1
-            logger.info(f"✅ Loaded agent: {agent_id}")
+            logger.info(f"✅ Loaded agent in both systems: {agent_id}")
+            
         except Exception as e:
             logger.error(f"❌ Failed to load agent {agent_id}: {e}")
 
-    logger.info(f"✅ {agents_loaded} agents loaded successfully")
+    logger.info(f"✅ {agents_loaded} agents loaded in both workflow systems")
 
 async def create_default_registry(path: Path):
     """Create default agent registry"""
     default = [
         {"id": "backend_agent", "class": "BackendAgent"},
         {"id": "qa_agent", "class": "QAAgent"},
-        # ✅ LISTO PARA AGREGAR MÁS CUANDO EXISTAN:
-        # {"id": "content_writer", "class": "ContentWriterAgent"},
-        # {"id": "ui_generator", "class": "UIComponentGeneratorAgent"},
-        # {"id": "data_analyst", "class": "DataAnalystAgent"},
+        {"id": "data_analyst", "class": "DataAnalystAgent"},
+        {"id": "ui_generator", "class": "UIGeneratorAgent"},
     ]
 
     try:
@@ -240,13 +236,83 @@ async def create_default_registry(path: Path):
     except Exception as e:
         logger.error(f"❌ Failed to create default registry: {e}")
 
+async def load_predefined_workflows():
+    """Load predefined workflow templates"""
+    try:
+        # Workflow: Startup Complete
+        startup_workflow = Workflow("startup_complete", "🚀 Startup Completa")
+        
+        # Add nodes
+        startup_workflow.add_node(WorkflowNode("validate_idea", "backend_agent", {
+            "action": "analyze_requirements",
+            "description": "Validate business idea"
+        }))
+        
+        startup_workflow.add_node(WorkflowNode("generate_ui", "ui_generator", {
+            "action": "create_landing_page", 
+            "description": "Generate landing page"
+        }))
+        
+        startup_workflow.add_node(WorkflowNode("create_api", "backend_agent", {
+            "action": "generate_api",
+            "description": "Create backend API"
+        }))
+        
+        startup_workflow.add_node(WorkflowNode("analyze_data", "data_analyst", {
+            "action": "generate_dashboard",
+            "description": "Create analytics dashboard"
+        }))
+        
+        startup_workflow.add_node(WorkflowNode("qa_testing", "qa_agent", {
+            "action": "test_api",
+            "description": "Test complete system"
+        }))
+        
+        # Add connections
+        startup_workflow.add_connection(WorkflowConnection("validate_idea", "generate_ui"))
+        startup_workflow.add_connection(WorkflowConnection("validate_idea", "create_api"))
+        startup_workflow.add_connection(WorkflowConnection("create_api", "analyze_data"))
+        startup_workflow.add_connection(WorkflowConnection("generate_ui", "qa_testing"))
+        startup_workflow.add_connection(WorkflowConnection("analyze_data", "qa_testing"))
+        
+        # Register workflow
+        workflow_runtime["workflows"]["startup_complete"] = startup_workflow
+        
+        # E-commerce Workflow
+        ecommerce_workflow = Workflow("ecommerce_express", "🛒 E-commerce Express")
+        
+        ecommerce_workflow.add_node(WorkflowNode("design_store", "ui_generator", {
+            "action": "generate_component",
+            "description": "Design store layout"
+        }))
+        
+        ecommerce_workflow.add_node(WorkflowNode("setup_backend", "backend_agent", {
+            "action": "generate_crud",
+            "description": "Setup product management"
+        }))
+        
+        ecommerce_workflow.add_node(WorkflowNode("analytics_setup", "data_analyst", {
+            "action": "calculate_kpis",
+            "description": "Setup e-commerce analytics"
+        }))
+        
+        ecommerce_workflow.add_connection(WorkflowConnection("design_store", "setup_backend"))
+        ecommerce_workflow.add_connection(WorkflowConnection("setup_backend", "analytics_setup"))
+        
+        workflow_runtime["workflows"]["ecommerce_express"] = ecommerce_workflow
+        
+        logger.info("✅ Predefined workflows loaded")
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to load predefined workflows: {e}")
+
 # ============================================
 # FASTAPI APP CONFIGURATION
 # ============================================
 
 app = FastAPI(
-    title="IOPeer Agent Hub",
-    description="AI Agent orchestration platform with authentication",
+    title="IOPeer Agent Hub with Workflows",
+    description="AI Agent orchestration platform with visual workflows",
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -254,96 +320,368 @@ app = FastAPI(
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Frontend URL
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # ============================================
-# INCLUDE ROUTERS (CONDICIONAL)
+# INCLUDE ROUTERS
 # ============================================
 
-# Auth siempre disponible
 app.include_router(auth_router, prefix="/auth", tags=["authentication"])
 
-# OAuth solo si está disponible
 if OAUTH_AVAILABLE:
     app.include_router(oauth_router, prefix="/auth/oauth", tags=["oauth"])
-    logger.info("✅ OAuth routes included")
-
-# Workflow engine solo si está disponible
-if API_WORKFLOWS_AVAILABLE:
-    app.include_router(workflow_engine_router)
-    logger.info("✅ Workflow engine routes included")
 
 # ============================================
-# PYDANTIC MODELS
+# PYDANTIC MODELS para WORKFLOWS
 # ============================================
 
-class AgentType(str, Enum):
-    BackendAgent = "BackendAgent"
-    QAAgent = "QAAgent"
-    # ✅ LISTO PARA AGREGAR MÁS:
-    # ContentWriterAgent = "ContentWriterAgent"
-    # UIComponentGeneratorAgent = "UIComponentGeneratorAgent"
-    # DataAnalystAgent = "DataAnalystAgent"
+class WorkflowNodeRequest(BaseModel):
+    id: str
+    agent_type: str
+    name: str = ""
+    position: Dict[str, float] = Field(default_factory=lambda: {"x": 0, "y": 0})
+    config: Dict[str, Any] = Field(default_factory=dict)
 
-class AgentRegistrationRequest(BaseModel):
-    agent_id: str
-    agent_type: AgentType
-    config: Optional[Dict[str, Any]] = None
+class WorkflowConnectionRequest(BaseModel):
+    source_id: str
+    target_id: str
+    connection_type: str = "success"
 
-class MessageRequest(BaseModel):
-    agent_id: str
-    action: str
-    data: Optional[Dict[str, Any]] = None
-
-class WorkflowDefinitionRequest(BaseModel):
+class CreateWorkflowRequest(BaseModel):
+    workflow_id: str
     name: str
-    tasks: List[str]
-    parallel: bool = False
-    timeout: Optional[int] = None
+    description: str = ""
+    nodes: List[WorkflowNodeRequest]
+    connections: List[WorkflowConnectionRequest] = Field(default_factory=list)
 
-class WorkflowRequest(BaseModel):
-    workflow: str
-    data: Optional[Dict[str, Any]] = None
+class ExecuteWorkflowRequest(BaseModel):
+    initial_data: Dict[str, Any] = Field(default_factory=dict)
 
 # ============================================
-# CORE ENDPOINTS
+# WORKFLOW ENDPOINTS
+# ============================================
+
+@app.get("/api/v1/workflows")
+async def list_workflows():
+    """List all available workflows"""
+    try:
+        workflows = []
+        for workflow_id, workflow in workflow_runtime["workflows"].items():
+            workflows.append({
+                "id": workflow.id,
+                "name": workflow.name,
+                "description": getattr(workflow, 'description', ''),
+                "node_count": len(workflow.nodes),
+                "connection_count": len(workflow.connections),
+                "created_at": getattr(workflow, 'created_at', datetime.now()).isoformat()
+            })
+            
+        return {
+            "workflows": workflows,
+            "total": len(workflows),
+            "status": "success"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error listing workflows: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/v1/workflows", status_code=201)
+async def create_workflow(request: CreateWorkflowRequest):
+    """Create a new workflow"""
+    try:
+        if request.workflow_id in workflow_runtime["workflows"]:
+            raise HTTPException(status_code=409, detail="Workflow already exists")
+
+        # Create workflow
+        workflow = Workflow(request.workflow_id, request.name)
+        workflow.description = request.description
+        
+        # Add nodes
+        for node_req in request.nodes:
+            node = WorkflowNode(node_req.id, node_req.agent_type, node_req.config)
+            workflow.add_node(node)
+        
+        # Add connections
+        for conn_req in request.connections:
+            connection_type = ConnectionType.SUCCESS if conn_req.connection_type == "success" else ConnectionType.ERROR
+            connection = WorkflowConnection(conn_req.source_id, conn_req.target_id, connection_type)
+            workflow.add_connection(connection)
+        
+        # Store workflow
+        workflow_runtime["workflows"][request.workflow_id] = workflow
+        
+        logger.info(f"✅ Workflow created: {request.workflow_id}")
+        
+        return {
+            "status": "created",
+            "workflow_id": request.workflow_id,
+            "message": f"Workflow '{request.name}' created successfully"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating workflow: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/workflows/{workflow_id}")
+async def get_workflow(workflow_id: str):
+    """Get workflow details"""
+    try:
+        workflow = workflow_runtime["workflows"].get(workflow_id)
+        if not workflow:
+            raise HTTPException(status_code=404, detail="Workflow not found")
+        
+        # Convert to dict format
+        nodes = []
+        for node_id, node in workflow.nodes.items():
+            nodes.append({
+                "id": node.id,
+                "agent_type": node.agent_type,
+                "config": node.config,
+                "status": node.status.value if hasattr(node, 'status') else 'pending',
+                "inputs": getattr(node, 'inputs', []),
+                "result": getattr(node, 'result', None)
+            })
+        
+        connections = []
+        for conn in workflow.connections:
+            connections.append({
+                "source_id": conn.source_id,
+                "target_id": conn.target_id,
+                "type": conn.type.value
+            })
+        
+        return {
+            "workflow": {
+                "id": workflow.id,
+                "name": workflow.name,
+                "description": getattr(workflow, 'description', ''),
+                "nodes": nodes,
+                "connections": connections,
+                "status": getattr(workflow, 'status', 'pending'),
+                "created_at": getattr(workflow, 'created_at', datetime.now()).isoformat()
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting workflow: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/v1/workflows/{workflow_id}/execute")
+async def execute_workflow(workflow_id: str, request: ExecuteWorkflowRequest):
+    """Execute a workflow"""
+    try:
+        workflow = workflow_runtime["workflows"].get(workflow_id)
+        if not workflow:
+            raise HTTPException(status_code=404, detail="Workflow not found")
+        
+        if not workflow_runtime["workflow_engine"]:
+            raise HTTPException(status_code=500, detail="Workflow engine not initialized")
+        
+        # Execute workflow
+        execution_id = await workflow_runtime["workflow_engine"].execute_workflow(
+            workflow, request.initial_data
+        )
+        
+        logger.info(f"✅ Workflow execution started: {execution_id}")
+        
+        return {
+            "execution_id": execution_id,
+            "workflow_id": workflow_id,
+            "status": "started",
+            "message": "Workflow execution started successfully"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error executing workflow: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/agents/available")
+async def get_available_agents():
+    """Get all available agents for workflow creation"""
+    try:
+        if not workflow_runtime["agent_registry"]:
+            return {"agents": {}, "total": 0}
+        
+        agents = workflow_runtime["agent_registry"].get_available_agents()
+        
+        # Add additional metadata
+        enhanced_agents = {}
+        for agent_type, definition in agents.items():
+            enhanced_agents[agent_type] = {
+                **definition,
+                "id": agent_type,
+                "category": definition.get("category", "general"),
+                "icon": definition.get("icon", "🤖"),
+                "color": definition.get("color", "#3b82f6")
+            }
+        
+        return {
+            "agents": enhanced_agents,
+            "total": len(enhanced_agents),
+            "categories": list(set(agent.get("category", "general") for agent in enhanced_agents.values()))
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting available agents: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/workflows/templates")
+async def get_workflow_templates():
+    """Get predefined workflow templates"""
+    try:
+        templates = {
+            "startup_complete": {
+                "id": "startup_complete",
+                "name": "🚀 Startup Completa",
+                "description": "De idea a producto funcionando: Landing + Backend + Analytics",
+                "category": "Business",
+                "difficulty": "Intermedio",
+                "estimated_time": "15-20 minutos",
+                "preview_image": "/templates/startup-complete.png",
+                "expected_outputs": [
+                    "✅ Landing page completa y responsive",
+                    "✅ API backend con autenticación", 
+                    "✅ Dashboard de analytics en tiempo real",
+                    "📁 Código fuente completo descargable"
+                ]
+            },
+            "ecommerce_express": {
+                "id": "ecommerce_express",
+                "name": "🛒 E-commerce Express",
+                "description": "Tienda online completa con pagos, inventario y analytics",
+                "category": "E-commerce",
+                "difficulty": "Fácil", 
+                "estimated_time": "8-12 minutos",
+                "expected_outputs": [
+                    "✅ Tienda online funcional",
+                    "✅ Gestión de productos",
+                    "✅ Sistema de pagos integrado"
+                ]
+            }
+        }
+        
+        return {
+            "templates": templates,
+            "total": len(templates),
+            "categories": list(set(t["category"] for t in templates.values()))
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting workflow templates: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/v1/workflows/templates/{template_id}/create")
+async def create_from_template(template_id: str, customizations: dict = None):
+    """Create workflow from template"""
+    try:
+        if template_id not in workflow_runtime["workflows"]:
+            raise HTTPException(status_code=404, detail="Template not found")
+        
+        template_workflow = workflow_runtime["workflows"][template_id]
+        
+        # Create new workflow ID
+        new_workflow_id = f"{template_id}_{int(datetime.now().timestamp())}"
+        
+        # Clone workflow
+        new_workflow = Workflow(new_workflow_id, f"{template_workflow.name} (Copy)")
+        
+        # Copy nodes and connections
+        for node_id, node in template_workflow.nodes.items():
+            new_node = WorkflowNode(node.id, node.agent_type, node.config.copy())
+            new_workflow.add_node(new_node)
+        
+        for conn in template_workflow.connections:
+            new_conn = WorkflowConnection(conn.source_id, conn.target_id, conn.type)
+            new_workflow.add_connection(new_conn)
+        
+        # Store new workflow
+        workflow_runtime["workflows"][new_workflow_id] = new_workflow
+        
+        return {
+            "workflow_id": new_workflow_id,
+            "status": "created",
+            "message": f"Workflow created from template '{template_id}'"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating from template: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ============================================
+# WEBSOCKET para TIEMPO REAL
+# ============================================
+
+@app.websocket("/api/v1/workflows/{workflow_id}/ws")
+async def workflow_websocket(websocket: WebSocket, workflow_id: str):
+    """WebSocket para updates en tiempo real de workflows"""
+    await websocket.accept()
+    workflow_runtime["websocket_connections"].append(websocket)
+    
+    try:
+        logger.info(f"WebSocket connected for workflow: {workflow_id}")
+        
+        # Send initial status
+        await websocket.send_json({
+            "type": "connected",
+            "workflow_id": workflow_id,
+            "timestamp": datetime.now().isoformat()
+        })
+        
+        # Keep connection alive
+        while True:
+            data = await websocket.receive_text()
+            # Echo back for heartbeat
+            await websocket.send_json({
+                "type": "heartbeat",
+                "timestamp": datetime.now().isoformat()
+            })
+            
+    except WebSocketDisconnect:
+        logger.info(f"WebSocket disconnected for workflow: {workflow_id}")
+    except Exception as e:
+        logger.error(f"WebSocket error: {e}")
+    finally:
+        if websocket in workflow_runtime["websocket_connections"]:
+            workflow_runtime["websocket_connections"].remove(websocket)
+
+# ============================================
+# ENDPOINTS ORIGINALES (mantenidos)
 # ============================================
 
 @app.get("/")
 async def root():
     """Root endpoint with API information"""
-    endpoints_list = [
-        "/health",
-        "/auth/signin",
-        "/auth/signup",
-        "/agents",
-        "/agents/health",  # ✅ AGREGADO
-        "/message/send",
-        "/workflows"
-    ]
-    
-    if OAUTH_AVAILABLE:
-        endpoints_list.append("/auth/oauth/status")
-    
-    if API_WORKFLOWS_AVAILABLE:
-        endpoints_list.append("/workflow_engine")
-
     return {
-        "message": "IOPeer Agent Hub API",
+        "message": "IOPeer Agent Hub with Visual Workflows",
         "version": "1.0.0",
         "status": "running",
-        "agents": len(orchestrator.agent_registry.agents),
-        "workflows": len(orchestrator.workflow_registry.workflows),
+        "agents": len(workflow_runtime["agent_registry"].agents) if workflow_runtime["agent_registry"] else 0,
+        "workflows": len(workflow_runtime["workflows"]),
         "features": {
-            "oauth_enabled": OAUTH_AVAILABLE,
-            "workflow_engine_enabled": WORKFLOW_ENGINE_AVAILABLE,
-            "api_workflows_enabled": API_WORKFLOWS_AVAILABLE
+            "visual_workflows": True,
+            "real_time_updates": True,
+            "workflow_templates": True,
+            "workflow_engine_enabled": workflow_runtime["workflow_engine"] is not None
         },
-        "endpoints": endpoints_list
+        "endpoints": [
+            "/api/v1/workflows",
+            "/api/v1/agents/available", 
+            "/api/v1/workflows/templates",
+            "/health"
+        ]
     }
 
 @app.get("/health")
@@ -359,319 +697,56 @@ async def health_check():
         logger.error(f"Database health check failed: {e}")
         db_status = "unhealthy"
 
-    # Test agents
-    agent_health = {}
-    try:
-        agent_health = {
-            k: agent.health_check()
-            for k, agent in orchestrator.agent_registry.agents.items()
-        }
-    except Exception as e:
-        logger.error(f"Agent health check failed: {e}")
-
     return {
         "status": "healthy" if db_status == "healthy" else "unhealthy",
-        "message": "IOPeer Agent Hub is running",
+        "message": "IOPeer Agent Hub with Workflows is running",
         "version": "1.0.0",
         "database": db_status,
-        "agents": agent_health,
-        "total_agents": len(orchestrator.agent_registry.agents),
-        "total_workflows": len(orchestrator.workflow_registry.workflows),
-        "features": {
-            "oauth_available": OAUTH_AVAILABLE,
-            "workflow_engine_available": WORKFLOW_ENGINE_AVAILABLE
-        }
+        "workflow_engine": "healthy" if workflow_runtime["workflow_engine"] else "not_initialized",
+        "total_agents": len(workflow_runtime["agent_registry"].agents) if workflow_runtime["agent_registry"] else 0,
+        "total_workflows": len(workflow_runtime["workflows"]),
+        "active_executions": len(workflow_runtime.get("active_executions", {})),
+        "websocket_connections": len(workflow_runtime["websocket_connections"])
     }
 
 # ============================================
-# AGENT ENDPOINTS - ✅ MEJORADOS DE main_.py
+# LEGACY ENDPOINTS (para compatibilidad)
 # ============================================
 
 @app.get("/agents")
 async def list_agents():
-    """List all available agents with robust error handling"""
+    """List all available agents (legacy endpoint)"""
     try:
-        # Asegurar que orchestrator y agent_registry existen
-        if not hasattr(orchestrator, 'agent_registry') or not orchestrator.agent_registry:
-            logger.warning("Agent registry not initialized")
-            return {
-                "agents": [], 
-                "total": 0, 
-                "status": "success",
-                "message": "Agent registry not initialized yet"
-            }
+        if not workflow_runtime["agent_registry"]:
+            return {"agents": [], "total": 0, "status": "success"}
         
-        # Obtener agentes de forma segura
-        agent_list = []
-        if hasattr(orchestrator.agent_registry, 'agents') and orchestrator.agent_registry.agents:
+        agents = []
+        for agent_id, agent in workflow_runtime["agent_registry"].agents.items():
             try:
-                for agent_id, agent in orchestrator.agent_registry.agents.items():
-                    try:
-                        # Obtener info del agente de forma segura
-                        agent_info = agent.get_info()
-                        
-                        # Validar que la info tiene la estructura esperada
-                        if not isinstance(agent_info, dict):
-                            logger.warning(f"Agent {agent_id} returned invalid info format")
-                            continue
-                            
-                        # Asegurar campos requeridos
-                        agent_info.setdefault('agent_id', agent_id)
-                        agent_info.setdefault('name', agent_id)
-                        agent_info.setdefault('type', agent.__class__.__name__)
-                        agent_info.setdefault('status', 'unknown')
-                        agent_info.setdefault('capabilities', {})
-                        agent_info.setdefault('stats', {})
-                        
-                        agent_list.append(agent_info)
-                        
-                    except Exception as e:
-                        logger.error(f"Error getting info for agent {agent_id}: {e}")
-                        # Agregar agente con info mínima
-                        agent_list.append({
-                            'agent_id': agent_id,
-                            'name': agent_id,
-                            'type': agent.__class__.__name__ if hasattr(agent, '__class__') else 'Unknown',
-                            'status': 'error',
-                            'error': f'Failed to get agent info: {str(e)}',
-                            'capabilities': {},
-                            'stats': {}
-                        })
+                agent_info = agent.get_info() if hasattr(agent, 'get_info') else {}
+                agent_info.setdefault('agent_id', agent_id)
+                agent_info.setdefault('name', agent_id)
+                agent_info.setdefault('type', agent.__class__.__name__)
+                agent_info.setdefault('status', 'idle')
+                agents.append(agent_info)
             except Exception as e:
-                logger.error(f"Error iterating through agents: {e}")
+                logger.error(f"Error getting info for agent {agent_id}: {e}")
         
-        response = {
-            "agents": agent_list,
-            "total": len(agent_list), 
+        return {
+            "agents": agents,
+            "total": len(agents), 
             "status": "success",
-            "server_time": datetime.utcnow().isoformat(),
-            "agent_registry_status": "healthy" if agent_list else "empty"
+            "server_time": datetime.utcnow().isoformat()
         }
         
-        logger.info(f"Successfully listed {len(agent_list)} agents")
-        return response
-        
     except Exception as e:
-        logger.error(f"Critical error in list_agents: {e}")
-        
-        # Retornar respuesta de error pero con estructura consistente
+        logger.error(f"Error in list_agents: {e}")
         return {
             "agents": [],
             "total": 0,
             "status": "error",
-            "error": str(e),
-            "message": "Failed to retrieve agents list",
-            "server_time": datetime.utcnow().isoformat()
+            "error": str(e)
         }
-
-@app.get("/agents/health")
-async def agents_health_check():
-    """Health check específico para el sistema de agentes"""
-    try:
-        health_status = {
-            "orchestrator_available": hasattr(orchestrator, 'agent_registry'),
-            "agent_registry_available": bool(getattr(orchestrator, 'agent_registry', None)),
-            "total_agents": 0,
-            "healthy_agents": 0,
-            "failed_agents": 0,
-            "agent_details": {}
-        }
-        
-        if orchestrator.agent_registry and orchestrator.agent_registry.agents:
-            health_status["total_agents"] = len(orchestrator.agent_registry.agents)
-            
-            for agent_id, agent in orchestrator.agent_registry.agents.items():
-                try:
-                    agent_health = agent.health_check() if hasattr(agent, 'health_check') else {"healthy": True}
-                    health_status["agent_details"][agent_id] = agent_health
-                    
-                    if agent_health.get("healthy", False):
-                        health_status["healthy_agents"] += 1
-                    else:
-                        health_status["failed_agents"] += 1
-                        
-                except Exception as e:
-                    health_status["agent_details"][agent_id] = {
-                        "healthy": False,
-                        "error": str(e)
-                    }
-                    health_status["failed_agents"] += 1
-        
-        overall_status = "healthy" if health_status["failed_agents"] == 0 else "degraded"
-        
-        return {
-            "status": overall_status,
-            "timestamp": datetime.utcnow().isoformat(),
-            **health_status
-        }
-        
-    except Exception as e:
-        logger.error(f"Agent health check failed: {e}")
-        return {
-            "status": "failed",
-            "error": str(e),
-            "timestamp": datetime.utcnow().isoformat()
-        }
-
-@app.post("/agents/register")
-async def register_agent(req: AgentRegistrationRequest):
-    """Register a new agent"""
-    try:
-        if orchestrator.agent_registry.get(req.agent_id):
-            raise HTTPException(status_code=409, detail="Agent already exists")
-
-        agent_map = {
-            AgentType.BackendAgent: BackendAgent,
-            AgentType.QAAgent: QAAgent,
-            # ✅ LISTO PARA AGREGAR MÁS:
-            # AgentType.ContentWriterAgent: ContentWriterAgent,
-            # AgentType.UIComponentGeneratorAgent: UIComponentGeneratorAgent,
-            # AgentType.DataAnalystAgent: DataAnalystAgent,
-        }
-
-        agent_class = agent_map[req.agent_type]
-        agent = agent_class()
-        agent.agent_id = req.agent_id
-        agent.config = req.config or {}
-
-        orchestrator.register_agent(agent)
-
-        logger.info(f"✅ Agent registered: {req.agent_id}")
-        return {"status": "registered", "agent_id": req.agent_id}
-
-    except Exception as e:
-        logger.error(f"Error registering agent: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/message/send")
-async def send_message(req: MessageRequest):
-    """Send message to an agent"""
-    try:
-        logger.info(f"📤 Sending message to {req.agent_id}: {req.action}")
-
-        result = orchestrator.send_message(
-            req.agent_id, {"action": req.action, "data": req.data}
-        )
-
-        logger.info(f"📨 Response from {req.agent_id}: {result}")
-
-        # Emitir evento si workflow engine está disponible
-        if WORKFLOW_ENGINE_AVAILABLE and event_bus:
-            await event_bus.emit(
-                "message_sent",
-                {"agent_id": req.agent_id, "action": req.action, "result": result},
-            )
-
-        return {"result": result, "status": "success"}
-
-    except ValueError as e:
-        logger.error(f"Agent not found: {e}")
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
-        logger.error(f"Error sending message: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-# ============================================
-# WORKFLOW ENDPOINTS
-# ============================================
-
-@app.get("/workflows")
-async def list_workflows():
-    """List all available workflows"""
-    try:
-        workflows = [
-            {"name": name, **definition}
-            for name, definition in orchestrator.workflow_registry.workflows.items()
-        ]
-        return {"workflows": workflows, "total": len(workflows), "status": "success"}
-    except Exception as e:
-        logger.error(f"Error listing workflows: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/workflows/register")
-async def register_workflow(req: WorkflowDefinitionRequest):
-    """Register a new workflow"""
-    try:
-        orchestrator.register_workflow(
-            name=req.name,
-            tasks=req.tasks,
-            parallel=req.parallel,
-            timeout=req.timeout,
-        )
-
-        logger.info(f"✅ Workflow registered: {req.name}")
-        return {"status": "registered", "workflow": req.name}
-
-    except Exception as e:
-        logger.error(f"Error registering workflow: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/workflow/start")
-async def start_workflow(req: WorkflowRequest):
-    """Start a workflow execution"""
-    try:
-        logger.info(f"🔄 Starting workflow: {req.workflow}")
-        result = orchestrator.execute_workflow(req.workflow, req.data)
-        logger.info(f"✅ Workflow completed: {req.workflow}")
-        return result
-
-    except Exception as e:
-        logger.error(f"Error executing workflow: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-# ============================================
-# MARKETPLACE ENDPOINTS
-# ============================================
-
-@app.get("/marketplace/featured")
-async def get_featured_agents():
-    """Get featured agents from marketplace"""
-    return {
-        "agents": [
-            {
-                "id": "ui-generator",
-                "name": "UI Component Generator",
-                "description": "Genera componentes React personalizados",
-                "rating": 4.8,
-                "installs": 1250,
-                "price": "Gratis",
-                "category": "frontend",
-                "type": "UIComponentGeneratorAgent"
-            },
-            {
-                "id": "api-builder",
-                "name": "API Builder Pro",
-                "description": "Crea APIs REST completas",
-                "rating": 4.9,
-                "installs": 890,
-                "price": "$9.99/mes",
-                "category": "backend",
-                "type": "FastAPIGeneratorAgent"
-            },
-            {
-                "id": "content-writer",
-                "name": "Content Writer AI",
-                "description": "Genera contenido de alta calidad",
-                "rating": 4.7,
-                "installs": 1520,
-                "price": "Gratis",
-                "category": "content",
-                "type": "ContentWriterAgent"
-            },
-            {
-                "id": "data-analyst",
-                "name": "Data Analyst Pro",
-                "description": "Analiza datos y genera insights",
-                "rating": 4.8,
-                "installs": 750,
-                "price": "$14.99/mes",
-                "category": "analytics",
-                "type": "DataAnalystAgent"
-            }
-        ],
-        "total": 4,
-        "status": "success",
-    }
 
 # ============================================
 # ERROR HANDLERS
@@ -689,40 +764,6 @@ async def global_error_handler(request, exc):
             "type": "server_error",
         },
     )
-
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request, exc: HTTPException):
-    """HTTP exception handler"""
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={
-            "error": exc.detail,
-            "status_code": exc.status_code,
-            "type": "http_error",
-        },
-    )
-
-# ============================================
-# DEVELOPMENT ENDPOINTS
-# ============================================
-
-@app.get("/debug/info")
-async def debug_info():
-    """Debug information (only in development)"""
-    if config.get("debug", False):
-        return {
-            "config": dict(config),
-            "agents": list(orchestrator.agent_registry.agents.keys()),
-            "workflows": list(orchestrator.workflow_registry.workflows.keys()),
-            "features": {
-                "oauth_available": OAUTH_AVAILABLE,
-                "workflow_engine_available": WORKFLOW_ENGINE_AVAILABLE,
-                "api_workflows_available": API_WORKFLOWS_AVAILABLE
-            },
-            "environment": "development"
-        }
-    else:
-        raise HTTPException(status_code=404, detail="Not found")
 
 # ============================================
 # SERVER RUNNER
