@@ -1,6 +1,15 @@
 // src/hooks/useWorkflow.js - MEJORADO para conectar con las nuevas APIs
 import { useState, useEffect, useCallback, useRef } from 'react';
 
+export interface Agent {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: string;
+  color: string;
+}
+
 // Configuración de la API
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
@@ -121,7 +130,7 @@ class WorkflowAPIClient {
 export const useWorkflow = () => {
   // Estado principal
   const [workflows, setWorkflows] = useState([]);
-  const [availableAgents, setAvailableAgents] = useState({});
+  const [availableAgents, setAvailableAgents] = useState<Record<string, Agent>>({});
   const [templates, setTemplates] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -133,7 +142,7 @@ export const useWorkflow = () => {
 
   // Referencias
   const apiClient = useRef(new WorkflowAPIClient());
-  const wsConnection = useRef(null);
+  const wsConnection = useRef<WebSocket | null>(null);
 
   // Cargar datos iniciales
   useEffect(() => {
@@ -161,7 +170,7 @@ export const useWorkflow = () => {
   const loadAvailableAgents = useCallback(async () => {
     try {
       const response = await apiClient.current.getAvailableAgents();
-      setAvailableAgents(response.agents || {});
+      setAvailableAgents((response.agents || {}) as Record<string, Agent>);
     } catch (err) {
       console.error('Error loading available agents:', err);
     }
