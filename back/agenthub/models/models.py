@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
-from .database import Base
+from agenthub.database import Base
 import datetime
 
 class User(Base):

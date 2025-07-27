@@ -13,9 +13,9 @@ from passlib.context import CryptContext
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from .schemas import UserCreate
+from agenthub.schemas import UserCreate
 
-from .utils import create_access_token, verify_password, SECRET_KEY, ALGORITHM
+from agenthub.utils import create_access_token, verify_password, SECRET_KEY, ALGORITHM
 from jose import jwt, JWTError
 
 logger = logging.getLogger(__name__)
@@ -104,7 +104,7 @@ def login(user: SignInInput, db: Session = Depends(get_db)):
 
 from fastapi import Request
 from jose import JWTError, jwt
-from .utils import SECRET_KEY, ALGORITHM
+from agenthub.utils import SECRET_KEY, ALGORITHM
 
 
 @router.get("/me")

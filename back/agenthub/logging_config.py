@@ -3,7 +3,7 @@ import logging
 import logging.handlers
 from pathlib import Path
 
-from .config import config
+from agenthub.config import config
 
 
 def setup_logging():

@@ -15,7 +15,7 @@ router = APIRouter()
 # ============================================
 
 try:
-    from .routes import router as auth_router
+from agenthub.routes import router as auth_router
     router.include_router(auth_router, tags=["auth"])
     logger.info("✅ Auth routes loaded successfully")
 except ImportError as e:
@@ -27,7 +27,7 @@ except ImportError as e:
 # ============================================
 
 try:
-    from .oauth_routes import router as oauth_router
+from agenthub.oauth_routes import router as oauth_router
     router.include_router(oauth_router, prefix="/oauth", tags=["oauth"])
     logger.info("✅ OAuth routes loaded successfully")
 except ImportError as e:

@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from ..database.connection import SessionLocal
 from ..models.user import User
-from .schemas import SignInInput, TokenResponse
+from agenthub.schemas import SignInInput, TokenResponse
 
 router = APIRouter()
 

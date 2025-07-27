@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from .agents.base_agent import BaseAgent
-from .config import config
+from agenthub.config import config
 
 logger = logging.getLogger(__name__)
 

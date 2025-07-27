@@ -32,7 +32,8 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import text
 
-from .middleware import ExceptionMiddleware
+from agenthub.middleware import ExceptionMiddleware
+
 
 from workflow_engine import runtime as wf_runtime
 from workflow_engine.core.WorkflowEngine import AgentRegistry, EventBus, WorkflowEngine

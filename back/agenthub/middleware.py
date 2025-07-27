@@ -4,7 +4,7 @@ import time
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from .metrics import metrics
+from agenthub.metrics import metrics
 
 
 class MetricsMiddleware(BaseHTTPMiddleware):

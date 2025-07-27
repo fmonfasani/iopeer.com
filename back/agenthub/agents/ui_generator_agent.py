@@ -1,5 +1,5 @@
 
-from .ui_component_generator import UIComponentGeneratorAgent
+from agenthub.ui_component_generator import UIComponentGeneratorAgent
 
 
 class UIGeneratorAgent(UIComponentGeneratorAgent):

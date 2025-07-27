@@ -7,7 +7,7 @@ import json
 import random
 from typing import Any, Dict, List
 from datetime import datetime, timedelta
-from .base_agent import BaseAgent
+from agenthub.base_agent import BaseAgent
 
 class DataAnalystAgent(BaseAgent):
     """

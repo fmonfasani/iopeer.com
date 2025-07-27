@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from .base_agent import BaseAgent
+from agenthub.base_agent import BaseAgent
 
 
 class DatabaseArchitectAgent(BaseAgent):

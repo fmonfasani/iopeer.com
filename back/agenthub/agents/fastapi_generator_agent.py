@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional
 
-from .base_agent import BaseAgent
+from agenthub.base_agent import BaseAgent
 
 
 class FastAPIGeneratorAgent(BaseAgent):
