@@ -16,6 +16,7 @@ import {
 import { useIopeer } from '../../../hooks/useIopeer';
 
 import { workflowService } from '../../../services/workflowService';
+import type { Agent } from '../../../hooks/useWorkflow';
 
 // Tipos para el workflow
 interface WorkflowNode {
@@ -33,14 +34,7 @@ interface WorkflowConnection {
   connection_type: string;
 }
 
-interface AgentType {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  category: string;
-  color: string;
-}
+
 
 const WorkflowEditor: React.FC<{ workflow?: any; onSave?: () => void }> = ({ workflow: initialWorkflow, onSave }) => {
   // Estado del workflow
@@ -52,7 +46,7 @@ const WorkflowEditor: React.FC<{ workflow?: any; onSave?: () => void }> = ({ wor
   
   // Estados de UI
   const [showAgentPanel, setShowAgentPanel] = useState(true);
-  const [draggedAgent, setDraggedAgent] = useState<AgentType | null>(null);
+  const [draggedAgent, setDraggedAgent] = useState<Agent | null>(null);
   const [saving, setSaving] = useState(false);
   const [isExecuting, setIsExecuting] = useState(false);
   const [executionProgress, setExecutionProgress] = useState<any>({});
@@ -91,7 +85,7 @@ const WorkflowEditor: React.FC<{ workflow?: any; onSave?: () => void }> = ({ wor
   }, [initialWorkflow]);
 
   // Convertir agentes disponibles a formato local
-  const agentsList: AgentType[] = Object.values(availableAgents).map(agent => ({
+  const agentsList: Agent[] = Object.values(availableAgents).map(agent => ({
     id: agent.id,
     name: agent.name || agent.id,
     description: agent.description || 'No description available',
@@ -227,7 +221,7 @@ const WorkflowEditor: React.FC<{ workflow?: any; onSave?: () => void }> = ({ wor
   }, [nodes, saveWorkflow, workflowName]);
 
   // Manejar drag & drop de agentes
-  const handleAgentDragStart = (agent: AgentType) => {
+  const handleAgentDragStart = (agent: Agent) => {
     setDraggedAgent(agent);
   };
 
@@ -326,7 +320,7 @@ const WorkflowEditor: React.FC<{ workflow?: any; onSave?: () => void }> = ({ wor
     }
     acc[category].push(agent);
     return acc;
-  }, {} as Record<string, AgentType[]>);
+  }, {} as Record<string, Agent[]>);
 
   return (
     <div className="flex h-screen bg-gray-50">
