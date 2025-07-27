@@ -551,6 +551,7 @@ docker-compose up -d
 
 # Verificar servicios
 curl http://localhost:8000/health
+# El JSON incluye ahora los campos `disk_usage` y `memory_usage`
 curl http://localhost:3000
 ```
 

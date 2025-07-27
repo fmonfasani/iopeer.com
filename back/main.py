@@ -10,10 +10,16 @@ load_dotenv()
 
 import json
 import logging
+import shutil
 from contextlib import asynccontextmanager
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+try:
+    import psutil  # type: ignore
+except Exception:  # pragma: no cover - optional dependency
+    psutil = None
 
 try:
     import uvicorn  # type: ignore
@@ -342,12 +348,33 @@ async def health_check():
     except Exception as e:
         logger.error(f"Agent health check failed: {e}")
 
+    # Disk usage metrics
+    disk = shutil.disk_usage("/")
+    disk_usage = {
+        "total": disk.total,
+        "used": disk.used,
+        "free": disk.free,
+    }
+
+    # Memory usage metrics (if psutil available)
+    memory_usage = None
+    if psutil:
+        mem = psutil.virtual_memory()
+        memory_usage = {
+            "total": mem.total,
+            "available": mem.available,
+            "used": mem.used,
+            "percent": mem.percent,
+        }
+
     return {
         "status": "healthy" if db_status == "healthy" else "unhealthy",
         "message": "IOPeer Agent Hub is running",
         "version": "1.0.0",
         "database": db_status,
         "agents": agent_health,
+        "disk_usage": disk_usage,
+        "memory_usage": memory_usage,
         "total_agents": len(orchestrator.agent_registry.agents),
         "total_workflows": len(orchestrator.workflow_registry.workflows),
     }
