@@ -234,8 +234,9 @@ async def root():
         "workflows": len(orchestrator.workflow_registry.workflows),
         "endpoints": [
             "/health",
+            "/health/extended",
             "/auth/signin",
-            "/auth/signup", 
+            "/auth/signup",
             "/auth/oauth/status",
             "/agents",
             "/message/send",
@@ -552,8 +553,8 @@ async def get_frontend_config():
     }
 
 # 6. Enhanced health check
-@app.get("/health")
-async def enhanced_health_check():
+@app.get("/health/extended")
+async def extended_health_check():
     """Comprehensive health check"""
     
     # Check database
