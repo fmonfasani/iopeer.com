@@ -73,7 +73,7 @@ curl http://localhost:8000/health
 ```
 Send a message via HTTP:
 ```bash
-curl -X POST http://localhost:8000/message/send \
+curl -X POST http://localhost:8000/agents/backend_agent/execute \
   -H "Content-Type: application/json" \
   -d '{"agent_id":"backend_agent","action":"analyze_requirements","data":{"requirements":"Simple API"}}'
 ```
@@ -307,7 +307,7 @@ Registra un nuevo agente en el sistema.
 
 ---
 
-### POST `/message/send`
+### POST `/agents/{agent_id}/execute`
 Envía un mensaje a un agente específico.
 
 **Request Body:**
@@ -729,7 +729,7 @@ curl http://localhost:8000/agents
 
 ### Enviar Mensaje a Agente
 ```bash
-curl -X POST http://localhost:8000/message/send \
+curl -X POST http://localhost:8000/agents/backend_agent/execute \
   -H "Content-Type: application/json" \
   -d '{
     "agent_id": "backend_agent",
