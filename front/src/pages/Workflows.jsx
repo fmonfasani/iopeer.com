@@ -21,29 +21,24 @@ import { useIopeer } from '../hooks/useIopeer';
 import WorkflowEditor from '../components/features/WorkflowEditor/WorkflowEditor';
 
 const Workflows = () => {
-  const { workflows } = useIopeer();
-  const [currentView, setCurrentView] = useState('list'); // 'list', 'editor', 'templates'
-  const [selectedWorkflow, setSelectedWorkflow] = useState(null);
-  const [showExecutionModal, setShowExecutionModal] = useState(false);
-
-  // Datos de workflows
   const {
-    list: workflowList,
+    workflows: workflowList,
     templates,
-    stats,
+    workflowStats: stats,
     loading,
     error,
     isExecuting,
     activeExecution,
-    
-    // Acciones
-    create,
-    execute,
-    createFromTemplate,
+    createWorkflow: create,
+    executeWorkflow: execute,
+    createWorkflowFromTemplate: createFromTemplate,
     loadWorkflows,
-    loadTemplates,
-    clearError
-  } = workflows;
+    loadWorkflowTemplates: loadTemplates,
+    clearWorkflowError: clearError
+  } = useIopeer();
+  const [currentView, setCurrentView] = useState('list'); // 'list', 'editor', 'templates'
+  const [selectedWorkflow, setSelectedWorkflow] = useState(null);
+  const [showExecutionModal, setShowExecutionModal] = useState(false);
 
   // Cargar datos al montar
   useEffect(() => {

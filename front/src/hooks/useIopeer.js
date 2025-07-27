@@ -1,5 +1,6 @@
 // frontend/src/hooks/useIopeer.js - CORREGIDO
 import { useState, useEffect, useCallback, useRef } from 'react';
+import useWorkflow from './useWorkflow';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
@@ -13,6 +14,9 @@ export const useIopeer = () => {
   const [retryAttempts, setRetryAttempts] = useState(0);
   const maxRetries = 3;
   const retryTimeoutRef = useRef(null);
+
+  // Integrate workflow hook
+  const workflow = useWorkflow();
 
   const clearError = useCallback(() => {
     setError(null);
@@ -180,7 +184,17 @@ export const useIopeer = () => {
     loading,
     error,
     retryAttempts,
-    
+
+    // Workflow data
+    workflows: workflow.workflows,
+    templates: workflow.templates,
+    availableAgents: workflow.availableAgents,
+    executionEvents: workflow.executionEvents,
+    isExecuting: workflow.isExecuting,
+    activeExecution: workflow.activeExecution,
+    workflowStats: workflow.workflowStats,
+    agentStats: workflow.agentStats,
+
     // Computed
     isConnected: connectionStatus === 'connected',
     isConnecting: connectionStatus === 'connecting',
@@ -192,7 +206,19 @@ export const useIopeer = () => {
     retry,
     clearError,
     sendMessage,
-    
+
+    // Workflow actions
+    createWorkflow: workflow.createWorkflow,
+    executeWorkflow: workflow.executeWorkflow,
+    createWorkflowFromTemplate: workflow.createFromTemplate,
+    loadWorkflows: workflow.loadWorkflows,
+    loadTemplates: workflow.loadTemplates,
+    loadAvailableAgents: workflow.loadAvailableAgents,
+    clearWorkflowError: workflow.clearError,
+    clearExecutionEvents: workflow.clearExecutionEvents,
+
+    wsConnected: workflow.wsConnected,
+
     // Utilities
     makeRequest
   };
