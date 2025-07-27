@@ -8,5 +8,20 @@
     "id": "qa_agent",
     "class": "QAAgent",
     "config": {}
+  },
+  {
+    "id": "content_writer",
+    "class": "ContentWriterAgent",
+    "config": {}
+  },
+  {
+    "id": "ui_component_generator",
+    "class": "UIComponentGeneratorAgent",
+    "config": {}
+  },
+  {
+    "id": "data_analyst",
+    "class": "DataAnalystAgent",
+    "config": {}
   }
 ]
