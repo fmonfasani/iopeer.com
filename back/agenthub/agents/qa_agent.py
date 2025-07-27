@@ -3,7 +3,7 @@
 import re
 from typing import Any, Dict
 
-from agenthub.base_agent import BaseAgent
+from agenthub.agents.base_agent import BaseAgent
 
 
 class QAAgent(BaseAgent):

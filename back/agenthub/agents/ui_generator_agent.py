@@ -1,4 +1,4 @@
-from agenthub.ui_component_generator import UIComponentGeneratorAgent
+from agenthub.agents.ui_component_generator import UIComponentGeneratorAgent
 
 
 class UIGeneratorAgent(UIComponentGeneratorAgent):

@@ -1,7 +1,7 @@
 # agenthub/agents/backend_agent.py
 from typing import Any, Dict, List, Optional
 
-from agenthub.base_agent import BaseAgent
+from agenthub.agents.base_agent import BaseAgent
 
 
 class BackendAgent(BaseAgent):

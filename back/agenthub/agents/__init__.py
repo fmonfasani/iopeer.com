@@ -1,7 +1,9 @@
-from agenthub.backend_agent import BackendAgent
-from agenthub.data_analyst_agent import DataAnalystAgent
-from agenthub.qa_agent import QAAgent
-from agenthub.ui_generator_agent import UIGeneratorAgent
+from agenthub.agents.backend_agent import BackendAgent
+from agenthub.agents.data_analyst_agent import DataAnalystAgent
+from agenthub.agents.qa_agent import QAAgent
+from agenthub.agents.ui_generator_agent import UIGeneratorAgent
+from agenthub.agents.backend_agent import BackendAgent
+
 
 __all__ = [
     "BackendAgent",

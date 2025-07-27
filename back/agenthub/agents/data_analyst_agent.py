@@ -8,7 +8,7 @@ import random
 from datetime import datetime, timedelta
 from typing import Any, Dict, List
 
-from agenthub.base_agent import BaseAgent
+from agenthub.agents.base_agent import BaseAgent
 
 
 class DataAnalystAgent(BaseAgent):

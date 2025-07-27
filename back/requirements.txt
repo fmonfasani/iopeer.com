@@ -1,58 +1,46 @@
+# ============================================
+# requirements.txt - LIMPIO Y ORGANIZADO
+# ============================================
+
+# Core FastAPI Stack
 fastapi>=0.115.1
-requests
-types-requests
-PyYAML>=6.0
-
-# Compatibilidad con Kubernetes
-urllib3<2.0
-
-# Linter, formatter y orden de imports
-black==24.4.2
-isort==5.12.0
-flake8==6.1.0
-autoflake==2.2.1
-
-# Tipado estático
-mypy==1.10.0
-
-# Pre-commit hooks
-pre-commit==3.7.0
-
-
-httpx
-
-# ORM
-sqlalchemy
-
-
-# PostgreSQL driver
-psycopg2-binary
-
-# Seguridad de contraseñas
-passlib[bcrypt]
-
+uvicorn[standard]==0.24.0
 pydantic==2.5.0
 pydantic[email]
 
-uvicorn[standard]==0.24.0
-
-# JWT tokens
-python-jose
-
-# Dependencias existentes
-
-pydantic==2.5.0
-redis==5.0.1
-pytest==7.4.3
-pytest-asyncio==0.21.1
-httpx==0.25.2
-python-multipart==0.0.6
+# Database & ORM
 sqlalchemy==2.0.23
-python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
+psycopg2-binary
 python-dotenv==1.0.0
 
-# Nuevas dependencias para OAuth
-authlib==1.2.1
-itsdangerous==2.1.2
+# Authentication & Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# HTTP & Networking
+httpx==0.25.2
 requests==2.31.0
+python-multipart==0.0.6
+
+# Configuration & Utils
+PyYAML>=6.0
+click>=8.0.0
+
+# Development Tools (solo si necesitas)
+black==24.4.2
+isort==5.12.0
+flake8==6.1.0
+mypy==1.10.0
+pre-commit==3.7.0
+
+# Testing (solo si necesitas)
+pytest==7.4.3
+pytest-asyncio==0.21.1
+
+# DEPENDENCIAS ELIMINADAS (no se usan):
+# authlib==1.2.1          # No se usa OAuth con authlib
+# itsdangerous==2.1.2     # No se usa
+# redis==5.0.1             # No se usa Redis aún
+# autoflake==2.2.1         # Tool de desarrollo
+# types-requests           # Solo para desarrollo
+# urllib3<2.0              # Dependency conflict
