@@ -218,13 +218,16 @@ class WorkflowExecution:
 
 
             # Ejecutar agente
-            result = await agent.handle(
-                {
-                    "action": node.config.get("action", "process"),
-                    "data": input_data,
-                    "config": node.config,
-                }
-            )
+            message = {
+                "action": node.config.get("action", "process"),
+                "data": input_data,
+                "config": node.config,
+            }
+
+            if asyncio.iscoroutinefunction(agent.handle):
+                result = await agent.handle(message)
+            else:
+                result = await asyncio.to_thread(agent.handle, message)
 
 
             # Guardar resultado

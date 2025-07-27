@@ -1,10 +1,12 @@
 // frontend/src/hooks/useIopeer.js - CORREGIDO
 import { useState, useEffect, useCallback, useRef } from 'react';
+import useWorkflow from './useWorkflow';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 // Hook principal de Iopeer
 export const useIopeer = () => {
+  const workflow = useWorkflow();
   const [connectionStatus, setConnectionStatus] = useState('disconnected');
   const [agents, setAgents] = useState([]);
   const [systemHealth, setSystemHealth] = useState(null);
@@ -180,7 +182,19 @@ export const useIopeer = () => {
     loading,
     error,
     retryAttempts,
-    
+
+    // Workflows state
+    workflows: workflow.workflows,
+    workflowTemplates: workflow.templates,
+    availableAgents: workflow.availableAgents,
+    workflowStats: workflow.workflowStats,
+    agentStats: workflow.agentStats,
+    workflowLoading: workflow.loading,
+    workflowError: workflow.error,
+    executionEvents: workflow.executionEvents,
+    isExecuting: workflow.isExecuting,
+    activeExecution: workflow.activeExecution,
+
     // Computed
     isConnected: connectionStatus === 'connected',
     isConnecting: connectionStatus === 'connecting',
@@ -192,7 +206,21 @@ export const useIopeer = () => {
     retry,
     clearError,
     sendMessage,
-    
+
+    // Workflow actions
+    createWorkflow: workflow.createWorkflow,
+    getWorkflow: workflow.getWorkflow,
+    executeWorkflow: workflow.executeWorkflow,
+    createFromTemplate: workflow.createFromTemplate,
+    loadWorkflows: workflow.loadWorkflows,
+    loadAvailableAgents: workflow.loadAvailableAgents,
+    loadTemplates: workflow.loadTemplates,
+    getAgentsByCategory: workflow.getAgentsByCategory,
+    getTemplatesByCategory: workflow.getTemplatesByCategory,
+    clearWorkflowError: workflow.clearError,
+    clearExecutionEvents: workflow.clearExecutionEvents,
+    loadAgents: workflow.loadAvailableAgents,
+
     // Utilities
     makeRequest
   };
