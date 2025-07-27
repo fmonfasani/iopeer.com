@@ -83,6 +83,9 @@ async def startup_event():
         # 3. Load agents from registry
         await load_agents_from_registry()
 
+        # 3b. Load built-in agents
+        load_agents()
+
         # 4. Load default workflows
         try:
             from agenthub.workflows.default import register_default_workflows
@@ -167,6 +170,39 @@ async def load_agents_from_registry():
             logger.error(f"❌ Failed to load agent {agent_id}: {e}")
 
     logger.info(f"✅ {agents_loaded} agents loaded successfully")
+
+
+def load_agents():
+    """Load all available agents"""
+    registry = orchestrator.agent_registry
+
+    # Load existing agents
+    from agenthub.agents.backend_agent import BackendAgent
+    from agenthub.agents.qa_agent import QAAgent
+
+    registry.register_agent(BackendAgent())
+    registry.register_agent(QAAgent())
+
+    # Load NEW agents
+    try:
+        from agenthub.agents.ui_generator_agent import UIGeneratorAgent
+        registry.register_agent(UIGeneratorAgent())
+        logger.info("✅ Loaded agent: ui_generator")
+    except ImportError as e:
+        logger.error(f"❌ Failed to load ui_generator: {e}")
+
+    try:
+        from agenthub.agents.data_analyst_agent import DataAnalystAgent
+        registry.register_agent(DataAnalystAgent())
+        logger.info("✅ Loaded agent: data_analyst")
+    except ImportError as e:
+        logger.error(f"❌ Failed to load data_analyst: {e}")
+
+    logger.info(f"✅ {len(registry.agents)} agents loaded successfully")
+
+    # Log all loaded agents
+    for agent_id in registry.agents.keys():
+        logger.info(f"✅ Loaded agent: {agent_id}")
 
 
 async def create_default_registry(path: Path):
