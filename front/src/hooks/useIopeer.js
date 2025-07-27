@@ -16,6 +16,9 @@ export const useIopeer = () => {
   const maxRetries = 3;
   const retryTimeoutRef = useRef(null);
 
+  // Integrate workflow hook
+  const workflow = useWorkflow();
+
   const clearError = useCallback(() => {
     setError(null);
   }, []);
@@ -183,17 +186,16 @@ export const useIopeer = () => {
     error,
     retryAttempts,
 
-    // Workflows state
+
+    // Workflow data
     workflows: workflow.workflows,
-    workflowTemplates: workflow.templates,
+    templates: workflow.templates,
     availableAgents: workflow.availableAgents,
-    workflowStats: workflow.workflowStats,
-    agentStats: workflow.agentStats,
-    workflowLoading: workflow.loading,
-    workflowError: workflow.error,
     executionEvents: workflow.executionEvents,
     isExecuting: workflow.isExecuting,
     activeExecution: workflow.activeExecution,
+    workflowStats: workflow.workflowStats,
+    agentStats: workflow.agentStats,
 
     // Computed
     isConnected: connectionStatus === 'connected',
@@ -209,17 +211,17 @@ export const useIopeer = () => {
 
     // Workflow actions
     createWorkflow: workflow.createWorkflow,
-    getWorkflow: workflow.getWorkflow,
+
     executeWorkflow: workflow.executeWorkflow,
-    createFromTemplate: workflow.createFromTemplate,
+    createWorkflowFromTemplate: workflow.createFromTemplate,
     loadWorkflows: workflow.loadWorkflows,
-    loadAvailableAgents: workflow.loadAvailableAgents,
     loadTemplates: workflow.loadTemplates,
-    getAgentsByCategory: workflow.getAgentsByCategory,
-    getTemplatesByCategory: workflow.getTemplatesByCategory,
+    loadAvailableAgents: workflow.loadAvailableAgents,
     clearWorkflowError: workflow.clearError,
     clearExecutionEvents: workflow.clearExecutionEvents,
-    loadAgents: workflow.loadAvailableAgents,
+
+    wsConnected: workflow.wsConnected,
+
 
     // Utilities
     makeRequest

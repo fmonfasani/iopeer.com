@@ -23,18 +23,20 @@ import WorkflowEditor from '../components/features/WorkflowEditor/WorkflowEditor
 const Workflows = () => {
   const {
     workflows: workflowList,
-    workflowTemplates: templates,
+
+    templates,
     workflowStats: stats,
-    workflowLoading: loading,
-    workflowError: error,
+    loading,
+    error,
     isExecuting,
     activeExecution,
-    createWorkflow,
-    executeWorkflow,
-    createFromTemplate,
+    createWorkflow: create,
+    executeWorkflow: execute,
+    createWorkflowFromTemplate: createFromTemplate,
     loadWorkflows,
-    loadTemplates,
-    clearWorkflowError,
+    loadWorkflowTemplates: loadTemplates,
+    clearWorkflowError: clearError
+
   } = useIopeer();
   const [currentView, setCurrentView] = useState('list'); // 'list', 'editor', 'templates'
   const [selectedWorkflow, setSelectedWorkflow] = useState(null);

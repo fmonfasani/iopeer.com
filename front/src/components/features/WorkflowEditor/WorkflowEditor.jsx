@@ -57,7 +57,9 @@ const WorkflowEditor: React.FC<{ workflow?: any; onSave?: () => void }> = ({ wor
   const [executionProgress, setExecutionProgress] = useState<any>({});
   
   // Hooks
-  const { availableAgents, loadAgents } = useIopeer();
+
+  const { availableAgents, loadAvailableAgents } = useIopeer();
+
   
   // Referencias
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -65,8 +67,8 @@ const WorkflowEditor: React.FC<{ workflow?: any; onSave?: () => void }> = ({ wor
 
   // Cargar agentes disponibles al montar
   useEffect(() => {
-    loadAgents();
-  }, [loadAgents]);
+    loadAvailableAgents();
+  }, [loadAvailableAgents]);
 
   // Cargar workflow inicial si se proporciona
   useEffect(() => {
