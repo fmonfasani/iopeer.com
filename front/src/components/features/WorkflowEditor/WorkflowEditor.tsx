@@ -14,7 +14,9 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { useIopeer } from '../../../hooks/useIopeer';
-import { workflowService } from '../../../services/workflow.service';
+
+import { workflowService } from '../../../services/workflowService';
+
 
 // Tipos para el workflow
 interface WorkflowNode {
