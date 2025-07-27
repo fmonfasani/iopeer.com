@@ -31,6 +31,15 @@ from sqlalchemy import text
 from agenthub.agents.backend_agent import BackendAgent
 from agenthub.agents.base_agent import BaseAgent
 from agenthub.agents.qa_agent import QAAgent
+from agenthub.agents.content_writer_agent import ContentWriterAgent
+from agenthub.agents.ui_component_generator import UIComponentGeneratorAgent
+from agenthub.agents.data_analyst_agent import DataAnalystAgent
+from agenthub.agents.fastapi_generator_agent import FastAPIGeneratorAgent
+from agenthub.agents.database_architect_agent import DatabaseArchitectAgent
+from agenthub.agents.security_auditor_agent import SecurityAuditorAgent
+from agenthub.agents.test_generator_agent import TestGeneratorAgent
+from agenthub.agents.api_documentator_agent import APIDocumentatorAgent
+from agenthub.agents.ui_generator_agent import UIGeneratorAgent
 from agenthub.config import config
 from agenthub.orchestrator import orchestrator
 
@@ -173,8 +182,17 @@ async def load_agents_from_registry():
         return
 
     agent_classes = {
-        "BackendAgent": BackendAgent, 
-        "QAAgent": QAAgent
+        "BackendAgent": BackendAgent,
+        "QAAgent": QAAgent,
+        "ContentWriterAgent": ContentWriterAgent,
+        "UIComponentGeneratorAgent": UIComponentGeneratorAgent,
+        "DataAnalystAgent": DataAnalystAgent,
+        "FastAPIGeneratorAgent": FastAPIGeneratorAgent,
+        "DatabaseArchitectAgent": DatabaseArchitectAgent,
+        "SecurityAuditorAgent": SecurityAuditorAgent,
+        "TestGeneratorAgent": TestGeneratorAgent,
+        "APIDocumentatorAgent": APIDocumentatorAgent,
+        "UIGeneratorAgent": UIGeneratorAgent,
     }
 
     agents_loaded = 0
