@@ -43,7 +43,7 @@ from agenthub.agents.backend_agent import BackendAgent
 from agenthub.agents.base_agent import BaseAgent
 from agenthub.agents.qa_agent import QAAgent
 from agenthub.agents.content_writer_agent import ContentWriterAgent
-from agenthub.agents.ui_component_generator import UIComponentGeneratorAgent
+from agenthub.agents.ui_generator_agent import UIGeneratorAgent
 from agenthub.agents.data_analyst_agent import DataAnalystAgent
 from agenthub.config import config
 from agenthub.orchestrator import orchestrator
@@ -159,7 +159,7 @@ async def load_agents_from_registry():
         "BackendAgent": BackendAgent,
         "QAAgent": QAAgent,
         "ContentWriterAgent": ContentWriterAgent,
-        "UIComponentGeneratorAgent": UIComponentGeneratorAgent,
+        "UIGeneratorAgent": UIGeneratorAgent,
         "DataAnalystAgent": DataAnalystAgent,
     }
 

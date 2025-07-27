@@ -13,7 +13,7 @@
   },
   {
     "id": "ui_component_generator",
-    "class": "UIComponentGeneratorAgent"
+    "class": "UIGeneratorAgent"
   },
   {
     "id": "data_analyst",
