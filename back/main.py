@@ -354,6 +354,39 @@ async def register_agent(req: AgentRegistrationRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/agents/{agent_id}")
+async def get_agent(agent_id: str):
+    """Retrieve details about a specific agent"""
+    info = orchestrator.agent_registry.get_agent_info(agent_id)
+    if not info:
+        available = ", ".join(orchestrator.agent_registry.agents.keys()) or "none"
+        raise HTTPException(
+            status_code=404,
+            detail=f"Agent {agent_id} not found. Available agents: {available}",
+        )
+    return info
+
+
+@app.post("/agents/{agent_id}/execute")
+async def execute_agent(agent_id: str, req: MessageRequest):
+    """Execute an action on a specific agent"""
+    try:
+        result = orchestrator.send_message(
+            agent_id,
+            {"action": req.action, "data": req.data},
+        )
+        await event_bus.emit(
+            "message_sent", {"agent_id": agent_id, "action": req.action, "result": result}
+        )
+        return {"result": result, "status": "success"}
+    except ValueError as e:
+        logger.error(f"Agent not found: {e}")
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error sending message: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.post("/message/send")
 async def send_message(req: MessageRequest):
     """Send message to an agent"""

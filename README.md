@@ -23,7 +23,7 @@ Iopeer es una plataforma revolucionaria que utiliza **agentes IA especializados*
 
 ```bash
 # Enviar requerimientos al Backend Agent
-curl -X POST http://localhost:8000/message/send \
+curl -X POST http://localhost:8000/agents/backend_agent/execute \
   -H "Content-Type: application/json" \
   -d '{
     "agent_id": "backend_agent",
@@ -55,7 +55,7 @@ curl -X POST http://localhost:8000/message/send \
 ### 🏛️ Paso 2: Generar Arquitectura
 
 ```bash
-curl -X POST http://localhost:8000/message/send \
+curl -X POST http://localhost:8000/agents/backend_agent/execute \
   -H "Content-Type: application/json" \
   -d '{
     "agent_id": "backend_agent",
@@ -98,7 +98,7 @@ curl -X POST http://localhost:8000/message/send \
 ### 🔨 Paso 3: Generar Código de API
 
 ```bash
-curl -X POST http://localhost:8000/message/send \
+curl -X POST http://localhost:8000/agents/backend_agent/execute \
   -H "Content-Type: application/json" \
   -d '{
     "agent_id": "backend_agent",
@@ -224,7 +224,7 @@ def get_products(
 ### 🔍 Paso 1: Generar Tests de API
 
 ```bash
-curl -X POST http://localhost:8000/message/send \
+curl -X POST http://localhost:8000/agents/qa_agent/execute \
   -H "Content-Type: application/json" \
   -d '{
     "agent_id": "qa_agent",
@@ -283,7 +283,7 @@ def test_get_products_with_filters():
 ### 🚦 Paso 2: Ejecutar Tests de API en Vivo
 
 ```bash
-curl -X POST http://localhost:8000/message/send \
+curl -X POST http://localhost:8000/agents/qa_agent/execute \
   -H "Content-Type: application/json" \
   -d '{
     "agent_id": "qa_agent",
@@ -486,7 +486,7 @@ curl -X POST http://localhost:8000/workflow/start \
 
 ```bash
 # Generar API de servicios financieros
-curl -X POST http://localhost:8000/message/send \
+curl -X POST http://localhost:8000/agents/backend_agent/execute \
   -H "Content-Type: application/json" \
   -d '{
     "agent_id": "backend_agent",
@@ -506,7 +506,7 @@ curl -X POST http://localhost:8000/message/send \
 
 ```bash
 # Generar API para plataforma de gaming
-curl -X POST http://localhost:8000/message/send \
+curl -X POST http://localhost:8000/agents/backend_agent/execute \
   -H "Content-Type: application/json" \
   -d '{
     "agent_id": "backend_agent",

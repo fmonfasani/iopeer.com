@@ -100,7 +100,9 @@ class TestWorkflowIntegration:
             "action": "analyze_metrics",
             "data": {"metrics": {"views": [1, 2, 3]}},
         }
-        response = client.post("/message/send", json=message, headers=auth_headers)
+        response = client.post(
+            "/agents/data_analyst/execute", json=message, headers=auth_headers
+        )
         assert response.status_code == 200
         assert response.json()["status"] == "success"
 

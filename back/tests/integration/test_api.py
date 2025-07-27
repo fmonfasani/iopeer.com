@@ -36,10 +36,10 @@ class TestAPI:
             "data": {"requirements": "Simple API"},
         }
 
-        response = client.post("/message/send", json=message_data)
+        response = client.post("/agents/backend_agent/execute", json=message_data)
         assert response.status_code == 200
         data = response.json()
-        assert data["message_sent"] is True
+        assert data["status"] == "success"
 
     def test_list_workflows(self, client):
         response = client.get("/workflows")
@@ -60,13 +60,18 @@ class TestAPI:
 
     def test_send_message_unknown_agent(self, client):
         message_data = {"agent_id": "ghost", "action": "test"}
-        response = client.post("/message/send", json=message_data)
+        response = client.post("/agents/ghost/execute", json=message_data)
         assert response.status_code == 404
         data = response.json()
         assert "ghost" in data["detail"]
         assert "Available agents" in data["detail"]
 
-    def test_get_agent_route_not_available(self, client):
-        """Requesting a single agent should return 404 when route is absent."""
+    def test_get_agent_details(self, client):
+        response = client.get("/agents/backend_agent")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["agent_id"] == "backend_agent"
+
+    def test_get_unknown_agent(self, client):
         response = client.get("/agents/ghost")
         assert response.status_code == 404
