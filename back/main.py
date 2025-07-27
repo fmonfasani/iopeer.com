@@ -408,4 +408,338 @@ async def list_agents():
                 for agent_id, agent in orchestrator.agent_registry.agents.items():
                     try:
                         # Obtener info del agente de forma segura
-                        agen
+                        agent_info = agent.get_info()
+                        
+                        # Validar que la info tiene la estructura esperada
+                        if not isinstance(agent_info, dict):
+                            logger.warning(f"Agent {agent_id} returned invalid info format")
+                            continue
+                            
+                        # Asegurar campos requeridos
+                        agent_info.setdefault('agent_id', agent_id)
+                        agent_info.setdefault('name', agent_id)
+                        agent_info.setdefault('type', agent.__class__.__name__)
+                        agent_info.setdefault('status', 'unknown')
+                        agent_info.setdefault('capabilities', {})
+                        agent_info.setdefault('stats', {})
+                        
+                        agent_list.append(agent_info)
+                        
+                    except Exception as e:
+                        logger.error(f"Error getting info for agent {agent_id}: {e}")
+                        # Agregar agente con info mínima
+                        agent_list.append({
+                            'agent_id': agent_id,
+                            'name': agent_id,
+                            'type': agent.__class__.__name__ if hasattr(agent, '__class__') else 'Unknown',
+                            'status': 'error',
+                            'error': f'Failed to get agent info: {str(e)}',
+                            'capabilities': {},
+                            'stats': {}
+                        })
+            except Exception as e:
+                logger.error(f"Error iterating through agents: {e}")
+        
+        response = {
+            "agents": agent_list,
+            "total": len(agent_list), 
+            "status": "success",
+            "server_time": datetime.utcnow().isoformat(),
+            "agent_registry_status": "healthy" if agent_list else "empty"
+        }
+        
+        logger.info(f"Successfully listed {len(agent_list)} agents")
+        return response
+        
+    except Exception as e:
+        logger.error(f"Critical error in list_agents: {e}")
+        
+        # Retornar respuesta de error pero con estructura consistente
+        return {
+            "agents": [],
+            "total": 0,
+            "status": "error",
+            "error": str(e),
+            "message": "Failed to retrieve agents list",
+            "server_time": datetime.utcnow().isoformat()
+        }
+
+@app.get("/agents/health")
+async def agents_health_check():
+    """Health check específico para el sistema de agentes"""
+    try:
+        health_status = {
+            "orchestrator_available": hasattr(orchestrator, 'agent_registry'),
+            "agent_registry_available": bool(getattr(orchestrator, 'agent_registry', None)),
+            "total_agents": 0,
+            "healthy_agents": 0,
+            "failed_agents": 0,
+            "agent_details": {}
+        }
+        
+        if orchestrator.agent_registry and orchestrator.agent_registry.agents:
+            health_status["total_agents"] = len(orchestrator.agent_registry.agents)
+            
+            for agent_id, agent in orchestrator.agent_registry.agents.items():
+                try:
+                    agent_health = agent.health_check() if hasattr(agent, 'health_check') else {"healthy": True}
+                    health_status["agent_details"][agent_id] = agent_health
+                    
+                    if agent_health.get("healthy", False):
+                        health_status["healthy_agents"] += 1
+                    else:
+                        health_status["failed_agents"] += 1
+                        
+                except Exception as e:
+                    health_status["agent_details"][agent_id] = {
+                        "healthy": False,
+                        "error": str(e)
+                    }
+                    health_status["failed_agents"] += 1
+        
+        overall_status = "healthy" if health_status["failed_agents"] == 0 else "degraded"
+        
+        return {
+            "status": overall_status,
+            "timestamp": datetime.utcnow().isoformat(),
+            **health_status
+        }
+        
+    except Exception as e:
+        logger.error(f"Agent health check failed: {e}")
+        return {
+            "status": "failed",
+            "error": str(e),
+            "timestamp": datetime.utcnow().isoformat()
+        }
+
+@app.post("/agents/register")
+async def register_agent(req: AgentRegistrationRequest):
+    """Register a new agent"""
+    try:
+        if orchestrator.agent_registry.get(req.agent_id):
+            raise HTTPException(status_code=409, detail="Agent already exists")
+
+        agent_map = {
+            AgentType.BackendAgent: BackendAgent,
+            AgentType.QAAgent: QAAgent,
+            # ✅ LISTO PARA AGREGAR MÁS:
+            # AgentType.ContentWriterAgent: ContentWriterAgent,
+            # AgentType.UIComponentGeneratorAgent: UIComponentGeneratorAgent,
+            # AgentType.DataAnalystAgent: DataAnalystAgent,
+        }
+
+        agent_class = agent_map[req.agent_type]
+        agent = agent_class()
+        agent.agent_id = req.agent_id
+        agent.config = req.config or {}
+
+        orchestrator.register_agent(agent)
+
+        logger.info(f"✅ Agent registered: {req.agent_id}")
+        return {"status": "registered", "agent_id": req.agent_id}
+
+    except Exception as e:
+        logger.error(f"Error registering agent: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/message/send")
+async def send_message(req: MessageRequest):
+    """Send message to an agent"""
+    try:
+        logger.info(f"📤 Sending message to {req.agent_id}: {req.action}")
+
+        result = orchestrator.send_message(
+            req.agent_id, {"action": req.action, "data": req.data}
+        )
+
+        logger.info(f"📨 Response from {req.agent_id}: {result}")
+
+        # Emitir evento si workflow engine está disponible
+        if WORKFLOW_ENGINE_AVAILABLE and event_bus:
+            await event_bus.emit(
+                "message_sent",
+                {"agent_id": req.agent_id, "action": req.action, "result": result},
+            )
+
+        return {"result": result, "status": "success"}
+
+    except ValueError as e:
+        logger.error(f"Agent not found: {e}")
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error sending message: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ============================================
+# WORKFLOW ENDPOINTS
+# ============================================
+
+@app.get("/workflows")
+async def list_workflows():
+    """List all available workflows"""
+    try:
+        workflows = [
+            {"name": name, **definition}
+            for name, definition in orchestrator.workflow_registry.workflows.items()
+        ]
+        return {"workflows": workflows, "total": len(workflows), "status": "success"}
+    except Exception as e:
+        logger.error(f"Error listing workflows: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/workflows/register")
+async def register_workflow(req: WorkflowDefinitionRequest):
+    """Register a new workflow"""
+    try:
+        orchestrator.register_workflow(
+            name=req.name,
+            tasks=req.tasks,
+            parallel=req.parallel,
+            timeout=req.timeout,
+        )
+
+        logger.info(f"✅ Workflow registered: {req.name}")
+        return {"status": "registered", "workflow": req.name}
+
+    except Exception as e:
+        logger.error(f"Error registering workflow: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/workflow/start")
+async def start_workflow(req: WorkflowRequest):
+    """Start a workflow execution"""
+    try:
+        logger.info(f"🔄 Starting workflow: {req.workflow}")
+        result = orchestrator.execute_workflow(req.workflow, req.data)
+        logger.info(f"✅ Workflow completed: {req.workflow}")
+        return result
+
+    except Exception as e:
+        logger.error(f"Error executing workflow: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ============================================
+# MARKETPLACE ENDPOINTS
+# ============================================
+
+@app.get("/marketplace/featured")
+async def get_featured_agents():
+    """Get featured agents from marketplace"""
+    return {
+        "agents": [
+            {
+                "id": "ui-generator",
+                "name": "UI Component Generator",
+                "description": "Genera componentes React personalizados",
+                "rating": 4.8,
+                "installs": 1250,
+                "price": "Gratis",
+                "category": "frontend",
+                "type": "UIComponentGeneratorAgent"
+            },
+            {
+                "id": "api-builder",
+                "name": "API Builder Pro",
+                "description": "Crea APIs REST completas",
+                "rating": 4.9,
+                "installs": 890,
+                "price": "$9.99/mes",
+                "category": "backend",
+                "type": "FastAPIGeneratorAgent"
+            },
+            {
+                "id": "content-writer",
+                "name": "Content Writer AI",
+                "description": "Genera contenido de alta calidad",
+                "rating": 4.7,
+                "installs": 1520,
+                "price": "Gratis",
+                "category": "content",
+                "type": "ContentWriterAgent"
+            },
+            {
+                "id": "data-analyst",
+                "name": "Data Analyst Pro",
+                "description": "Analiza datos y genera insights",
+                "rating": 4.8,
+                "installs": 750,
+                "price": "$14.99/mes",
+                "category": "analytics",
+                "type": "DataAnalystAgent"
+            }
+        ],
+        "total": 4,
+        "status": "success",
+    }
+
+# ============================================
+# ERROR HANDLERS
+# ============================================
+
+@app.exception_handler(Exception)
+async def global_error_handler(request, exc):
+    """Global error handler"""
+    logger.error(f"❌ Unhandled error: {exc}")
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": "Internal server error",
+            "message": "Something went wrong. Please try again.",
+            "type": "server_error",
+        },
+    )
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request, exc: HTTPException):
+    """HTTP exception handler"""
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "error": exc.detail,
+            "status_code": exc.status_code,
+            "type": "http_error",
+        },
+    )
+
+# ============================================
+# DEVELOPMENT ENDPOINTS
+# ============================================
+
+@app.get("/debug/info")
+async def debug_info():
+    """Debug information (only in development)"""
+    if config.get("debug", False):
+        return {
+            "config": dict(config),
+            "agents": list(orchestrator.agent_registry.agents.keys()),
+            "workflows": list(orchestrator.workflow_registry.workflows.keys()),
+            "features": {
+                "oauth_available": OAUTH_AVAILABLE,
+                "workflow_engine_available": WORKFLOW_ENGINE_AVAILABLE,
+                "api_workflows_available": API_WORKFLOWS_AVAILABLE
+            },
+            "environment": "development"
+        }
+    else:
+        raise HTTPException(status_code=404, detail="Not found")
+
+# ============================================
+# SERVER RUNNER
+# ============================================
+
+def run_server():
+    """Run the server with uvicorn"""
+    if uvicorn is None:
+        raise RuntimeError("uvicorn is required to run the server")
+
+    uvicorn.run(
+        "main:app",
+        host=config.get("host", "0.0.0.0"),
+        port=config.get("port", 8000),
+        reload=config.get("debug", False),
+        log_level="info",
+    )
+
+if __name__ == "__main__":
+    run_server()
