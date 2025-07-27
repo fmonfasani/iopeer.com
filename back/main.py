@@ -629,6 +629,10 @@ async def workflow_websocket(websocket: WebSocket, workflow_id: str):
     """WebSocket para updates en tiempo real de workflows"""
     await websocket.accept()
     workflow_runtime["websocket_connections"].append(websocket)
+
+    if workflow_runtime.get("event_bus") is not None:
+
+        workflow_runtime["event_bus"].websocket_connections.append(websocket)
     
     try:
         logger.info(f"WebSocket connected for workflow: {workflow_id}")
@@ -656,6 +660,11 @@ async def workflow_websocket(websocket: WebSocket, workflow_id: str):
     finally:
         if websocket in workflow_runtime["websocket_connections"]:
             workflow_runtime["websocket_connections"].remove(websocket)
+
+        if workflow_runtime.get("event_bus") is not None and \
+                websocket in workflow_runtime["event_bus"].websocket_connections:
+
+            workflow_runtime["event_bus"].websocket_connections.remove(websocket)
 
 # ============================================
 # ENDPOINTS ORIGINALES (mantenidos)

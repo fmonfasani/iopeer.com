@@ -23,6 +23,7 @@ import WorkflowEditor from '../components/features/WorkflowEditor/WorkflowEditor
 const Workflows = () => {
   const {
     workflows: workflowList,
+
     templates,
     workflowStats: stats,
     loading,
@@ -35,6 +36,7 @@ const Workflows = () => {
     loadWorkflows,
     loadWorkflowTemplates: loadTemplates,
     clearWorkflowError: clearError
+
   } = useIopeer();
   const [currentView, setCurrentView] = useState('list'); // 'list', 'editor', 'templates'
   const [selectedWorkflow, setSelectedWorkflow] = useState(null);
@@ -64,7 +66,7 @@ const Workflows = () => {
   const handleExecuteWorkflow = async (workflowId) => {
     try {
       setShowExecutionModal(true);
-      await execute(workflowId, {});
+      await executeWorkflow(workflowId, {});
     } catch (error) {
       console.error('Error executing workflow:', error);
     }
@@ -301,7 +303,7 @@ const Workflows = () => {
               <p className="mt-2 text-sm text-red-700">{error}</p>
               <div className="mt-4">
                 <button
-                  onClick={clearError}
+                  onClick={clearWorkflowError}
                   className="bg-red-100 px-3 py-2 rounded-md text-sm font-medium text-red-800 hover:bg-red-200"
                 >
                   Reintentar

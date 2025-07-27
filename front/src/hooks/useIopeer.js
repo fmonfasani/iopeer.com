@@ -6,6 +6,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 // Hook principal de Iopeer
 export const useIopeer = () => {
+  const workflow = useWorkflow();
   const [connectionStatus, setConnectionStatus] = useState('disconnected');
   const [agents, setAgents] = useState([]);
   const [systemHealth, setSystemHealth] = useState(null);
@@ -185,6 +186,7 @@ export const useIopeer = () => {
     error,
     retryAttempts,
 
+
     // Workflow data
     workflows: workflow.workflows,
     templates: workflow.templates,
@@ -209,6 +211,7 @@ export const useIopeer = () => {
 
     // Workflow actions
     createWorkflow: workflow.createWorkflow,
+
     executeWorkflow: workflow.executeWorkflow,
     createWorkflowFromTemplate: workflow.createFromTemplate,
     loadWorkflows: workflow.loadWorkflows,
@@ -218,6 +221,7 @@ export const useIopeer = () => {
     clearExecutionEvents: workflow.clearExecutionEvents,
 
     wsConnected: workflow.wsConnected,
+
 
     // Utilities
     makeRequest
