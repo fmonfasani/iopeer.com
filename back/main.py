@@ -38,7 +38,6 @@ from agenthub.agents.ui_component_generator import UIComponentGeneratorAgent
 from agenthub.agents.data_analyst_agent import DataAnalystAgent
 from agenthub.config import config
 from agenthub.orchestrator import orchestrator
-from workflow_engine.core.WorkflowEngine import EventBus
 
 # Imports de auth y database
 from agenthub.auth import router as auth_router
@@ -55,8 +54,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Bus de eventos para enviar notificaciones en tiempo real
-event_bus = EventBus()
+
 
 # ============================================
 # STARTUP Y SHUTDOWN EVENTS
@@ -315,6 +313,7 @@ async def root():
             "/workflows",
 
             "/workflow_engine",
+            "/ws",
         ],
     }
 
@@ -352,6 +351,25 @@ async def health_check():
         "total_agents": len(orchestrator.agent_registry.agents),
         "total_workflows": len(orchestrator.workflow_registry.workflows),
     }
+
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    """Handle WebSocket connections for real-time events."""
+    await websocket.accept()
+
+    if wf_runtime.event_bus is None:
+        await websocket.close()
+        return
+
+    wf_runtime.event_bus.websocket_connections.append(websocket)
+
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        if websocket in wf_runtime.event_bus.websocket_connections:
+            wf_runtime.event_bus.websocket_connections.remove(websocket)
 
 
 # ============================================
@@ -447,10 +465,11 @@ async def send_message(req: MessageRequest):
         logger.info(f"📨 Response from {req.agent_id}: {result}")
 
 
-        await event_bus.emit(
-            "message_sent",
-            {"agent_id": req.agent_id, "action": req.action, "result": result},
-        )
+        if wf_runtime.event_bus:
+            await wf_runtime.event_bus.emit(
+                "message_sent",
+                {"agent_id": req.agent_id, "action": req.action, "result": result},
+            )
 
         return {"result": result, "status": "success"}
 
