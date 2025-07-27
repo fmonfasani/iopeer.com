@@ -10,17 +10,27 @@ export interface Agent {
   color: string;
 }
 
+export interface WorkflowTemplate {
+  id: string;
+  name: string;
+  category: string;
+  description?: string;
+}
+
 // Configuración de la API
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 // Cliente de API para workflows
 class WorkflowAPIClient {
+  baseURL: string;
+  timeout: number;
+
   constructor() {
     this.baseURL = `${API_BASE_URL}/api/v1`;
     this.timeout = 30000;
   }
 
-  async request(endpoint, options = {}) {
+  async request(endpoint: string, options: RequestInit = {}) {
     const url = `${this.baseURL}${endpoint}`;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
@@ -131,7 +141,7 @@ export const useWorkflow = () => {
   // Estado principal
   const [workflows, setWorkflows] = useState([]);
   const [availableAgents, setAvailableAgents] = useState<Record<string, Agent>>({});
-  const [templates, setTemplates] = useState({});
+  const [templates, setTemplates] = useState<Record<string, WorkflowTemplate>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   
@@ -180,7 +190,7 @@ export const useWorkflow = () => {
   const loadTemplates = useCallback(async () => {
     try {
       const response = await apiClient.current.getWorkflowTemplates();
-      setTemplates(response.templates || {});
+      setTemplates((response.templates || {}) as Record<string, WorkflowTemplate>);
     } catch (err) {
       console.error('Error loading templates:', err);
     }
@@ -318,14 +328,14 @@ export const useWorkflow = () => {
   }, []);
 
   // Utilidades
-  const getAgentsByCategory = useCallback((category) => {
-    return Object.values(availableAgents).filter(agent => 
+  const getAgentsByCategory = useCallback((category: string) => {
+    return Object.values(availableAgents).filter(agent =>
       agent.category === category
     );
   }, [availableAgents]);
 
-  const getTemplatesByCategory = useCallback((category) => {
-    return Object.values(templates).filter(template => 
+  const getTemplatesByCategory = useCallback((category: string) => {
+    return Object.values(templates).filter(template =>
       template.category === category
     );
   }, [templates]);
@@ -358,7 +368,7 @@ export const useWorkflow = () => {
       acc[category] = (acc[category] || 0) + 1;
       return acc;
     }, {}),
-    categories: [...new Set(Object.values(availableAgents).map(agent => agent.category || 'general'))]
+    categories: Array.from(new Set(Object.values(availableAgents).map(agent => agent.category || 'general')))
   };
 
   return {
@@ -448,7 +458,7 @@ export const useWorkflowTemplates = () => {
     createFromTemplate,
     loadTemplates,
     getTemplatesByCategory,
-    categories: [...new Set(Object.values(templates).map(t => t.category))]
+    categories: Array.from(new Set(Object.values(templates).map(t => t.category)))
   };
 };
 
