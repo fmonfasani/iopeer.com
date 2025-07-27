@@ -1,4 +1,4 @@
-from .engine import (
+from .core.WorkflowEngine import (
     WorkflowEngine,
     Workflow,
     WorkflowNode,
