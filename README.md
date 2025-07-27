@@ -536,7 +536,16 @@ pip install -r requirements-dev.txt  # para producción usa requirements.txt
 
 # Ejecutar backend
 python -m agenthub.main
+```
 
+On Windows you can run:
+
+```cmd
+set PYTHONPATH=back && python -m agenthub.main
+```
+or run `make run` from Git Bash.
+
+```bash
 # Setup Frontend (nueva terminal)
 cd ../front
 npm install
