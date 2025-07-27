@@ -10,8 +10,7 @@ import {
   Database,
   BarChart3,
   Code,
-  Palette,
-  ArrowLeft
+  Palette
 } from 'lucide-react';
 import { useIopeer } from '../../../hooks/useIopeer';
 
@@ -258,7 +257,7 @@ const WorkflowEditor: React.FC<{ workflow?: any; onSave?: () => void }> = ({ wor
 
   // Limpiar canvas
   const clearCanvas = () => {
-    if (nodes.length > 0 && !confirm('¿Estás seguro de que quieres limpiar el canvas?')) {
+    if (nodes.length > 0 && !window.confirm('¿Estás seguro de que quieres limpiar el canvas?')) {
       return;
     }
     setNodes([]);
