@@ -24,7 +24,6 @@ def get_db():
     logger.info("Connecting to database")
     db = SessionLocal()
     try:
-        print("Conectando a la base de datos...")
         yield db
     finally:
         db.close()
