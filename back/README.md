@@ -22,6 +22,12 @@ AgentHub is a lightweight framework for coordinating AI agents. It exposes a RES
    python -m agenthub.database.create_tables
    ```
 
+4. Configure the authentication secret key
+   ```bash
+   export AGENTHUB_SECRET_KEY="replace-me"
+   ```
+   Alternatively add `secret_key` to `config.yaml`. A development default is used if omitted.
+
 
 ## Running the server
 
