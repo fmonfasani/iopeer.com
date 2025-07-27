@@ -21,29 +21,24 @@ import { useIopeer } from '../hooks/useIopeer';
 import WorkflowEditor from '../components/features/WorkflowEditor/WorkflowEditor';
 
 const Workflows = () => {
-  const { workflows } = useIopeer();
-  const [currentView, setCurrentView] = useState('list'); // 'list', 'editor', 'templates'
-  const [selectedWorkflow, setSelectedWorkflow] = useState(null);
-  const [showExecutionModal, setShowExecutionModal] = useState(false);
-
-  // Datos de workflows
   const {
-    list: workflowList,
-    templates,
-    stats,
-    loading,
-    error,
+    workflows: workflowList,
+    workflowTemplates: templates,
+    workflowStats: stats,
+    workflowLoading: loading,
+    workflowError: error,
     isExecuting,
     activeExecution,
-    
-    // Acciones
-    create,
-    execute,
+    createWorkflow,
+    executeWorkflow,
     createFromTemplate,
     loadWorkflows,
     loadTemplates,
-    clearError
-  } = workflows;
+    clearWorkflowError,
+  } = useIopeer();
+  const [currentView, setCurrentView] = useState('list'); // 'list', 'editor', 'templates'
+  const [selectedWorkflow, setSelectedWorkflow] = useState(null);
+  const [showExecutionModal, setShowExecutionModal] = useState(false);
 
   // Cargar datos al montar
   useEffect(() => {
@@ -69,7 +64,7 @@ const Workflows = () => {
   const handleExecuteWorkflow = async (workflowId) => {
     try {
       setShowExecutionModal(true);
-      await execute(workflowId, {});
+      await executeWorkflow(workflowId, {});
     } catch (error) {
       console.error('Error executing workflow:', error);
     }
@@ -306,7 +301,7 @@ const Workflows = () => {
               <p className="mt-2 text-sm text-red-700">{error}</p>
               <div className="mt-4">
                 <button
-                  onClick={clearError}
+                  onClick={clearWorkflowError}
                   className="bg-red-100 px-3 py-2 rounded-md text-sm font-medium text-red-800 hover:bg-red-200"
                 >
                   Reintentar
