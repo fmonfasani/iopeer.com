@@ -1,98 +1,125 @@
-// front/src/components/ui/ErrorDisplay.jsx
+// frontend/src/components/ui/ErrorDisplay.jsx - CORREGIDO
 import React from 'react';
-import { AlertCircle, RefreshCw, Home, ArrowLeft } from 'lucide-react';
+import { AlertTriangle, RefreshCw, Home, Wifi, WifiOff } from 'lucide-react';
 
 const ErrorDisplay = ({ 
   error, 
   onRetry, 
   onGoHome, 
-  onGoBack, 
   showTechnical = false,
   className = ""
 }) => {
-  if (!error) return null;
-  
-  const getErrorIcon = (type) => {
-    switch (type) {
-      case 'CONNECTION_ERROR':
-        return <RefreshCw className="text-orange-500" size={48} />;
-      case 'AUTH_ERROR':
-        return <AlertCircle className="text-red-500" size={48} />;
-      default:
-        return <AlertCircle className="text-red-500" size={48} />;
+  // ✅ FUNCIÓN SEGURA PARA RENDERIZAR ERRORES
+  const renderErrorMessage = (error) => {
+    if (!error) return 'Error desconocido';
+    
+    // Si es string, retornarlo directamente  
+    if (typeof error === 'string') return error;
+    
+    // Si es objeto con mensaje
+    if (error.message) return error.message;
+    
+    // Si es objeto estructurado de nuestro sistema
+    if (error.type && error.message) {
+      return error.message;
     }
-  };
-  
-  const getErrorColor = (type) => {
-    switch (type) {
-      case 'CONNECTION_ERROR':
-        return 'border-orange-200 bg-orange-50';
-      case 'AUTH_ERROR':
-        return 'border-red-200 bg-red-50';
-      case 'TIMEOUT_ERROR':
-        return 'border-yellow-200 bg-yellow-50';
-      default:
-        return 'border-gray-200 bg-gray-50';
+    
+    // Si es objeto, convertir a string de forma segura
+    if (typeof error === 'object') {
+      try {
+        return JSON.stringify(error, null, 2);
+      } catch {
+        return 'Error complejo no serializable';
+      }
     }
+    
+    // Fallback
+    return String(error);
   };
-  
+
+  const getErrorIcon = (error) => {
+    if (typeof error === 'object' && error.type) {
+      switch (error.type) {
+        case 'CONNECTION_ERROR':
+          return <WifiOff className="text-red-500" size={48} />;
+        case 'TIMEOUT_ERROR':
+          return <Wifi className="text-orange-500" size={48} />;
+        default:
+          return <AlertTriangle className="text-red-500" size={48} />;
+      }
+    }
+    return <AlertTriangle className="text-red-500" size={48} />;
+  };
+
+  const getErrorTitle = (error) => {
+    if (typeof error === 'object' && error.type) {
+      switch (error.type) {
+        case 'CONNECTION_ERROR':
+          return 'Error de Conexión';
+        case 'TIMEOUT_ERROR':
+          return 'Tiempo de Espera Agotado';
+        default:
+          return 'Error del Sistema';
+      }
+    }
+    return 'Ha ocurrido un error';
+  };
+
+  const getRetryButtonText = (error) => {
+    if (typeof error === 'object' && error.action) {
+      return error.action;
+    }
+    return 'Reintentar';
+  };
+
   return (
-    <div className={`rounded-lg border p-6 text-center ${getErrorColor(error.type)} ${className}`}>
-      <div className="flex flex-col items-center space-y-4">
-        {getErrorIcon(error.type)}
-        
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">
-            Oops! Algo salió mal
-          </h3>
-          <p className="text-gray-600 mt-2">
-            {error.message}
-          </p>
-          
-          {showTechnical && error.technical && (
-            <details className="mt-3">
-              <summary className="text-sm text-gray-500 cursor-pointer">
-                Detalles técnicos
-              </summary>
-              <pre className="text-xs text-gray-400 mt-2 p-2 bg-gray-100 rounded overflow-auto">
-                {error.technical}
-              </pre>
-            </details>
-          )}
-        </div>
-        
-        <div className="flex space-x-3">
-          {onRetry && error.action === 'Reintentar' && (
-            <button
-              onClick={onRetry}
-              className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <RefreshCw size={16} />
-              <span>Reintentar</span>
-            </button>
-          )}
-          
-          {onGoBack && (
-            <button
-              onClick={onGoBack}
-              className="flex items-center space-x-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              <ArrowLeft size={16} />
-              <span>Volver</span>
-            </button>
-          )}
-          
-          {onGoHome && (
-            <button
-              onClick={onGoHome}
-              className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
-            >
-              <Home size={16} />
-              <span>Inicio</span>
-            </button>
-          )}
-        </div>
+    <div className={`bg-white border border-red-200 rounded-lg p-6 text-center ${className}`}>
+      <div className="mb-4">
+        {getErrorIcon(error)}
       </div>
+      
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+        {getErrorTitle(error)}
+      </h3>
+      
+      <p className="text-gray-600 mb-4">
+        {/* ✅ RENDERIZADO SEGURO - NO MÁS "Objects are not valid as React child" */}
+        {renderErrorMessage(error)}
+      </p>
+      
+      <div className="space-y-3">
+        {onRetry && (
+          <button
+            onClick={onRetry}
+            className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <RefreshCw size={16} />
+            {getRetryButtonText(error)}
+          </button>
+        )}
+        
+        {onGoHome && (
+          <button
+            onClick={onGoHome}
+            className="w-full flex items-center justify-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+          >
+            <Home size={16} />
+            Ir al Dashboard
+          </button>
+        )}
+      </div>
+      
+      {showTechnical && error && typeof error === 'object' && error.technical && (
+        <details className="mt-4 text-left">
+          <summary className="cursor-pointer text-sm text-gray-500">
+            Detalles técnicos
+          </summary>
+          <pre className="mt-2 p-3 bg-gray-100 rounded text-xs overflow-auto max-h-32">
+            {/* ✅ RENDERIZADO SEGURO */}
+            {error.technical}
+          </pre>
+        </details>
+      )}
     </div>
   );
 };

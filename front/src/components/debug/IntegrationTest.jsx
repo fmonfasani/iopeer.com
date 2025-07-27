@@ -3,7 +3,7 @@
 // Componente para probar el flujo completo
 // ============================================
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   CheckCircle, 
   XCircle, 
@@ -82,7 +82,7 @@ const IntegrationTest = () => {
   ];
 
   // Ejecutar un test individual
-  const runTest = async (test) => {
+  const runTest = useCallback(async (test) => {
     setCurrentTest(test.id);
     setTestResults(prev => ({
       ...prev,
@@ -113,10 +113,10 @@ const IntegrationTest = () => {
     }
     
     setCurrentTest(null);
-  };
+  }, [agents, sendMessage, testResults]);
 
-  // Ejecutar todos los tests
-  const runAllTests = async () => {
+  // Ejecutar todos los tests - ARREGLADO con useCallback
+  const runAllTests = useCallback(async () => {
     setTestResults({});
     setAllTestsPassed(false);
     
@@ -131,9 +131,9 @@ const IntegrationTest = () => {
       testResults[test.id]?.status === 'passed'
     );
     setAllTestsPassed(allPassed);
-  };
+  }, [tests, runTest, testResults]);
 
-  // Auto-run tests when component mounts
+  // Auto-run tests when component mounts - ARREGLADO con dependency
   useEffect(() => {
     if (isLoggedIn && isConnected) {
       setTimeout(runAllTests, 1000);
@@ -384,4 +384,3 @@ const TestSummary = ({ results, tests }) => {
 };
 
 export default IntegrationTest;
-

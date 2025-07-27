@@ -1,12 +1,10 @@
+import { useState, useCallback } from 'react';
+import { useIopeer } from './useIopeer';
+import { iopeerAPI } from '../services/iopeerAPI';
 
-
-// ============================================
-// front/src/hooks/useAgents.js (Mejorado)
-// Hook específico para manejo de agentes
-// ============================================
-
+// Hook específico para agentes
 export const useAgents = () => {
-  const { agents, loading, sendMessage, error, isConnected } = useIopeer();
+  const { agents, loading, error, isConnected, retry } = useIopeer();
   const [selectedAgent, setSelectedAgent] = useState(null);
   const [agentLoading, setAgentLoading] = useState(false);
   const [agentError, setAgentError] = useState(null);
@@ -21,16 +19,20 @@ export const useAgents = () => {
     setAgentError(null);
 
     try {
-      const result = await sendMessage(agentId, action, data);
+      const result = await iopeerAPI.sendMessage(agentId, action, data);
       return result;
     } catch (error) {
-      const processedError = ErrorService.handleApiError(error, `Agent:${agentId}`);
+      const processedError = {
+        type: 'AGENT_ERROR',
+        message: `Error comunicándose con el agente ${agentId}`,
+        technical: error.message
+      };
       setAgentError(processedError);
       throw error;
     } finally {
       setAgentLoading(false);
     }
-  }, [sendMessage]);
+  }, []);
 
   const getAgentCapabilities = useCallback(async (agentId) => {
     try {
@@ -60,6 +62,7 @@ export const useAgents = () => {
     selectAgent,
     sendMessageToAgent,
     getAgentCapabilities,
+    retry,
     clearError: () => setAgentError(null),
     
     // Agent utilities
@@ -67,4 +70,3 @@ export const useAgents = () => {
     filterAgentsByType: (type) => agents.filter(agent => agent.type === type),
   };
 };
-

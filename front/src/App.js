@@ -11,6 +11,8 @@ import ForgotPassword from './pages/ForgotPassword';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Dashboard from './pages/Dashboard';
 
+import { Toaster } from 'react-hot-toast';
+
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { isLoggedIn, loading } = useAuth();
@@ -136,6 +138,7 @@ function App() {
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AuthProvider>
+        <Toaster />
         <AppContent />
       </AuthProvider>
     </BrowserRouter>

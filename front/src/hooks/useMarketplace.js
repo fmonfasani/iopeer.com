@@ -1,98 +1,47 @@
-import { useState, useEffect, useCallback } from 'react';
-import { analyticsService } from '../services/analytics';
-import { MARKETPLACE_AGENTS, searchAgents } from '../data/agentCategories';
+import { useState, useCallback, useEffect } from 'react';
+import { marketplaceService } from '../services/marketplace.service';
+import { useIopeer } from './useIopeer';
 
 export const useMarketplace = () => {
-  const [installedAgents, setInstalledAgents] = useState([]);
-  const [favoriteAgents, setFavoriteAgents] = useState([]);
-  const [recentlyViewed, setRecentlyViewed] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const { isConnected } = useIopeer();
+  const [featuredAgents, setFeaturedAgents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Load user data from localStorage
-  useEffect(() => {
-    const stored = {
-      installed: JSON.parse(localStorage.getItem('iopeer-installed-agents') || '[]'),
-      favorites: JSON.parse(localStorage.getItem('iopeer-favorite-agents') || '[]'),
-      recentlyViewed: JSON.parse(localStorage.getItem('iopeer-recently-viewed') || '[]')
-    };
-    
-    setInstalledAgents(stored.installed);
-    setFavoriteAgents(stored.favorites);
-    setRecentlyViewed(stored.recentlyViewed);
-  }, []);
-
-  // Install agent
-  const installAgent = useCallback(async (agentId) => {
+  const loadFeaturedAgents = useCallback(async () => {
+    if (!isConnected) {
+      setError('Not connected to the backend.');
+      return;
+    }
     setLoading(true);
-    
+    setError(null);
+
     try {
-      // Simulate installation process
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const agent = MARKETPLACE_AGENTS.find(a => a.id === agentId);
-      if (!agent) throw new Error('Agent not found');
-      
-      // Add to installed agents
-      const newInstalled = [...installedAgents, agentId];
-      setInstalledAgents(newInstalled);
-      localStorage.setItem('iopeer-installed-agents', JSON.stringify(newInstalled));
-      
-      // Track installation
-      if (analyticsService && analyticsService.trackUserAction) {
-        analyticsService.trackUserAction('agent_installed', {
-          agentId,
-          agentName: agent.name,
-          agentCategory: agent.category,
-          isPremium: agent.premium
-        });
-      }
-      
-      return { success: true, agent };
-    } catch (error) {
-      console.error('Installation failed:', error);
-      return { success: false, error: error.message };
+      const agents = await marketplaceService.getFeaturedAgents();
+      setFeaturedAgents(agents);
+    } catch (err) {
+      setError(err.message);
+      console.error('Error loading featured agents:', err);
     } finally {
       setLoading(false);
     }
-  }, [installedAgents]);
+  }, [isConnected]);
 
-  // Get agent details with user context
-  const getAgentDetails = useCallback((agentId) => {
-    const agent = MARKETPLACE_AGENTS.find(a => a.id === agentId);
-    if (!agent) return null;
-    
-    return {
-      ...agent,
-      isInstalled: installedAgents.includes(agentId),
-      isFavorite: favoriteAgents.includes(agentId),
-      isRecentlyViewed: recentlyViewed.includes(agentId)
-    };
-  }, [installedAgents, favoriteAgents, recentlyViewed]);
+  const installAgent = useCallback(async (agent) => {
+    return await marketplaceService.installAgent(agent);
+  }, []);
+
+  useEffect(() => {
+    if (isConnected) {
+      loadFeaturedAgents();
+    }
+  }, [isConnected, loadFeaturedAgents]);
 
   return {
-    // State
-    installedAgents,
-    favoriteAgents,
-    recentlyViewed,
+    featuredAgents,
     loading,
-    
-    // Actions
+    error,
     installAgent,
-    
-    // Computed
-    getAgentDetails,
-    
-    // Helpers
-    isAgentInstalled: (agentId) => installedAgents.includes(agentId),
-    isAgentFavorite: (agentId) => favoriteAgents.includes(agentId),
-    
-    // Stats
-    stats: {
-      totalInstalled: installedAgents.length,
-      totalFavorites: favoriteAgents.length,
-      totalViewed: recentlyViewed.length
-    }
+    reload: loadFeaturedAgents
   };
 };
-
-export default useMarketplace;

@@ -1,6 +1,5 @@
-// front/src/hooks/useIopeer.js (Corregido)
+// frontend/src/hooks/useIopeer.js - CORREGIDO
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { marketplaceService } from '../services/marketplace.service';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
@@ -139,72 +138,6 @@ export const useIopeer = () => {
     }
   }, [makeRequest, handleError, retryAttempts, maxRetries, agents, clearError]);
 
-  const sendMessage = useCallback(async (agentId, action, data = {}) => {
-    if (connectionStatus !== 'connected') {
-      throw new Error('No hay conexión con el backend. Intenta reconectar.');
-    }
-
-    setLoading(true);
-    clearError();
-
-    try {
-      console.log(`📤 Enviando mensaje a ${agentId}:`, { action, data });
-      
-      const response = await makeRequest('/message/send', {
-        method: 'POST',
-        body: JSON.stringify({
-          agent_id: agentId,
-          action,
-          data,
-        }),
-      });
-
-      console.log(`📨 Respuesta de ${agentId}:`, response);
-      return response.result || response;
-
-    } catch (error) {
-      console.error(`❌ Error enviando mensaje a ${agentId}:`, error);
-      handleError(error, `SendMessage:${agentId}:${action}`);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  }, [connectionStatus, makeRequest, handleError, clearError]);
-
-  const createWorkflow = useCallback(async ({ name, tasks, parallel = false, timeout = null }) => {
-    setLoading(true);
-    clearError();
-
-    try {
-      return await makeRequest('/workflows/register', {
-        method: 'POST',
-        body: JSON.stringify({ name, tasks, parallel, timeout }),
-      });
-    } catch (error) {
-      handleError(error, 'CreateWorkflow');
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  }, [makeRequest, handleError, clearError]);
-
-  const executeWorkflow = useCallback(async (workflowName, data = {}) => {
-    setLoading(true);
-    clearError();
-
-    try {
-      return await makeRequest('/workflow/start', {
-        method: 'POST',
-        body: JSON.stringify({ workflow: workflowName, data }),
-      });
-    } catch (error) {
-      handleError(error, 'ExecuteWorkflow');
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  }, [makeRequest, handleError, clearError]);
-
   const retry = useCallback(() => {
     if (retryTimeoutRef.current) {
       clearTimeout(retryTimeoutRef.current);
@@ -223,6 +156,22 @@ export const useIopeer = () => {
     };
   }, [connect]); // Solo ejecutar una vez al montar
 
+  const sendMessage = useCallback(async (agentId, action, data = {}) => {
+    try {
+      return await makeRequest('/message/send', {
+        method: 'POST',
+        body: JSON.stringify({
+          agent_id: agentId,
+          action: action,
+          data: data
+        })
+      });
+    } catch (error) {
+      console.error('Send message error:', error);
+      throw error;
+    }
+  }, [makeRequest]);
+
   return {
     // States
     connectionStatus,
@@ -240,120 +189,217 @@ export const useIopeer = () => {
     
     // Actions
     connect,
-    sendMessage,
-    createWorkflow,
-    executeWorkflow,
     retry,
     clearError,
+    sendMessage,
     
     // Utilities
     makeRequest
   };
 };
 
-// Hook específico para agentes
+// Hook useAgents - CORREGIDO COMPLETAMENTE
 export const useAgents = () => {
-  const { agents, loading, sendMessage, error, isConnected, retry } = useIopeer();
+  const [agents, setAgents] = useState([]);
   const [selectedAgent, setSelectedAgent] = useState(null);
-  const [agentLoading, setAgentLoading] = useState(false);
-  const [agentError, setAgentError] = useState(null);
-
-  const selectAgent = useCallback((agent) => {
-    setSelectedAgent(agent);
-    setAgentError(null);
-  }, []);
-
-  const sendMessageToAgent = useCallback(async (agentId, action, data) => {
-    setAgentLoading(true);
-    setAgentError(null);
-
-    try {
-      const result = await sendMessage(agentId, action, data);
-      return result;
-    } catch (error) {
-      const processedError = {
-        type: 'AGENT_ERROR',
-        message: `Error comunicándose con el agente ${agentId}`,
-        technical: error.message
-      };
-      setAgentError(processedError);
-      throw error;
-    } finally {
-      setAgentLoading(false);
-    }
-  }, [sendMessage]);
-
-  const getAgentCapabilities = useCallback(async (agentId) => {
-    try {
-      return await sendMessageToAgent(agentId, 'get_capabilities', {});
-    } catch (error) {
-      console.error(`Error getting capabilities for ${agentId}:`, error);
-      return null;
-    }
-  }, [sendMessageToAgent]);
-
-  return {
-    // Data
-    agents,
-    selectedAgent,
-    
-    // States
-    loading: loading || agentLoading,
-    error: error || agentError,
-    isConnected,
-    
-    // Computed
-    activeAgents: agents.filter(agent => agent.status === 'idle'),
-    agentCount: agents.length,
-    hasSelectedAgent: !!selectedAgent,
-    
-    // Actions
-    selectAgent,
-    sendMessageToAgent,
-    getAgentCapabilities,
-    retry,
-    clearError: () => setAgentError(null),
-    
-    // Agent utilities
-    findAgentById: (id) => agents.find(agent => agent.agent_id === id),
-    filterAgentsByType: (type) => agents.filter(agent => agent.type === type),
-  };
-};
-
-// Hook específico para el marketplace
-export const useMarketplace = () => {
-  const [featuredAgents, setFeaturedAgents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [connectionStatus, setConnectionStatus] = useState('disconnected');
 
-  const loadFeaturedAgents = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
+  const fetchAgents = useCallback(async () => {
     try {
-      const agents = await marketplaceService.getFeaturedAgents();
-      setFeaturedAgents(agents);
+      setLoading(true);
+      setError(null);
+      setConnectionStatus('connecting');
+      
+      const response = await fetch(`${API_BASE_URL}/agents`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch agents: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      const agentsData = result.agents || [];
+      setAgents(agentsData);
+      setConnectionStatus('connected');
+      
+      console.log(`✅ useAgents: ${agentsData.length} agentes cargados`);
+      
     } catch (err) {
-      setError(err.message);
-      console.error('Error loading featured agents:', err);
+      const errorMessage = err.message || 'Error desconocido';
+      setError(errorMessage);
+      setConnectionStatus('failed');
+      console.error('useAgents error:', err);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const installAgent = useCallback(async (agent) => {
-    return await marketplaceService.installAgent(agent);
+  useEffect(() => {
+    fetchAgents();
+  }, [fetchAgents]);
+
+  const sendMessage = useCallback(async (agentId, action, data) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/message/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agent_id: agentId,
+          action: action,
+          data: data
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to send message: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (err) {
+      console.error('Send message error:', err);
+      throw err;
+    }
+  }, []);
+
+  const getAgentDetails = useCallback(async (agentId) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/agents/${agentId}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch agent details: ${response.status}`);
+      }
+      return await response.json();
+    } catch (err) {
+      console.error('Get agent details error:', err);
+      throw err;
+    }
+  }, []);
+
+  // Función para seleccionar agente
+  const selectAgent = useCallback((agent) => {
+    setSelectedAgent(agent);
+  }, []);
+
+  // Calcular propiedades derivadas
+  const activeAgents = agents.filter(agent => agent.status === 'idle' || agent.status === 'busy') || [];
+  const agentCount = agents.length;
+  const isConnected = connectionStatus === 'connected';
+
+  return {
+    // Estados básicos
+    agents,
+    selectedAgent,
+    loading,
+    error,
+    
+    // Estados de conexión
+    isConnected,
+    connectionStatus,
+    
+    // Propiedades calculadas
+    activeAgents,
+    agentCount,
+    
+    // Acciones
+    selectAgent,
+    refresh: fetchAgents,
+    retry: fetchAgents, // Alias para compatibilidad
+    sendMessage,
+    getAgentDetails
+  };
+};
+
+// Hook useMarketplace - CORREGIDO
+export const useMarketplace = () => {
+  const [featuredAgents, setFeaturedAgents] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchMarketplaceData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Primero intentar el endpoint específico de marketplace
+      try {
+        const response = await fetch(`${API_BASE_URL}/marketplace/featured`);
+        if (response.ok) {
+          const result = await response.json();
+          const agents = result.agents || [];
+          setFeaturedAgents(agents);
+          
+          // Extract unique categories
+          const uniqueCategories = [...new Set(agents.map(agent => agent.category || 'general'))];
+          setCategories(uniqueCategories);
+          return;
+        }
+      } catch (marketplaceError) {
+        console.warn('Marketplace endpoint not available, falling back to agents list');
+      }
+      
+      // Fallback: usar lista de agentes
+      const response = await fetch(`${API_BASE_URL}/agents`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch marketplace data: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      const agents = result.agents || [];
+      
+      setFeaturedAgents(agents);
+      
+      // Extract unique categories
+      const uniqueCategories = [...new Set(agents.map(agent => agent.type || 'general'))];
+      setCategories(uniqueCategories);
+      
+    } catch (err) {
+      const errorMessage = err.message || 'Error desconocido';
+      setError(errorMessage);
+      console.error('useMarketplace error:', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    loadFeaturedAgents();
-  }, [loadFeaturedAgents]);
+    fetchMarketplaceData();
+  }, [fetchMarketplaceData]);
+
+  const installAgent = useCallback(async (agentId) => {
+    try {
+      // For MVP: simulate installation
+      console.log(`Installing agent: ${agentId}`);
+      return { success: true, message: 'Agent installed successfully' };
+    } catch (err) {
+      console.error('Install agent error:', err);
+      throw err;
+    }
+  }, []);
+
+  const searchAgents = useCallback(async (query) => {
+    try {
+      if (!query) return featuredAgents;
+      
+      const filtered = featuredAgents.filter(agent => 
+        agent.name.toLowerCase().includes(query.toLowerCase()) ||
+        (agent.description && agent.description.toLowerCase().includes(query.toLowerCase()))
+      );
+      
+      return filtered;
+    } catch (err) {
+      console.error('Search agents error:', err);
+      throw err;
+    }
+  }, [featuredAgents]);
 
   return {
     featuredAgents,
+    categories,
     loading,
     error,
+    refresh: fetchMarketplaceData,
+    reload: fetchMarketplaceData, // Alias para compatibilidad
     installAgent,
-    reload: loadFeaturedAgents
+    searchAgents
   };
 };

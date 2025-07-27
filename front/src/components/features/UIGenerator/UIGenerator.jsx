@@ -3,7 +3,7 @@
 // Interfaz principal para el generador de componentes UI
 // ============================================
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { 
   Code, Copy, Download, Eye, Settings, Palette, 
   Layers, Zap, CheckCircle, AlertCircle, Loader
@@ -22,8 +22,8 @@ const UIGenerator = () => {
   const [previewMode, setPreviewMode] = useState(false);
   const [error, setError] = useState(null);
 
-  // Configuraciones por defecto para cada tipo de componente
-  const defaultProps = {
+  // Configuraciones por defecto para cada tipo de componente - ARREGLADO con useMemo
+  const defaultProps = useMemo(() => ({
     button: {
       text: 'Click me',
       variant: 'primary',
@@ -65,19 +65,10 @@ const UIGenerator = () => {
         { label: 'Conversion', value: '23.4%', change: '-2%' }
       ]
     }
-  };
+  }), []); // Sin dependencias porque es estático
 
-  // Cargar componentes soportados al inicializar
-  useEffect(() => {
-    loadSupportedComponents();
-  }, [loadSupportedComponents]);
-
-  // Actualizar props cuando cambia el componente seleccionado
-  useEffect(() => {
-    setComponentProps(defaultProps[selectedComponent] || {});
-  }, [selectedComponent, defaultProps]);
-
-  const loadSupportedComponents = async () => {
+  // Cargar componentes soportados al inicializar - ARREGLADO con useCallback
+  const loadSupportedComponents = useCallback(async () => {
     try {
       const response = await sendMessage('ui-generator', 'list_components', {});
       if (response.status === 'success') {
@@ -88,7 +79,17 @@ const UIGenerator = () => {
       // Fallback a componentes por defecto
       setSupportedComponents(['button', 'card', 'modal', 'form', 'hero', 'dashboard']);
     }
-  };
+  }, [sendMessage]); // Dependencia: sendMessage
+
+  // ARREGLADO: Incluir dependencia loadSupportedComponents
+  useEffect(() => {
+    loadSupportedComponents();
+  }, [loadSupportedComponents]);
+
+  // ARREGLADO: Incluir dependencia defaultProps
+  useEffect(() => {
+    setComponentProps(defaultProps[selectedComponent] || {});
+  }, [selectedComponent, defaultProps]);
 
   const generateComponent = async () => {
     setLoading(true);
@@ -496,26 +497,3 @@ const UIGenerator = () => {
 };
 
 export default UIGenerator;
-
-// ============================================
-// src/pages/UIGeneratorPage.jsx
-// Página wrapper para el generador
-// ============================================
-
-
-
-// ============================================
-// Agregar ruta en App.js
-// ============================================
-
-/*
-En tu App.js, agrega esta ruta:
-
-import UIGeneratorPage from './pages/UIGeneratorPage';
-
-// En las Routes:
-<Route path="/ui-generator" element={<UIGeneratorPage />} />
-
-// En el Layout, agrega al navigation:
-{ name: 'UI Generator', href: '/ui-generator', icon: Code }
-*/

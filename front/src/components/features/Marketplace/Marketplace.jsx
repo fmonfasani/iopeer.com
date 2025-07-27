@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BookOpen, Search, Star, Download, Shield } from 'lucide-react';
+import { BookOpen, Search, Star, Download } from 'lucide-react';
 import { useMarketplace } from '../../../hooks/useIopeer';
 import { MarketplaceLoadingState } from '../../ui/LoadingSpinner';
 import ErrorDisplay from '../../ui/ErrorDisplay';
@@ -79,7 +79,7 @@ const Marketplace = () => {
               <p className="text-gray-600 text-sm mb-4">{agent.description}</p>
 
               <div className="flex flex-wrap gap-1 mb-4">
-                {agent.tags.map((tag) => (
+                {agent.tags && agent.tags.map((tag) => (
                   <span
                     key={tag}
                     className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"

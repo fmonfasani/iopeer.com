@@ -1,11 +1,15 @@
-// ============================================
-// front/src/components/ui/ErrorBoundary.jsx (Mejorado)
-// Error boundary mejorado con más contexto
-// ============================================
-
+// frontend/src/components/ui/ErrorBoundary.jsx - CORREGIDO
 import React from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
-import ErrorService from '../../services/errorService';
+
+// Servicio de error simple si no existe
+const ErrorService = {
+  logError: (error, context) => {
+    const errorId = `ERR_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    console.error(`[${context}] Error ID: ${errorId}`, error);
+    return errorId;
+  }
+};
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -53,6 +57,29 @@ class ErrorBoundary extends React.Component {
     window.location.href = '/';
   };
 
+  // ✅ FUNCIÓN SEGURA PARA RENDERIZAR ERRORES
+  renderErrorMessage = (error) => {
+    if (!error) return 'Error desconocido';
+    
+    // Si es string, retornarlo directamente
+    if (typeof error === 'string') return error;
+    
+    // Si es objeto error, extraer mensaje
+    if (error.message) return error.message;
+    
+    // Si es objeto con propiedades, convertir a string
+    if (typeof error === 'object') {
+      try {
+        return JSON.stringify(error, null, 2);
+      } catch {
+        return 'Error complejo no serializable';
+      }
+    }
+    
+    // Fallback
+    return String(error);
+  };
+
   render() {
     if (this.state.hasError) {
       return (
@@ -98,10 +125,15 @@ class ErrorBoundary extends React.Component {
                 <summary className="cursor-pointer text-sm text-gray-500">
                   Detalles técnicos (Solo en desarrollo)
                 </summary>
-                <pre className="mt-2 p-3 bg-gray-100 rounded text-xs overflow-auto">
-                  {this.state.error.toString()}
-                  {'\n\n'}
-                  {this.state.errorInfo?.componentStack}
+                <pre className="mt-2 p-3 bg-gray-100 rounded text-xs overflow-auto max-h-40">
+                  {/* ✅ RENDERIZADO SEGURO - NO MÁS "Objects are not valid as React child" */}
+                  {this.renderErrorMessage(this.state.error)}
+                  {this.state.errorInfo?.componentStack && (
+                    <>
+                      {'\n\nComponent Stack:\n'}
+                      {this.state.errorInfo.componentStack}
+                    </>
+                  )}
                 </pre>
               </details>
             )}

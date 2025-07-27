@@ -1,5 +1,5 @@
 # agenthub/workflows/default.py
-from agenthub..orchestrator import orchestrator
+from ..orchestrator import orchestrator
 
 
 def register_default_workflows():
