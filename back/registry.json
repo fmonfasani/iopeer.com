@@ -16,7 +16,7 @@
   },
   {
     "id": "ui_component_generator",
-    "class": "UIComponentGeneratorAgent",
+    "class": "UIGeneratorAgent",
     "config": {}
   },
   {
