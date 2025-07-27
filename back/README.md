@@ -12,7 +12,7 @@ AgentHub is a lightweight framework for coordinating AI agents. It exposes a RES
 2. Create a Python 3.11 virtual environment and install the dependencies
    ```bash
    python3.11 -m venv venv
-   source venv/bin/activate
+   source venv/bin/activate  # Windows: venv\Scripts\activate
    pip install -r requirements-dev.txt
    ```
    You can also run `make install` if you have `make` available.
@@ -48,6 +48,11 @@ or
 ```bash
 python -m agenthub.main
 ```
+On Windows from the project root:
+```cmd
+set PYTHONPATH=back && python -m agenthub.main
+```
+You can also run `make run` from Git Bash.
 The interactive API documentation will be available at [http://localhost:8000/docs](http://localhost:8000/docs).
 
 ## CLI examples
