@@ -32,6 +32,8 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import text
 
+from .middleware import ExceptionMiddleware
+
 from workflow_engine import runtime as wf_runtime
 from workflow_engine.core.WorkflowEngine import AgentRegistry, EventBus, WorkflowEngine
 
@@ -252,6 +254,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Error handling middleware must be registered before routes
+app.add_middleware(ExceptionMiddleware)
 
 # Include auth routes
 app.include_router(auth_router, prefix="/auth", tags=["authentication"])
