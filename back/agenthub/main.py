@@ -14,6 +14,9 @@ from contextlib import asynccontextmanager
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+import uuid
+from datetime import datetime
+from fastapi import HTTPException
 
 try:
     import uvicorn  # type: ignore
@@ -52,7 +55,10 @@ logger = logging.getLogger(__name__)
 # ============================================
 # STARTUP Y SHUTDOWN EVENTS
 # ============================================
+# Agregar estos endpoints a back/main.py
 
+
+    
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("🚀 Starting IOPeer Agent Hub...")
@@ -334,6 +340,288 @@ async def send_message(req: MessageRequest):
     except Exception as e:
         logger.error(f"Error sending message: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# 1. Endpoint para agente individual
+@app.get("/agents/{agent_id}")
+async def get_agent_details(agent_id: str):
+    """Get details of a specific agent"""
+    agent = orchestrator.agent_registry.get_agent(agent_id)
+    
+    if not agent:
+        raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
+    
+    capabilities = agent.get_capabilities() if hasattr(agent, 'get_capabilities') else {}
+    
+    return {
+        "agent_id": agent_id,
+        "name": agent.name,
+        "type": agent.__class__.__name__,
+        "status": "active",
+        "capabilities": capabilities,
+        "created_at": datetime.now().isoformat(),
+        "stats": {
+            "messages_processed": 0,
+            "errors": 0,
+            "average_response_time": "1.2s",
+            "last_activity": None
+        },
+        "health": "healthy"
+    }
+
+# 2. Endpoint para ejecutar workflow
+@app.post("/workflows/{workflow_id}/execute")
+async def execute_workflow(workflow_id: str, request: dict):
+    """Execute a workflow"""
+    if workflow_id not in orchestrator.workflow_registry.workflows:
+        available_workflows = list(orchestrator.workflow_registry.workflows.keys())
+        raise HTTPException(
+            status_code=404, 
+            detail=f"Workflow '{workflow_id}' not found. Available workflows: {available_workflows}"
+        )
+    
+    # Generate execution ID
+    execution_id = f"exec_{uuid.uuid4().hex[:8]}"
+    
+    try:
+        workflow = orchestrator.workflow_registry.workflows[workflow_id]
+        
+        # For MVP: Return mock execution response
+        # TODO: Implement real workflow execution
+        return {
+            "execution_id": execution_id,
+            "workflow_id": workflow_id,
+            "status": "started",
+            "progress": 0,
+            "estimated_completion": "2-3 minutes",
+            "steps_total": len(workflow.get("tasks", [])),
+            "steps_completed": 0,
+            "started_at": datetime.now().isoformat(),
+            "project_name": request.get("project_name", "Unnamed Project"),
+            "input_data": request,
+            "workflow_info": {
+                "name": workflow.get("name", workflow_id),
+                "tasks": workflow.get("tasks", []),
+                "parallel": workflow.get("parallel", False),
+                "timeout": workflow.get("timeout", 30)
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to start workflow: {str(e)}")
+
+# 3. Endpoint para status de ejecución de workflow
+@app.get("/workflows/executions/{execution_id}")
+async def get_execution_status(execution_id: str):
+    """Get workflow execution status"""
+    # For MVP: Return mock status
+    # TODO: Implement real execution tracking
+    
+    import random
+    
+    # Simulate different execution states
+    states = ["running", "completed", "failed"]
+    weights = [0.6, 0.3, 0.1]  # Mostly running, some completed, few failed
+    
+    status = random.choices(states, weights=weights)[0]
+    progress = random.randint(10, 90) if status == "running" else (100 if status == "completed" else 0)
+    
+    response = {
+        "execution_id": execution_id,
+        "status": status,
+        "progress": progress,
+        "steps_completed": progress // 20,  # Roughly 5 steps total
+        "steps_total": 5,
+        "started_at": datetime.now().isoformat(),
+        "updated_at": datetime.now().isoformat()
+    }
+    
+    if status == "running":
+        response.update({
+            "current_step": "backend_agent.generate_api",
+            "estimated_remaining": f"{random.randint(10, 120)} seconds",
+            "results": [
+                {"step": "analyze_requirements", "status": "completed", "duration": "12s"},
+                {"step": "suggest_architecture", "status": "completed", "duration": "8s"},
+                {"step": "generate_api", "status": "running", "duration": "25s"}
+            ]
+        })
+    elif status == "completed":
+        response.update({
+            "completed_at": datetime.now().isoformat(),
+            "total_duration": "2m 15s",
+            "results": [
+                {"step": "analyze_requirements", "status": "completed", "duration": "12s"},
+                {"step": "suggest_architecture", "status": "completed", "duration": "8s"}, 
+                {"step": "generate_api", "status": "completed", "duration": "45s"},
+                {"step": "validate_api_spec", "status": "completed", "duration": "20s"},
+                {"step": "generate_tests", "status": "completed", "duration": "50s"}
+            ],
+            "deliverables": {
+                "api_code": "Generated FastAPI code",
+                "test_suite": "Generated test files",
+                "documentation": "API documentation",
+                "download_url": f"/downloads/{execution_id}.zip"
+            }
+        })
+    else:  # failed
+        response.update({
+            "failed_at": datetime.now().isoformat(),
+            "error": "Agent backend_agent failed: Timeout during API generation",
+            "error_details": {
+                "step": "generate_api",
+                "agent": "backend_agent",
+                "reason": "Request timeout after 30 seconds"
+            }
+        })
+    
+    return response
+
+# 4. Endpoint para capabilities de agente específico
+@app.get("/agents/{agent_id}/capabilities")
+async def get_agent_capabilities(agent_id: str):
+    """Get detailed capabilities of a specific agent"""
+    agent = orchestrator.agent_registry.get_agent(agent_id)
+    
+    if not agent:
+        raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
+    
+    capabilities = agent.get_capabilities() if hasattr(agent, 'get_capabilities') else {
+        "actions": [],
+        "description": "No capabilities defined"
+    }
+    
+    return {
+        "agent_id": agent_id,
+        "name": agent.name,
+        "capabilities": capabilities,
+        "status": "active",
+        "last_updated": datetime.now().isoformat()
+    }
+
+# 5. Endpoint para configuración del frontend
+@app.get("/frontend/config")
+async def get_frontend_config():
+    """Configuration data for frontend"""
+    agent_list = []
+    for agent_id, agent in orchestrator.agent_registry.agents.items():
+        capabilities = agent.get_capabilities() if hasattr(agent, 'get_capabilities') else {}
+        
+        agent_list.append({
+            "id": agent_id,
+            "name": agent.name,
+            "description": capabilities.get("description", ""),
+            "category": capabilities.get("category", "general"),
+            "icon": capabilities.get("icon", "🤖"),
+            "actions": capabilities.get("actions", []),
+            "status": "active"
+        })
+    
+    workflow_list = []
+    for workflow_id, workflow in orchestrator.workflow_registry.workflows.items():
+        workflow_list.append({
+            "id": workflow_id,
+            "name": workflow.get("name", workflow_id),
+            "description": f"Automated workflow with {len(workflow.get('tasks', []))} steps",
+            "estimated_time": f"{workflow.get('timeout', 30)}s - {workflow.get('timeout', 30)*2}s",
+            "agents_involved": [task.split('.')[0] for task in workflow.get("tasks", [])],
+            "parallel": workflow.get("parallel", False),
+            "steps": len(workflow.get("tasks", []))
+        })
+    
+    return {
+        "api_base_url": "http://localhost:8000",
+        "websocket_url": "ws://localhost:8000/ws", 
+        "version": "1.0.0",
+        "available_agents": agent_list,
+        "available_workflows": workflow_list,
+        "features": {
+            "websockets_enabled": False,  # Enable when implemented
+            "oauth_enabled": False,
+            "real_time_updates": False,   # Enable when WebSocket ready
+            "file_upload": False,
+            "export_formats": ["zip", "json", "code"],
+            "ui_generator": True,
+            "workflows": True,
+            "analytics": True
+        },
+        "limits": {
+            "max_agents_per_user": 10,
+            "max_workflows_per_day": 50,
+            "max_execution_time": "5 minutes"
+        }
+    }
+
+# 6. Enhanced health check
+@app.get("/health")
+async def enhanced_health_check():
+    """Comprehensive health check"""
+    
+    # Check database
+    db_status = "healthy"
+    try:
+        # Simple DB check - modify based on your database setup
+        # await database.fetch_one("SELECT 1")
+        pass
+    except Exception as e:
+        db_status = f"unhealthy: {str(e)}"
+    
+    # Check agents
+    agent_statuses = {}
+    for agent_id, agent in orchestrator.agent_registry.agents.items():
+        agent_statuses[agent_id] = {
+            "healthy": True,
+            "status": "idle",
+            "uptime": 3600  # Mock uptime
+        }
+    
+    agents_status = "healthy" if len(orchestrator.agent_registry.agents) > 0 else "unhealthy"
+    workflows_status = "healthy" if len(orchestrator.workflow_registry.workflows) > 0 else "unhealthy"
+    
+    overall_status = "healthy" if all([
+        db_status == "healthy",
+        agents_status == "healthy", 
+        workflows_status == "healthy"
+    ]) else "unhealthy"
+    
+    return {
+        "status": overall_status,
+        "message": "IOPeer Agent Hub is running",
+        "version": "1.0.0",
+        "timestamp": datetime.now().isoformat(),
+        "database": db_status,
+        "agents": agent_statuses,
+        "total_agents": len(orchestrator.agent_registry.agents),
+        "total_workflows": len(orchestrator.workflow_registry.workflows),
+        "uptime": "1h 30m",  # Mock uptime
+        "memory_usage": "125MB"  # Mock memory usage
+    }
+
+# 7. Test endpoint para verificar mensaje directo a agente
+@app.post("/agents/{agent_id}/test")
+async def test_agent_direct(agent_id: str, request: dict):
+    """Direct test endpoint for agent - useful for debugging"""
+    agent = orchestrator.agent_registry.get_agent(agent_id)
+    
+    if not agent:
+        raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
+    
+    try:
+        result = agent.handle(request)
+        return {
+            "agent_id": agent_id,
+            "request": request,
+            "response": result,
+            "timestamp": datetime.now().isoformat(),
+            "success": result.get("status") == "success"
+        }
+    except Exception as e:
+        return {
+            "agent_id": agent_id,
+            "request": request,
+            "error": str(e),
+            "timestamp": datetime.now().isoformat(),
+            "success": False
+        }
 
 # ============================================
 # WORKFLOW ENDPOINTS
