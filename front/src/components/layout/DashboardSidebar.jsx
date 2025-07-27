@@ -1,7 +1,7 @@
+// front/src/components/layout/DashboardSidebar.jsx - ACTUALIZADO CON MI APP
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-
   BarChart3,
   Users,
   Zap,
@@ -11,7 +11,7 @@ import {
   Activity,
   ChevronRight,
   LogOut,
-
+  Smartphone, // ✅ NUEVO ICONO PARA MI APP
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -21,8 +21,10 @@ const DashboardSidebar = () => {
   const location = useLocation();
   const { logout, user } = useAuth();
 
+  // ✅ NAVEGACIÓN ACTUALIZADA CON MI APP
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
+    { name: 'MI APP', href: '/mi-app', icon: Smartphone }, // ✅ NUEVA SECCIÓN
     { name: 'Mis Agentes', href: '/agents', icon: Users },
     { name: 'Workflows', href: '/workflows', icon: Activity },
     { name: 'AI Generator', href: '/ui-generator', icon: Zap },
@@ -82,7 +84,8 @@ const DashboardSidebar = () => {
             {navigation.map((item) => {
               // Check if current route matches this nav item
               const isActive = location.pathname === item.href || 
-                             (item.href === '/dashboard' && location.pathname === '/');
+                             (item.href === '/dashboard' && location.pathname === '/') ||
+                             (item.href === '/mi-app' && location.pathname.startsWith('/mi-app'));
               
               return (
                 <Link
@@ -100,6 +103,12 @@ const DashboardSidebar = () => {
                     }`} 
                   />
                   {item.name}
+                  {/* ✅ INDICADOR ESPECIAL PARA MI APP */}
+                  {item.name === 'MI APP' && (
+                    <span className="ml-auto text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                      Nuevo
+                    </span>
+                  )}
                   {isActive && (
                     <ChevronRight className="ml-auto h-4 w-4 text-green-500" />
                   )}

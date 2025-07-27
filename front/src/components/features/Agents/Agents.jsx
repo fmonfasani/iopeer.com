@@ -1,6 +1,6 @@
-// front/src/components/features/Agents/Agents.jsx (Corregido)
+// front/src/components/features/Agents/Agents.jsx - ACTUALIZADO CON CREAR AGENTE
 import React, { useEffect } from 'react';
-import { Users, Plus, Activity, AlertCircle, RefreshCw } from 'lucide-react';
+import { Users, Plus, Activity, AlertCircle, RefreshCw, Brain } from 'lucide-react';
 import { useAgents } from '../../../hooks/useIopeer';
 import LoadingSpinner, { AgentsLoadingState } from '../../ui/LoadingSpinner';
 import ErrorDisplay from '../../ui/ErrorDisplay';
@@ -92,6 +92,15 @@ const Agents = () => {
             <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
             Actualizar
           </button>
+
+          {/* ✅ NUEVO BOTÓN CREAR AGENTE */}
+          <button 
+            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            onClick={() => navigate('/crear-agente')}
+          >
+            <Brain size={18} />
+            Crear Agente
+          </button>
           
           <button 
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -116,7 +125,10 @@ const Agents = () => {
           ))}
         </div>
       ) : (
-        <EmptyAgentsState onInstallAgent={() => navigate('/marketplace')} />
+        <EmptyAgentsState 
+          onInstallAgent={() => navigate('/marketplace')}
+          onCreateAgent={() => navigate('/crear-agente')} // ✅ NUEVA ACCIÓN
+        />
       )}
     </div>
   );
@@ -160,7 +172,15 @@ const AgentCard = ({ agent, isSelected, onSelect }) => {
       }`}
     >
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">{agent.name}</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-gray-900">{agent.name}</h3>
+          {/* ✅ INDICADOR PARA AGENTES PERSONALIZADOS */}
+          {agent.metadata?.is_custom && (
+            <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
+              Custom
+            </span>
+          )}
+        </div>
         <div className="flex items-center gap-2">
           <Activity size={16} className={getStatusColor(agent.status)} />
           <span className="text-sm text-gray-600">{getStatusText(agent.status)}</span>
@@ -202,23 +222,35 @@ const AgentCard = ({ agent, isSelected, onSelect }) => {
   );
 };
 
-// Estado vacío cuando no hay agentes
-const EmptyAgentsState = ({ onInstallAgent }) => (
+// Estado vacío cuando no hay agentes - ✅ ACTUALIZADO
+const EmptyAgentsState = ({ onInstallAgent, onCreateAgent }) => (
   <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center">
     <Users className="mx-auto text-gray-400 mb-4" size={64} />
     <h3 className="text-xl font-semibold text-gray-700 mb-2">
       No hay agentes instalados
     </h3>
     <p className="text-gray-500 mb-6">
-      Instala agentes desde el marketplace para comenzar a automatizar tu trabajo
+      Instala agentes desde el marketplace o crea tu propio agente personalizado
     </p>
     
-    <button 
-      onClick={onInstallAgent}
-      className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-    >
-      Explorar Marketplace
-    </button>
+    {/* ✅ BOTONES ACTUALIZADOS */}
+    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+      <button 
+        onClick={onInstallAgent}
+        className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+      >
+        <Plus size={20} />
+        Explorar Marketplace
+      </button>
+      
+      <button 
+        onClick={onCreateAgent}
+        className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
+      >
+        <Brain size={20} />
+        Crear Mi Agente
+      </button>
+    </div>
     
     <div className="mt-6 flex items-center justify-center gap-2 text-sm text-amber-600 bg-amber-50 px-4 py-2 rounded-lg">
       <AlertCircle size={16} />
