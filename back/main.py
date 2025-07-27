@@ -33,6 +33,9 @@ from workflow_engine.core.WorkflowEngine import AgentRegistry, EventBus, Workflo
 from agenthub.agents.backend_agent import BackendAgent
 from agenthub.agents.base_agent import BaseAgent
 from agenthub.agents.qa_agent import QAAgent
+from agenthub.agents.content_writer_agent import ContentWriterAgent
+from agenthub.agents.ui_component_generator import UIComponentGeneratorAgent
+from agenthub.agents.data_analyst_agent import DataAnalystAgent
 from agenthub.config import config
 from agenthub.orchestrator import orchestrator
 from workflow_engine.core.WorkflowEngine import EventBus
@@ -148,7 +151,13 @@ async def load_agents_from_registry():
         logger.error(f"❌ Error loading registry: {e}")
         return
 
-    agent_classes = {"BackendAgent": BackendAgent, "QAAgent": QAAgent}
+    agent_classes = {
+        "BackendAgent": BackendAgent,
+        "QAAgent": QAAgent,
+        "ContentWriterAgent": ContentWriterAgent,
+        "UIComponentGeneratorAgent": UIComponentGeneratorAgent,
+        "DataAnalystAgent": DataAnalystAgent,
+    }
 
     agents_loaded = 0
     for entry in data:
