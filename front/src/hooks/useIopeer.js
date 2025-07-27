@@ -17,7 +17,6 @@ export const useIopeer = () => {
   const retryTimeoutRef = useRef(null);
 
   // Integrate workflow hook
-  const workflow = useWorkflow();
 
   const clearError = useCallback(() => {
     setError(null);
