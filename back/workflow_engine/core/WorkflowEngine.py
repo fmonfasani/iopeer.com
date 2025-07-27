@@ -217,7 +217,9 @@ class WorkflowExecution:
             input_data = self._prepare_node_input(node)
 
 
-            # Ejecutar agente
+
+            # Ejecutar agente (sincronico o asincronico)
+
             message = {
                 "action": node.config.get("action", "process"),
                 "data": input_data,
