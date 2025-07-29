@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { iopeerAPI } from '../services/iopeerAPI';
 import { useIopeer } from './useIopeer';
+import agentCreatorConfig from '../config/agentCreator.json';
 
 export const useAgentCreator = () => {
   const { isConnected } = useIopeer();
@@ -10,46 +11,10 @@ export const useAgentCreator = () => {
   const [testResults, setTestResults] = useState(null);
   
   // Capacidades disponibles
-  const [availableCapabilities] = useState([
-    { id: 'ai_integration', name: 'Integración IA', icon: '🧠' },
-    { id: 'data_processing', name: 'Procesamiento de Datos', icon: '📊' },
-    { id: 'api_calls', name: 'Llamadas API', icon: '🔗' },
-    { id: 'file_handling', name: 'Manejo de Archivos', icon: '📁' },
-    { id: 'database_access', name: 'Acceso a BD', icon: '🗄️' },
-    { id: 'web_scraping', name: 'Web Scraping', icon: '🕷️' },
-    { id: 'image_processing', name: 'Procesamiento de Imágenes', icon: '🖼️' },
-    { id: 'notification_sending', name: 'Envío de Notificaciones', icon: '📧' },
-    { id: 'content_generation', name: 'Generación de Contenido', icon: '✍️' },
-    { id: 'automation', name: 'Automatización', icon: '⚙️' }
-  ]);
+  const [availableCapabilities] = useState(agentCreatorConfig.capabilities);
 
   // Templates de agentes
-  const [agentTemplates] = useState({
-    'data_processor': {
-      name: 'Procesador de Datos',
-      category: 'analytics',
-      description: 'Agente para procesar y transformar datos',
-      inputs: ['raw_data', 'transformation_rules'],
-      outputs: ['processed_data', 'summary_stats'],
-      capabilities: ['data_processing', 'file_handling']
-    },
-    'content_creator': {
-      name: 'Creador de Contenido',
-      category: 'content',
-      description: 'Agente para generar contenido especializado',
-      inputs: ['topic', 'style', 'target_audience'],
-      outputs: ['generated_content', 'keywords', 'metadata'],
-      capabilities: ['ai_integration', 'content_generation']
-    },
-    'api_integrator': {
-      name: 'Integrador de APIs',
-      category: 'integration',
-      description: 'Agente para integrar servicios externos',
-      inputs: ['api_endpoint', 'request_data', 'auth_config'],
-      outputs: ['response_data', 'status_code', 'processed_result'],
-      capabilities: ['api_calls', 'web_scraping']
-    }
-  });
+  const [agentTemplates] = useState(agentCreatorConfig.templates);
 
   // Crear agente personalizado
   const createAgent = useCallback(async (agentData) => {
