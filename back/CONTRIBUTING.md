@@ -5,7 +5,7 @@ This project uses a simple workflow for submitting pull requests. The following 
 ## Environment setup
 
 1. Clone the repository and change into the project directory.
-2. Run `./scripts/dev.sh`. This script creates a virtual environment, installs development dependencies and configures pre-commit hooks.
+2. Run `./back/scripts/dev.sh`. This script creates a virtual environment, installs development dependencies and configures pre-commit hooks.
 
 ## Coding style
 
@@ -18,14 +18,14 @@ This project uses a simple workflow for submitting pull requests. The following 
 
 ## Running tests
 
-The project includes helper scripts under `scripts/`.
+The project includes helper scripts under `back/scripts/`.
 
-- `./scripts/test.sh` runs linting, type checking and the full test suite.
+- `./back/scripts/test.sh` runs linting, type checking and the full test suite.
 - You can also run tests directly with `pytest` if needed.
 
 ## Pull request workflow
 
 1. Create a feature branch from `main`.
-2. Run `pre-commit` and `./scripts/test.sh` locally until both succeed.
+2. Run `pre-commit` and `./back/scripts/test.sh` locally until both succeed.
 3. Push your branch and open a pull request describing your changes.
 4. Make sure CI passes before requesting review.
