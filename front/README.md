@@ -197,6 +197,30 @@ export const APP_CONFIG = {
 };
 ```
 
+### Plantillas y Capacidades
+
+Los datos usados por la pantalla **Crear Agente** viven en `src/config/agentCreator.json`.
+Puedes agregar nuevas capacidades o plantillas editando ese archivo sin modificar
+el código:
+
+```json
+{
+  "capabilities": [
+    { "id": "mi_capacidad", "name": "Mi Nueva Capacidad", "icon": "🚀" }
+  ],
+  "templates": {
+    "mi_agente": {
+      "name": "Mi Agente",
+      "inputs": [],
+      "outputs": [],
+      "capabilities": ["mi_capacidad"]
+    }
+  }
+}
+```
+
+Al guardar los cambios, el frontend recargará las opciones automáticamente.
+
 ## 🧪 Testing
 
 ### Test Coverage
