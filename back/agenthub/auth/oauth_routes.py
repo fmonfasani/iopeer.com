@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from urllib.parse import urlencode
 from fastapi import APIRouter, HTTPException, Request, Depends
 from fastapi.responses import RedirectResponse
-from pydantic import BaseModel
+from agenthub.schemas import OAuthUser
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 from ..database.connection import get_db
@@ -27,12 +27,6 @@ FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 JWT_SECRET = os.getenv("JWT_SECRET", "your-secret-key-change-in-production")
 
-class OAuthUser(BaseModel):
-    id: str
-    email: str
-    name: str
-    avatar_url: str = None
-    provider: str
 
 def generate_jwt_token(user_data: dict) -> str:
     """Generar JWT token para el usuario"""

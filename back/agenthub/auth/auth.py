@@ -10,14 +10,15 @@ from sqlalchemy.orm import Session
 from ..database.connection import SessionLocal
 from ..models.user import User
 from agenthub.schemas import SignInInput, TokenResponse
+from agenthub.utils import (
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    ALGORITHM,
+    SECRET_KEY,
+)
 
 router = APIRouter()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-SECRET_KEY = "your-secret-key-change-in-production"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 # Dependency

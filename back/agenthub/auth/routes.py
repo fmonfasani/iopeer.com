@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from jose import jwt, JWTError
 
 # Imports locales
-from agenthub.auth.schemas import SignInInput, UserCreate
+from agenthub.schemas import SignInInput, UserCreate
 from agenthub.database.connection import get_db
 from agenthub.models.user import User
 from .utils import create_access_token, verify_password, SECRET_KEY, ALGORITHM

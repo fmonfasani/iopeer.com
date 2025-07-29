@@ -1,6 +1,6 @@
 import logging
 
-from agenthub.auth.schemas import SignInInput
+from agenthub.schemas import SignInInput
 
 
 from agenthub.database.connection import get_db
