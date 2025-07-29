@@ -1,6 +1,7 @@
 // frontend/src/hooks/useIopeer.js - CORREGIDO
 import { useState, useEffect, useCallback, useRef } from 'react';
 import useWorkflow from './useWorkflow';
+import { sendMessage as agentSendMessage } from '../api/agentClient';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
@@ -161,20 +162,8 @@ export const useIopeer = () => {
   }, [connect]); // Solo ejecutar una vez al montar
 
   const sendMessage = useCallback(async (agentId, action, data = {}) => {
-    try {
-      return await makeRequest('/message/send', {
-        method: 'POST',
-        body: JSON.stringify({
-          agent_id: agentId,
-          action: action,
-          data: data
-        })
-      });
-    } catch (error) {
-      console.error('Send message error:', error);
-      throw error;
-    }
-  }, [makeRequest]);
+    return agentSendMessage(agentId, action, data);
+  }, []);
 
   return {
     // States
@@ -268,26 +257,7 @@ export const useAgents = () => {
   }, [fetchAgents]);
 
   const sendMessage = useCallback(async (agentId, action, data) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/message/send`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          agent_id: agentId,
-          action: action,
-          data: data
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to send message: ${response.status}`);
-      }
-      
-      return await response.json();
-    } catch (err) {
-      console.error('Send message error:', err);
-      throw err;
-    }
+    return agentSendMessage(agentId, action, data);
   }, []);
 
   const getAgentDetails = useCallback(async (agentId) => {
