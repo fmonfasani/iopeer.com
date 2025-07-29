@@ -33,7 +33,7 @@ def test_api():
                 elif endpoint == "/agents":
                     data = response.json()
                     agents = [agent['agent_id'] for agent in data.get('agents', [])]
-                    print(f"   \N{robot} Loaded agents: {agents}")
+                    print(f"   \N{ROBOT FACE} Loaded agents: {agents}")
 
             else:
                 print(f"\N{cross mark} {test_name}: HTTP {response.status_code}")
