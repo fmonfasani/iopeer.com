@@ -128,7 +128,7 @@ agenthub/
 │   ├── public/               # Assets públicos
 │   └── build/                # Build de producción
 ├── 🔧 iopeer/back/           # Backend Iopeer
-└── 📁 scripts/               # Scripts de utilidad
+└── 📁 back/scripts/         # Scripts de utilidad
 ```
 
 ### Componentes Principales

@@ -681,13 +681,13 @@ curl http://localhost:3000
 # Setup desarrollo
 git clone https://github.com/iopeer/platform.git
 cd platform
-./scripts/dev.sh
+./back/scripts/dev.sh
 
 # Crear agente personalizado
-./scripts/create-agent.sh my_agent
+./back/scripts/create-agent.sh my_agent
 
 # Ejecutar tests
-./scripts/test.sh
+./back/scripts/test.sh
 ```
 
 ---
