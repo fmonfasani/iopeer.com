@@ -239,18 +239,20 @@ npm test -- --coverage
 
 ### Variables de Entorno
 
-Las siguientes variables controlan la configuración del frontend. Al menos
-`REACT_APP_API_URL` es necesaria para que la aplicación conozca la URL base de la
-API.
+Las siguientes variables controlan la configuración del frontend.
+`REACT_APP_API_URL` y `REACT_APP_WS_URL` son necesarias para que la aplicación
+conozca la URL base de la API y del WebSocket.
 
 | Variable            | Descripción                                   |
 |---------------------|-----------------------------------------------|
 | `REACT_APP_API_URL` | URL base del backend utilizado por el frontend |
+| `REACT_APP_WS_URL`  | URL base para conexiones WebSocket             |
 
 #### Desarrollo
 ```bash
 REACT_APP_ENV=development
 REACT_APP_API_URL=http://localhost:8000
+REACT_APP_WS_URL=ws://localhost:8000/ws
 REACT_APP_DEBUG=true
 ```
 
@@ -258,6 +260,7 @@ REACT_APP_DEBUG=true
 ```bash
 REACT_APP_ENV=production
 REACT_APP_API_URL=https://api.agenthub.com
+REACT_APP_WS_URL=wss://api.agenthub.com/ws
 REACT_APP_DEBUG=false
 ```
 
