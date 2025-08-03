@@ -153,14 +153,6 @@ export const useWorkflow = () => {
   // Referencias
   const apiClient = useRef(new WorkflowAPIClient());
   const wsConnection = useRef<WebSocket | null>(null);
-
-  // Cargar datos iniciales
-  useEffect(() => {
-    loadWorkflows();
-    loadAvailableAgents();
-    loadTemplates();
-  }, [loadWorkflows, loadAvailableAgents, loadTemplates]);
-
   // Función para cargar workflows
   const loadWorkflows = useCallback(async () => {
     try {
@@ -195,6 +187,13 @@ export const useWorkflow = () => {
       console.error('Error loading templates:', err);
     }
   }, []);
+
+  // Cargar datos iniciales
+  useEffect(() => {
+    loadWorkflows();
+    loadAvailableAgents();
+    loadTemplates();
+  }, [loadWorkflows, loadAvailableAgents, loadTemplates]);
 
   // Crear workflow
   const createWorkflow = useCallback(async (workflowData) => {
