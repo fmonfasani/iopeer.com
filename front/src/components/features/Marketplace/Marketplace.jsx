@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BookOpen, Search, Star, Download } from 'lucide-react';
-import { useMarketplace } from '../../../hooks/useIopeer';
+import { useMarketplace } from '../../../hooks/useMarketplace';
 import { MarketplaceLoadingState } from '../../ui/LoadingSpinner';
 import ErrorDisplay from '../../ui/ErrorDisplay';
 import { useNavigate } from 'react-router-dom';
