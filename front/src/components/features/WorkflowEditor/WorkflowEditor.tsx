@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { Zap, Database, BarChart3, Code, Palette } from 'lucide-react';
+import { Zap, Database, BarChart3, Code, Palette, Trash2 } from 'lucide-react';
 import { useIopeer } from '../../../hooks/useIopeer';
 
 import { workflowService } from '../../../services/workflowService';
@@ -75,14 +75,15 @@ const WorkflowEditor: React.FC<{ workflow?: any; onSave?: () => void }> = ({ wor
   }, [initialWorkflow]);
 
   // Convertir agentes disponibles a formato local
-  const agentsList: Agent[] = Object.values(availableAgents).map(agent => ({
-    id: agent.id,
-    name: agent.name || agent.id,
-    description: agent.description || 'No description available',
-    icon: agent.icon || '🤖',
-    category: agent.category || 'general',
-    color: agent.color || '#6b7280'
-  }));
+  const agentsList: Agent[] =
+    Object.values(availableAgents as Record<string, Agent>).map((agent: Agent): Agent => ({
+      id: agent.id,
+      name: agent.name || agent.id,
+      description: agent.description || 'No description available',
+      icon: agent.icon || '🤖',
+      category: agent.category || 'general',
+      color: agent.color || '#6b7280'
+    }));
 
   // Función para guardar workflow
   const saveWorkflow = useCallback(async () => {
