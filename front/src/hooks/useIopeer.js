@@ -1,6 +1,7 @@
 import useWorkflow from './useWorkflow';
-
-import { API_BASE_URL } from '../config/apiBase';
+import { useConnection } from './iopeer/useConnection';
+import { deriveUIState } from './iopeer/useUIState';
+import { iopeerAPI } from '../services/iopeerAPI';
 
 // Hook principal de Iopeer
 
@@ -10,6 +11,8 @@ export const useIopeer = () => {
   const connection = useConnection();
   const uiState = deriveUIState(connection);
 
+  const sendMessage = ({ agent_id, action, data = {} }) =>
+    iopeerAPI.sendMessage(agent_id, action, data);
 
   return {
     ...connection,
@@ -34,6 +37,5 @@ export const useIopeer = () => {
     loadAvailableAgents: workflow.loadAvailableAgents,
     wsConnected: workflow.wsConnected,
     sendMessage,
-    makeRequest,
   };
 };
