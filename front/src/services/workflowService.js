@@ -1,7 +1,9 @@
 // src/services/workflow.service.js
 // Servicio para manejar todas las operaciones de workflows
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+
+import { API_BASE_URL } from '../config/apiBase';
+
 
 class WorkflowService {
   constructor() {
@@ -189,7 +191,7 @@ class WorkflowService {
 
   // Crear conexión WebSocket para updates en tiempo real
   createWebSocketConnection(workflowId, onMessage, onError, onClose) {
-    const wsURL = `ws://localhost:8000/api/v1/workflows/${workflowId}/ws`;
+    const wsURL = `${WS_BASE_URL}/api/v1/workflows/${workflowId}/ws`;
     
     try {
       const socket = new WebSocket(wsURL);

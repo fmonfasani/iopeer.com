@@ -3,18 +3,20 @@
 # ============================================
 
 import logging
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+
+from agenthub.database.connection import get_db
+from agenthub.models.user import User
+
+# Imports locales
+from agenthub.schemas import SignInInput, UserCreate
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import HTTPBearer  # ✅ IMPORTACIÓN AGREGADA
+from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from jose import jwt, JWTError
 
-# Imports locales
-from agenthub.auth.schemas import SignInInput, UserCreate
-from agenthub.database.connection import get_db
-from agenthub.models.user import User
-from .utils import create_access_token, verify_password, SECRET_KEY, ALGORITHM
+from .utils import ALGORITHM, SECRET_KEY, create_access_token, verify_password
 
 # ============================================
 # SETUP
@@ -29,13 +31,16 @@ security = HTTPBearer()  # ✅ AHORA SÍ FUNCIONA
 # MODELOS PYDANTIC
 # ============================================
 
+
 class SigninRequest(BaseModel):
     email: str
     password: str
 
+
 # ============================================
 # ENDPOINTS DE AUTENTICACIÓN
 # ============================================
+
 
 @router.post("/signup", status_code=status.HTTP_201_CREATED)
 def signup(user: UserCreate, db: Session = Depends(get_db)):
@@ -54,31 +59,32 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
     # Crear nuevo usuario
     hashed_password = pwd_context.hash(user.password)
     new_user = User(email=user.email, hashed_password=hashed_password)
-    
+
     try:
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
         logger.info(f"✅ Usuario {new_user.email} creado exitosamente en iopeer_users.")
-        
+
         return {
-            "message": "Usuario creado exitosamente", 
+            "message": "Usuario creado exitosamente",
             "email": new_user.email,
-            "id": new_user.id
+            "id": new_user.id,
         }
     except Exception as e:
         db.rollback()
         logger.error(f"❌ Error creando usuario: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error interno del servidor"
+            detail="Error interno del servidor",
         )
+
 
 @router.post("/signin")
 def login(user: SignInInput, db: Session = Depends(get_db)):
     """Login usando la tabla iopeer_users"""
     logger.info(f"🔄 Intentando login con email: {user.email}")
-    
+
     # Buscar en NUESTRA tabla (iopeer_users)
     db_user = db.query(User).filter(User.email == user.email).first()
 
@@ -99,59 +105,53 @@ def login(user: SignInInput, db: Session = Depends(get_db)):
     # Crear token
     token = create_access_token({"sub": user.email, "user_id": db_user.id})
     logger.info(f"✅ Usuario {user.email} autenticado exitosamente.")
-    
+
     return {
-        "access_token": token, 
+        "access_token": token,
         "token_type": "bearer",
         "user": {
             "id": db_user.id,
             "email": db_user.email,
-            "is_active": db_user.is_active
-        }
+            "is_active": db_user.is_active,
+        },
     }
+
 
 @router.get("/me")
 def get_current_user(request: Request, db: Session = Depends(get_db)):
     """Return current user info based on the bearer token."""
-    
+
     # Extraer token del header Authorization
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, 
-            detail="Invalid or missing token"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or missing token"
         )
 
     token = auth_header.split(" ", 1)[1]
-    
+
     try:
         # Verificar y decodificar JWT
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("user_id")
         email = payload.get("sub")
-        
+
         if user_id is None or email is None:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, 
-                detail="Invalid token"
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
             )
-            
+
     except JWTError:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, 
-            detail="Invalid token"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
         )
 
     # Buscar usuario en la base de datos
-    user = db.query(User).filter(
-        User.id == user_id, 
-        User.email == email
-    ).first()
-    
+    user = db.query(User).filter(User.id == user_id, User.email == email).first()
+
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, 
-            detail="Invalid token"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
         )
 
     return {
@@ -160,9 +160,11 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
         "is_active": user.is_active,
     }
 
+
 # ============================================
 # ENDPOINT DE TESTING
 # ============================================
+
 
 @router.get("/test")
 async def auth_test():
@@ -172,7 +174,7 @@ async def auth_test():
         "version": "1.0.0",
         "endpoints": [
             "/auth/signup - POST",
-            "/auth/signin - POST", 
-            "/auth/me - GET (requires Bearer token)"
-        ]
+            "/auth/signin - POST",
+            "/auth/me - GET (requires Bearer token)",
+        ],
     }

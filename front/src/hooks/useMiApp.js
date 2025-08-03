@@ -1,46 +1,34 @@
-// front/src/hooks/useMiApp.js
+// front/src/hooks/useMiApp.js - VERSIÓN MEJORADA
 import { useState, useEffect, useCallback } from 'react';
-import { iopeerAPI } from '../services/iopeerAPI';
 import { useIopeer } from './useIopeer';
+import { miAppNotifications } from '../services/miAppNotifications';
+import { miAppAPI } from '../services/miAppAPI';
 
 export const useMiApp = () => {
   const { isConnected } = useIopeer();
-  const [projects, setProjects] = useState([
-    // Mock data inicial
-    {
-      id: 1,
-      name: "E-commerce Startup",
-      description: "Tienda online completa con pagos",
-      status: "deployed",
-      agents_used: ["UI Generator", "Backend Agent", "Payment Agent"],
-      created_at: "2025-01-15",
-      last_deploy: "2025-01-20",
-      url: "https://mi-tienda-demo.vercel.app",
-      template: "E-commerce Store"
-    },
-    {
-      id: 2,
-      name: "Blog Personal",
-      description: "Blog con CMS y SEO optimizado",
-      status: "building",
-      agents_used: ["Content Agent", "SEO Agent"],
-      created_at: "2025-01-18",
-      last_deploy: null,
-      url: null,
-      template: "Blog/Portfolio"
-    }
-  ]);
 
+  // Estado principal
+  const [projects, setProjects] = useState([]);
   const [appStats, setAppStats] = useState({
-    total_projects: 5,
-    active_projects: 2,
-    total_deployments: 12,
-    total_agents_used: 8,
-    success_rate: 94
+    total_projects: 0,
+    active_projects: 0,
+    total_deployments: 0,
+    total_agents_used: 0,
+    success_rate: 0
   });
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Estado de operaciones en progreso
+  const [operationsInProgress, setOperationsInProgress] = useState({
+    creating: new Set(),
+    building: new Set(),
+    deploying: new Set(),
+    deleting: new Set()
+  });
+
+  // Templates disponibles
+  const [templates] = useState(miAppAPI.getTemplates());
 
   // Cargar proyectos del usuario
   const loadProjects = useCallback(async () => {
@@ -50,22 +38,46 @@ export const useMiApp = () => {
       setLoading(true);
       setError(null);
 
-      // En el MVP, usar datos mock. En producción conectar con el backend
-      // const response = await iopeerAPI.getUserProjects();
-      // setProjects(response.projects);
-      
+      // En producción: await miAppAPI.getUserProjects();
       // Simular carga
       await new Promise(resolve => setTimeout(resolve, 800));
-      
-      // Actualizar stats basado en proyectos
-      setAppStats(prev => ({
-        ...prev,
-        total_projects: projects.length,
-        active_projects: projects.filter(p => p.status === 'deployed' || p.status === 'building').length
-      }));
+
+      // Mock data inicial si no hay proyectos
+      if (projects.length === 0) {
+        const mockProjects = [
+          {
+            id: 1,
+            name: "Mi E-commerce",
+            description: "Tienda online de productos artesanales",
+            status: "deployed",
+            agents_used: ["UI Generator", "Backend Agent", "Payment Agent"],
+            created_at: "2025-01-15T10:00:00Z",
+            last_deploy: "2025-01-20T14:30:00Z",
+            url: "https://mi-tienda-demo.iopeer.app",
+            template: "E-commerce Store"
+          },
+          {
+            id: 2,
+            name: "Blog Personal",
+            description: "Mi blog de tecnología y desarrollo",
+            status: "ready",
+            agents_used: ["UI Generator", "Content Agent", "SEO Agent"],
+            created_at: "2025-01-18T09:15:00Z",
+            last_deploy: null,
+            url: null,
+            template: "Blog/Portfolio"
+          }
+        ];
+        setProjects(mockProjects);
+      }
+
+      // Cargar estadísticas
+      const stats = await miAppAPI.getProjectStats();
+      setAppStats(stats);
 
     } catch (err) {
       setError(err.message || 'Error cargando proyectos');
+      miAppNotifications.genericError(err.message);
     } finally {
       setLoading(false);
     }
@@ -77,24 +89,37 @@ export const useMiApp = () => {
       setLoading(true);
       setError(null);
 
-      const newProject = {
-        id: Date.now(),
+      const newProjectData = {
         name: projectData.name || `Proyecto ${projects.length + 1}`,
         description: projectData.description || 'Nuevo proyecto creado',
-        status: 'draft',
-        agents_used: projectData.agents || [],
-        created_at: new Date().toISOString(),
-        last_deploy: null,
-        url: null,
-        template: projectData.template || 'Custom'
+        template: projectData.template || null,
+        ...projectData
       };
 
-      // En producción: await iopeerAPI.createProject(newProject);
-      
+      // Mostrar notificación de creación
+      miAppNotifications.projectCreated(newProjectData.name);
+
+      // Marcar como creando
+      setOperationsInProgress(prev => ({
+        ...prev,
+        creating: new Set([...prev.creating, newProjectData.name])
+      }));
+
+      // Crear proyecto
+      const response = await miAppAPI.createProject(newProjectData);
+
+      const newProject = response.project;
       setProjects(prev => [...prev, newProject]);
-      
-      // Si es un template específico, iniciar proceso de construcción
+
+      // Limpiar estado de progreso
+      setOperationsInProgress(prev => ({
+        ...prev,
+        creating: new Set([...prev.creating].filter(name => name !== newProjectData.name))
+      }));
+
+      // Si es un template específico, iniciar construcción automáticamente
       if (projectData.template) {
+        miAppNotifications.templateUsed(projectData.template);
         setTimeout(() => {
           buildProjectFromTemplate(newProject.id, projectData.template);
         }, 1000);
@@ -104,6 +129,7 @@ export const useMiApp = () => {
 
     } catch (err) {
       setError(err.message || 'Error creando proyecto');
+      miAppNotifications.projectBuildFailed(projectData.name || 'Proyecto', err.message);
       throw err;
     } finally {
       setLoading(false);
@@ -112,137 +138,177 @@ export const useMiApp = () => {
 
   // Construir proyecto desde template
   const buildProjectFromTemplate = useCallback(async (projectId, template) => {
+    const project = projects.find(p => p.id === projectId);
+    if (!project) return;
+
     try {
+      // Mostrar notificación de construcción
+      miAppNotifications.projectBuilding(project.name);
+
+      // Marcar como construyendo
+      setOperationsInProgress(prev => ({
+        ...prev,
+        building: new Set([...prev.building, projectId])
+      }));
+
       // Actualizar estado a "building"
-      setProjects(prev => prev.map(p => 
-        p.id === projectId 
-          ? { ...p, status: 'building', agents_used: getAgentsForTemplate(template) }
+      setProjects(prev => prev.map(p =>
+        p.id === projectId
+          ? { ...p, status: 'building' }
           : p
       ));
 
-      // Simular proceso de construcción
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Simular construcción con progreso
+      for (let progress = 0; progress <= 100; progress += 20) {
+        miAppNotifications.progressNotification(
+          `Construyendo ${project.name}`,
+          progress
+        );
+        await new Promise(resolve => setTimeout(resolve, 600));
+      }
 
-      // En producción: await iopeerAPI.buildProjectFromTemplate(projectId, template);
+      // Llamar API de construcción
+      const buildResult = await miAppAPI.buildProject(projectId, template);
 
-      // Actualizar a "ready"
-      setProjects(prev => prev.map(p => 
-        p.id === projectId 
-          ? { ...p, status: 'ready' }
+      // Actualizar proyecto con resultado
+      setProjects(prev => prev.map(p =>
+        p.id === projectId
+          ? {
+              ...p,
+              status: buildResult.status,
+              agents_used: buildResult.agents_used,
+              build_time: buildResult.build_time
+            }
           : p
       ));
+
+      // Notificar éxito
+      miAppNotifications.projectBuildComplete(project.name);
 
       return { success: true };
 
     } catch (err) {
       // Marcar como fallido
-      setProjects(prev => prev.map(p => 
-        p.id === projectId 
+      setProjects(prev => prev.map(p =>
+        p.id === projectId
           ? { ...p, status: 'failed' }
           : p
       ));
-      
-      setError(`Error construyendo proyecto: ${err.message}`);
+
+      miAppNotifications.projectBuildFailed(project.name, err.message);
       throw err;
+
+    } finally {
+      // Limpiar estado de progreso
+      setOperationsInProgress(prev => ({
+        ...prev,
+        building: new Set([...prev.building].filter(id => id !== projectId))
+      }));
     }
-  }, []);
+  }, [projects]);
 
   // Desplegar proyecto
   const deployProject = useCallback(async (projectId) => {
+    const project = projects.find(p => p.id === projectId);
+    if (!project) return;
+
     try {
       setLoading(true);
       setError(null);
 
+      // Mostrar notificación de deployment
+      miAppNotifications.projectDeploying(project.name);
+
+      // Marcar como desplegando
+      setOperationsInProgress(prev => ({
+        ...prev,
+        deploying: new Set([...prev.deploying, projectId])
+      }));
+
       // Actualizar estado a "deploying"
-      setProjects(prev => prev.map(p => 
-        p.id === projectId 
+      setProjects(prev => prev.map(p =>
+        p.id === projectId
           ? { ...p, status: 'deploying' }
           : p
       ));
 
-      // Simular deployment
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Simular progreso de deployment
+      for (let progress = 0; progress <= 100; progress += 25) {
+        miAppNotifications.progressNotification(
+          `Desplegando ${project.name}`,
+          progress
+        );
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
 
-      // En producción: const result = await iopeerAPI.deployProject(projectId);
-      
-      const mockUrl = `https://proyecto-${projectId}.iopeer.app`;
-      
+      // Llamar API de deployment
+      const deployResult = await miAppAPI.deployProject(projectId);
+
       // Actualizar con URL de deployment
-      setProjects(prev => prev.map(p => 
-        p.id === projectId 
-          ? { 
-              ...p, 
-              status: 'deployed', 
-              url: mockUrl,
-              last_deploy: new Date().toISOString()
+      setProjects(prev => prev.map(p =>
+        p.id === projectId
+          ? {
+              ...p,
+              status: deployResult.status,
+              url: deployResult.url,
+              last_deploy: new Date().toISOString(),
+              deployment_time: deployResult.deployment_time
             }
           : p
       ));
 
-      return { success: true, url: mockUrl };
+      // Notificar éxito con acción
+      miAppNotifications.projectDeployed(project.name, deployResult.url);
+
+      return { success: true, url: deployResult.url };
 
     } catch (err) {
+      miAppNotifications.projectDeployFailed(project.name, err.message);
       setError(`Error desplegando proyecto: ${err.message}`);
       throw err;
+
     } finally {
       setLoading(false);
+      setOperationsInProgress(prev => ({
+        ...prev,
+        deploying: new Set([...prev.deploying].filter(id => id !== projectId))
+      }));
     }
-  }, []);
+  }, [projects]);
 
   // Obtener código del proyecto
   const getProjectCode = useCallback(async (projectId) => {
+    const project = projects.find(p => p.id === projectId);
+    if (!project) return;
+
     try {
       setLoading(true);
       setError(null);
 
-      // En producción: const code = await iopeerAPI.getProjectCode(projectId);
-      
-      // Mock para el MVP
-      const project = projects.find(p => p.id === projectId);
-      const mockCode = {
-        frontend: `// Frontend code for ${project?.name}
-import React from 'react';
+      const codeResult = await miAppAPI.getProjectCode(projectId);
 
-const App = () => {
-  return (
-    <div>
-      <h1>${project?.name}</h1>
-      <p>${project?.description}</p>
-    </div>
-  );
-};
-
-export default App;`,
-        backend: `# Backend code for ${project?.name}
-from fastapi import FastAPI
-
-app = FastAPI()
-
-@app.get("/")
-def read_root():
-    return {"message": "Hello from ${project?.name}"}`,
-        package: `{
-  "name": "${project?.name?.toLowerCase().replace(/\s+/g, '-')}",
-  "version": "1.0.0",
-  "dependencies": {
-    "react": "^18.0.0",
-    "fastapi": "^0.104.0"
-  }
-}`
-      };
-
-      // Crear ZIP y descarga
-      const blob = new Blob([JSON.stringify(mockCode, null, 2)], { type: 'application/json' });
+      // Crear archivo ZIP y descargar
+      const projectName = project.name.replace(/\s+/g, '_');
+      const blob = new Blob([JSON.stringify(codeResult.code, null, 2)], {
+        type: 'application/json'
+      });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${project?.name?.replace(/\s+/g, '_')}_code.json`;
+      a.download = `${projectName}_codigo.json`;
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
 
-      return mockCode;
+      // Notificar descarga
+      miAppNotifications.codeDownloaded(project.name);
+
+      return codeResult;
 
     } catch (err) {
       setError(`Error obteniendo código: ${err.message}`);
+      miAppNotifications.genericError(`Error obteniendo código: ${err.message}`);
       throw err;
     } finally {
       setLoading(false);
@@ -251,71 +317,75 @@ def read_root():
 
   // Eliminar proyecto
   const deleteProject = useCallback(async (projectId) => {
+    const project = projects.find(p => p.id === projectId);
+    if (!project) return;
+
     try {
       setLoading(true);
       setError(null);
 
-      // En producción: await iopeerAPI.deleteProject(projectId);
-      
+      // Marcar como eliminando
+      setOperationsInProgress(prev => ({
+        ...prev,
+        deleting: new Set([...prev.deleting, projectId])
+      }));
+
+      await miAppAPI.deleteProject(projectId);
+
       setProjects(prev => prev.filter(p => p.id !== projectId));
+
+      miAppNotifications.projectDeleted(project.name);
 
       return { success: true };
 
     } catch (err) {
       setError(`Error eliminando proyecto: ${err.message}`);
+      miAppNotifications.genericError(`Error eliminando proyecto: ${err.message}`);
       throw err;
     } finally {
       setLoading(false);
+      setOperationsInProgress(prev => ({
+        ...prev,
+        deleting: new Set([...prev.deleting].filter(id => id !== projectId))
+      }));
     }
-  }, []);
+  }, [projects]);
 
   // Actualizar proyecto
   const updateProject = useCallback(async (projectId, updates) => {
+    const project = projects.find(p => p.id === projectId);
+    if (!project) return;
+
     try {
       setLoading(true);
       setError(null);
 
-      // En producción: await iopeerAPI.updateProject(projectId, updates);
-      
-      setProjects(prev => prev.map(p => 
-        p.id === projectId 
+      await miAppAPI.updateProject(projectId, updates);
+
+      setProjects(prev => prev.map(p =>
+        p.id === projectId
           ? { ...p, ...updates }
           : p
       ));
+
+      miAppNotifications.projectUpdated(project.name);
 
       return { success: true };
 
     } catch (err) {
       setError(`Error actualizando proyecto: ${err.message}`);
+      miAppNotifications.genericError(`Error actualizando proyecto: ${err.message}`);
       throw err;
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [projects]);
 
-  // Refrescar proyectos
-  const refreshProjects = useCallback(() => {
-    loadProjects();
-  }, [loadProjects]);
-
-  // Obtener agentes para template
-  const getAgentsForTemplate = useCallback((template) => {
-    const templateAgents = {
-      'E-commerce Store': ['UI Generator', 'Backend Agent', 'Payment Agent', 'SEO Agent'],
-      'Blog/Portfolio': ['UI Generator', 'Content Agent', 'SEO Agent'],
-      'SaaS MVP': ['UI Generator', 'Backend Agent', 'Auth Agent', 'Analytics'],
-      'Mobile App': ['Mobile UI Agent', 'Backend Agent', 'Push Notifications']
-    };
-
-    return templateAgents[template] || ['UI Generator'];
-  }, []);
-
-  // Obtener proyectos por estado
+  // Funciones de utilidad
   const getProjectsByStatus = useCallback((status) => {
     return projects.filter(project => project.status === status);
   }, [projects]);
 
-  // Obtener estadísticas
   const getProjectStats = useCallback(() => {
     return {
       total: projects.length,
@@ -324,7 +394,8 @@ def read_root():
       ready: projects.filter(p => p.status === 'ready').length,
       draft: projects.filter(p => p.status === 'draft').length,
       byTemplate: projects.reduce((acc, p) => {
-        acc[p.template] = (acc[p.template] || 0) + 1;
+        const template = p.template || 'Custom';
+        acc[template] = (acc[template] || 0) + 1;
         return acc;
       }, {}),
       mostUsedAgents: projects.reduce((acc, p) => {
@@ -336,6 +407,10 @@ def read_root():
     };
   }, [projects]);
 
+  const isProjectInProgress = useCallback((projectId, operation) => {
+    return operationsInProgress[operation]?.has(projectId) || false;
+  }, [operationsInProgress]);
+
   // Auto-cargar proyectos al conectar
   useEffect(() => {
     if (isConnected) {
@@ -343,12 +418,23 @@ def read_root():
     }
   }, [isConnected, loadProjects]);
 
+  // Notificar cuando se conecta/desconecta
+  useEffect(() => {
+    if (isConnected) {
+      miAppNotifications.backendConnected();
+    } else {
+      miAppNotifications.backendDisconnected();
+    }
+  }, [isConnected]);
+
   return {
-    // Estado
+    // Estado principal
     projects,
+    templates,
     appStats,
     loading,
     error,
+    operationsInProgress,
 
     // Acciones principales
     createProject,
@@ -356,13 +442,13 @@ def read_root():
     getProjectCode,
     updateProject,
     deleteProject,
-    refreshProjects,
+    buildProjectFromTemplate,
+    loadProjects,
 
     // Utilidades
     getProjectsByStatus,
     getProjectStats,
-    getAgentsForTemplate,
-    buildProjectFromTemplate,
+    isProjectInProgress,
 
     // Estado computado
     hasProjects: projects.length > 0,
@@ -376,6 +462,10 @@ def read_root():
       const project = projects.find(p => p.id === projectId);
       return project?.status === 'deployed';
     },
-    getProjectById: (projectId) => projects.find(p => p.id === projectId)
+    getProjectById: (projectId) => projects.find(p => p.id === projectId),
+    getTemplateById: (templateId) => templates.find(t => t.id === templateId),
+
+    // Estado de conexión
+    isConnected
   };
 };

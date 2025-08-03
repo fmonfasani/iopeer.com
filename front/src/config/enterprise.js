@@ -2,6 +2,8 @@
  * Configuración Enterprise de Iopeer
  */
 
+import { API_BASE_URL } from './apiBase';
+
 const config = {
   app: {
     name: process.env.REACT_APP_NAME || 'Iopeer',
@@ -11,12 +13,10 @@ const config = {
   },
 
   api: {
-    baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8000',
+    baseURL: API_BASE_URL,
     wsURL:
       process.env.REACT_APP_WS_URL ||
-      (process.env.REACT_APP_API_URL
-        ? process.env.REACT_APP_API_URL.replace(/^http/, 'ws') + '/ws'
-        : 'ws://localhost:8000/ws'),
+      (API_BASE_URL.replace(/^http/, 'ws') + '/ws'),
     timeout: parseInt(process.env.REACT_APP_API_TIMEOUT) || 30000,
     maxRetries: parseInt(process.env.REACT_APP_MAX_RETRIES) || 3
   },

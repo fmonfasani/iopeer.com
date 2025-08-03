@@ -1,6 +1,7 @@
 // utils/api.ts o directamente dentro de tu componente
+import { API_BASE_URL } from '../config/apiBase';
+
 export async function loginUser(email: string, password: string) {
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
   try {
     const response = await fetch(`${API_BASE_URL}/auth/signin`, {
       method: "POST",
