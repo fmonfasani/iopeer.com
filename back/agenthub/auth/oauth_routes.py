@@ -30,9 +30,12 @@ FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 JWT_SECRET = os.getenv("JWT_SECRET")
 if not JWT_SECRET:
-    raise RuntimeError(
-        "JWT_SECRET environment variable is not set. Configure it in your .env file."
+    import secrets
+
+    logger.warning(
+        "JWT_SECRET environment variable is not set. Using a temporary insecure secret."
     )
+    JWT_SECRET = secrets.token_urlsafe(32)
 
 
 def generate_jwt_token(user_data: dict) -> str:
