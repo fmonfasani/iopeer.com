@@ -1,7 +1,7 @@
 // front/src/components/features/Agents/Agents.jsx - ACTUALIZADO CON CREAR AGENTE
 import React from 'react';
 import { Users, Plus, Activity, AlertCircle, RefreshCw, Brain } from 'lucide-react';
-import { useAgents } from '../../../hooks/useIopeer';
+import { useAgents } from '../../../hooks/useAgents';
 import LoadingSpinner, { AgentsLoadingState } from '../../ui/LoadingSpinner';
 import ErrorDisplay from '../../ui/ErrorDisplay';
 import { useNavigate } from 'react-router-dom';
