@@ -1,5 +1,5 @@
 // front/src/components/features/Agents/Agents.jsx - ACTUALIZADO CON CREAR AGENTE
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Users, Plus, Activity, AlertCircle, RefreshCw, Brain } from 'lucide-react';
 import { useAgents } from '../../../hooks/useIopeer';
 import LoadingSpinner, { AgentsLoadingState } from '../../ui/LoadingSpinner';
@@ -20,16 +20,6 @@ const Agents = () => {
   } = useAgents();
   
   const navigate = useNavigate();
-
-  // Efecto para logging
-  useEffect(() => {
-    console.log('📊 Agents Component State:', {
-      isConnected,
-      agentCount,
-      loading,
-      hasError: !!error
-    });
-  }, [isConnected, agentCount, loading, error]);
 
   // Si está cargando, mostrar skeleton
   if (loading && agents.length === 0) {
@@ -134,33 +124,16 @@ const Agents = () => {
   );
 };
 
+const STATUS_MAP = {
+  idle: { color: 'text-green-500', text: 'Disponible' },
+  busy: { color: 'text-yellow-500', text: 'Ocupado' },
+  error: { color: 'text-red-500', text: 'Error' },
+  default: { color: 'text-gray-500', text: 'Desconocido' }
+};
+
 // Componente individual de agente
 const AgentCard = ({ agent, isSelected, onSelect }) => {
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'idle':
-        return 'text-green-500';
-      case 'busy':
-        return 'text-yellow-500';
-      case 'error':
-        return 'text-red-500';
-      default:
-        return 'text-gray-500';
-    }
-  };
-
-  const getStatusText = (status) => {
-    switch (status) {
-      case 'idle':
-        return 'Disponible';
-      case 'busy':
-        return 'Ocupado';
-      case 'error':
-        return 'Error';
-      default:
-        return 'Desconocido';
-    }
-  };
+  const statusInfo = STATUS_MAP[agent.status] || STATUS_MAP.default;
 
   return (
     <div
@@ -182,8 +155,8 @@ const AgentCard = ({ agent, isSelected, onSelect }) => {
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Activity size={16} className={getStatusColor(agent.status)} />
-          <span className="text-sm text-gray-600">{getStatusText(agent.status)}</span>
+          <Activity size={16} className={statusInfo.color} />
+          <span className="text-sm text-gray-600">{statusInfo.text}</span>
         </div>
       </div>
       
