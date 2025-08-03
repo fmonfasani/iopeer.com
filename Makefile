@@ -22,7 +22,7 @@ install: ## Instalar dependencias del backend
 # 🧪 Backend - Tests y Linter
 # ======================
 test: ## Ejecutar tests del backend
-	@pytest tests/ -v --cov=agenthub
+	@PYTHONPATH=back pytest back/tests -v
 
 lint: ## Verificar código del backend
 	@flake8 back/agenthub

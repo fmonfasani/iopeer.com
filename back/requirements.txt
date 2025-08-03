@@ -6,21 +6,26 @@
 fastapi>=0.115.1
 uvicorn[standard]==0.24.0
 pydantic==2.5.0
-pydantic[email]
+pydantic[email]==2.5.0
 
 # Database & ORM
 sqlalchemy==2.0.23
 psycopg2-binary
 python-dotenv==1.0.0
+redis==5.0.1
 
 # Authentication & Security
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
+PyJWT==2.8.0
+authlib==1.2.1
+itsdangerous==2.1.2
 
 # HTTP & Networking
 httpx==0.25.2
 requests==2.31.0
 python-multipart==0.0.6
+urllib3<2.0
 
 # Configuration & Utils
 PyYAML>=6.0
@@ -36,11 +41,3 @@ pre-commit==3.7.0
 # Testing (solo si necesitas)
 pytest==7.4.3
 pytest-asyncio==0.21.1
-
-# DEPENDENCIAS ELIMINADAS (no se usan):
-# authlib==1.2.1          # No se usa OAuth con authlib
-# itsdangerous==2.1.2     # No se usa
-# redis==5.0.1             # No se usa Redis aún
-# autoflake==2.2.1         # Tool de desarrollo
-# types-requests           # Solo para desarrollo
-# urllib3<2.0              # Dependency conflict

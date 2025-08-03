@@ -1,6 +1,7 @@
 // Base URL for the authentication endpoints
+import { API_BASE_URL } from '../config/apiBase';
 // Defaults to localhost for development if the env variable is not provided
-const API_URL = `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/auth`;
+const API_URL = `${API_BASE_URL}/auth`;
 
 export async function loginRequest(email, password) {
   const res = await fetch(`${API_URL}/signin`, {

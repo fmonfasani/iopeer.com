@@ -1,9 +1,5 @@
 import asyncio
 
-import sys
-
-sys.path.append("back")
-
 from agenthub.agents.backend_agent import BackendAgent
 from workflow_engine.core.WorkflowEngine import (
     AgentRegistry,

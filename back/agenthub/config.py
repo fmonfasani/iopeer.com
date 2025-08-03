@@ -9,6 +9,9 @@ import yaml
 logger = logging.getLogger(__name__)
 
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+
 class Config:
     """Gestión centralizada de configuración"""
 
@@ -41,7 +44,7 @@ class Config:
             "log_level": "INFO",
             "max_workers": 4,
             "timeout": 30,
-            "registry_file": "registry.json",
+            "registry_file": str(BASE_DIR / "registry.json"),
         }
 
         for key, value in defaults.items():

@@ -1,44 +1,32 @@
 import { useState, useCallback } from 'react';
 import { useIopeer } from './useIopeer';
 import { iopeerAPI } from '../services/iopeerAPI';
+import ErrorService from '../services/errorService';
+import useAsync from './useAsync';
 
 // Hook específico para agentes
 export const useAgents = () => {
   const { agents, loading, error, isConnected, retry } = useIopeer();
   const [selectedAgent, setSelectedAgent] = useState(null);
-  const [agentLoading, setAgentLoading] = useState(false);
-  const [agentError, setAgentError] = useState(null);
+  const {
+    execute: sendMessageToAgent,
+    loading: agentLoading,
+    error: agentError
+  } = useAsync((agentId, action, data) => iopeerAPI.sendMessage(agentId, action, data), {
+    context: 'sendMessageToAgent'
+  });
 
   const selectAgent = useCallback((agent) => {
     setSelectedAgent(agent);
-    setAgentError(null);
-  }, []);
-
-  const sendMessageToAgent = useCallback(async (agentId, action, data) => {
-    setAgentLoading(true);
-    setAgentError(null);
-
-    try {
-      const result = await iopeerAPI.sendMessage(agentId, action, data);
-      return result;
-    } catch (error) {
-      const processedError = {
-        type: 'AGENT_ERROR',
-        message: `Error comunicándose con el agente ${agentId}`,
-        technical: error.message
-      };
-      setAgentError(processedError);
-      throw error;
-    } finally {
-      setAgentLoading(false);
-    }
   }, []);
 
   const getAgentCapabilities = useCallback(async (agentId) => {
     try {
       return await sendMessageToAgent(agentId, 'get_capabilities', {});
     } catch (error) {
-      console.error(`Error getting capabilities for ${agentId}:`, error);
+      if (ErrorService.logError) {
+        ErrorService.logError(error, 'getAgentCapabilities');
+      }
       return null;
     }
   }, [sendMessageToAgent]);
@@ -63,7 +51,6 @@ export const useAgents = () => {
     sendMessageToAgent,
     getAgentCapabilities,
     retry,
-    clearError: () => setAgentError(null),
     
     // Agent utilities
     findAgentById: (id) => agents.find(agent => agent.agent_id === id),

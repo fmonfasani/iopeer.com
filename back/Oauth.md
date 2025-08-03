@@ -115,7 +115,7 @@ npm start
 
 #### 6.1 Usar script de verificación
 ```bash
-cd scripts
+cd back/scripts
 python setup_oauth.py
 ```
 
@@ -127,7 +127,7 @@ python setup_oauth.py
 
 ### Error: "oauth_not_configured"
 - Verifica que todas las variables de entorno estén configuradas
-- Ejecuta `python scripts/setup_oauth.py` para verificar
+- Ejecuta `python back/scripts/setup_oauth.py` para verificar
 
 ### Error: "redirect_uri_mismatch"
 - Verifica que las URLs de callback coincidan exactamente:

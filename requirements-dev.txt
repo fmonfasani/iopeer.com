@@ -1,4 +1,4 @@
--r requirements.txt
+-r back/requirements.txt
 
 # Development tools
 types-requests
