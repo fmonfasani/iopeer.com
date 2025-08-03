@@ -1,24 +1,15 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { 
-  Play, 
-  Plus, 
-  Save, 
-  Trash2, 
-  Download, 
-  Settings,
-  Zap,
-  Database,
-  BarChart3,
-  Code,
-  Palette
-} from 'lucide-react';
+import { Zap, Database, BarChart3, Code, Palette } from 'lucide-react';
 import { useIopeer } from '../../../hooks/useIopeer';
 
 import { workflowService } from '../../../services/workflowService';
 import type { Agent } from '../../../hooks/useWorkflow';
+import NodeList from './NodeList';
+import Toolbar from './Toolbar';
+import ConnectionEditor from './ConnectionEditor';
 
 // Tipos para el workflow
-interface WorkflowNode {
+export interface WorkflowNode {
   id: string;
   agent_type: string;
   name: string;
@@ -325,114 +316,30 @@ const WorkflowEditor: React.FC<{ workflow?: any; onSave?: () => void }> = ({ wor
     <div className="flex h-screen bg-gray-50">
       {/* Panel de Agentes */}
       {showAgentPanel && (
-        <div className="w-80 bg-white border-r border-gray-200 flex flex-col shadow-lg">
-          {/* Header del panel */}
-          <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
-            <h2 className="text-lg font-semibold text-gray-900 mb-1">Agentes Disponibles</h2>
-            <p className="text-sm text-gray-600">Arrastra agentes al canvas</p>
-          </div>
-
-          {/* Lista de agentes por categoría */}
-          <div className="flex-1 overflow-y-auto">
-            {Object.entries(agentsByCategory).map(([category, agents]) => (
-              <div key={category} className="p-4">
-                <h3 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
-                  {getCategoryIcon(category)}
-                  {category}
-                </h3>
-                <div className="space-y-2">
-                  {agents.map(agent => (
-                    <div
-                      key={agent.id}
-                      draggable
-                      onDragStart={() => handleAgentDragStart(agent)}
-                      className="p-3 bg-white border border-gray-200 rounded-lg cursor-move hover:shadow-md transition-all duration-200 transform hover:scale-105 hover:border-blue-300"
-                      style={{ borderLeftColor: agent.color, borderLeftWidth: '4px' }}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <span className="text-2xl">{agent.icon}</span>
-                        <div className="flex-1">
-                          <div className="font-medium text-gray-900">{agent.name}</div>
-                          <div className="text-xs text-gray-600">{agent.description}</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <NodeList
+          agentsByCategory={agentsByCategory}
+          getCategoryIcon={getCategoryIcon}
+          onDragStart={handleAgentDragStart}
+        />
       )}
 
       {/* Canvas Principal */}
       <div className="flex-1 flex flex-col">
-        {/* Toolbar */}
-        <div className="bg-white border-b border-gray-200 p-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => setShowAgentPanel(!showAgentPanel)}
-                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Plus className="w-5 h-5" />
-              </button>
-              
-              <div className="flex flex-col">
-                <input
-                  type="text"
-                  value={workflowName}
-                  onChange={(e) => setWorkflowName(e.target.value)}
-                  className="text-xl font-semibold text-gray-900 bg-transparent border-none focus:outline-none focus:bg-gray-50 px-2 py-1 rounded"
-                  placeholder="Nombre del workflow"
-                />
-                <input
-                  type="text"
-                  value={workflowDescription}
-                  onChange={(e) => setWorkflowDescription(e.target.value)}
-                  className="text-sm text-gray-600 bg-transparent border-none focus:outline-none focus:bg-gray-50 px-2 py-1 rounded mt-1"
-                  placeholder="Descripción del workflow"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={clearCanvas}
-                className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Trash2 className="w-4 h-4" />
-                Limpiar
-              </button>
-              
-              <button
-                onClick={exportWorkflow}
-                className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Download className="w-4 h-4" />
-                Exportar
-              </button>
-              
-              <button
-                onClick={saveWorkflow}
-                disabled={saving}
-                className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
-              >
-                <Save className="w-4 h-4" />
-                {saving ? 'Guardando...' : 'Guardar'}
-              </button>
-              
-              <button
-                onClick={executeWorkflow}
-                disabled={isExecuting || nodes.length === 0}
-                className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 shadow-lg"
-              >
-                <Play className="w-4 h-4" />
-                {isExecuting ? 'Ejecutando...' : 'Ejecutar Workflow'}
-              </button>
-            </div>
-          </div>
-        </div>
+        <Toolbar
+          showAgentPanel={showAgentPanel}
+          toggleAgentPanel={() => setShowAgentPanel(!showAgentPanel)}
+          workflowName={workflowName}
+          setWorkflowName={setWorkflowName}
+          workflowDescription={workflowDescription}
+          setWorkflowDescription={setWorkflowDescription}
+          clearCanvas={clearCanvas}
+          exportWorkflow={exportWorkflow}
+          saveWorkflow={saveWorkflow}
+          executeWorkflow={executeWorkflow}
+          saving={saving}
+          isExecuting={isExecuting}
+          hasNodes={nodes.length > 0}
+        />
 
         {/* Canvas */}
         <div
@@ -542,48 +449,12 @@ const WorkflowEditor: React.FC<{ workflow?: any; onSave?: () => void }> = ({ wor
           )}
         </div>
 
-        {/* Panel de propiedades del nodo seleccionado */}
-        {selectedNode && (
-          <div className="absolute right-4 top-20 w-80 bg-white border border-gray-200 rounded-xl shadow-xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                <Settings className="w-4 h-4" />
-                Configuración del Nodo
-              </h3>
-              <button
-                onClick={() => setSelectedNode(null)}
-                className="p-1 text-gray-400 hover:text-gray-600 rounded"
-              >
-                ✕
-              </button>
-            </div>
-            
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del Nodo</label>
-                <input
-                  type="text"
-                  value={nodes.find(n => n.id === selectedNode)?.name || ''}
-                  onChange={(e) => {
-                    setNodes(prev => prev.map(n => 
-                      n.id === selectedNode ? { ...n, name: e.target.value } : n
-                    ));
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Configuración</label>
-                <textarea
-                  placeholder="Configuración JSON del agente..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  rows={4}
-                />
-              </div>
-            </div>
-          </div>
-        )}
+        <ConnectionEditor
+          selectedNode={selectedNode}
+          nodes={nodes}
+          setNodes={setNodes}
+          onClose={() => setSelectedNode(null)}
+        />
 
         {/* Status bar */}
         <div className="bg-white border-t border-gray-200 px-4 py-2 flex items-center justify-between text-sm text-gray-600">
