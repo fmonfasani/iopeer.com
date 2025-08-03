@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import os
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
@@ -15,7 +16,7 @@ router = APIRouter()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-SECRET_KEY = "your-secret-key-change-in-production"
+SECRET_KEY = os.getenv("AGENTHUB_SECRET_KEY", "dev-secret-key")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
