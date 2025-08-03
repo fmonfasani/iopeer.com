@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Plus, 
-  Play, 
-  Edit, 
-  Trash2, 
-  Copy, 
-  Download,
+import {
+  Plus,
+  Play,
+  Edit,
+  Trash2,
+  Copy,
   Clock,
   Users,
   Zap,
   BarChart3,
   CheckCircle,
   XCircle,
-  AlertCircle,
   ArrowRight,
   FileText,
   Sparkles
@@ -30,12 +28,11 @@ const Workflows = () => {
     error,
     isExecuting,
     activeExecution,
-    createWorkflow: create,
-    executeWorkflow: execute,
+    executeWorkflow,
     createWorkflowFromTemplate: createFromTemplate,
     loadWorkflows,
     loadTemplates,
-    clearWorkflowError: clearError
+    clearWorkflowError
 
   } = useIopeer();
   const [currentView, setCurrentView] = useState('list'); // 'list', 'editor', 'templates'
