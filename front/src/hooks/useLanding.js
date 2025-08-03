@@ -1,5 +1,6 @@
 // src/hooks/useLanding.js
 import { useState, useEffect, useCallback } from 'react';
+import { API_BASE_URL } from '../config/apiBase';
 import { marketplaceService } from '../services/marketplace.service';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -98,7 +99,7 @@ export const useLanding = () => {
   // Obtener estado de conexión del backend
   const checkBackendConnection = useCallback(async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/health`);
+      const response = await fetch(`${API_BASE_URL}/health`);
       return response.ok;
     } catch {
       return false;

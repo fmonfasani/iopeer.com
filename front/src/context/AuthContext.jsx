@@ -1,9 +1,10 @@
 // front/src/context/AuthContext.jsx - VERSIÓN CORREGIDA
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { API_BASE_URL } from '../config/apiBase';
 
-// 🆕 DEFINIR API_URL
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+// API base URL
+const API_URL = API_BASE_URL;
 
 const AuthContext = createContext();
 
