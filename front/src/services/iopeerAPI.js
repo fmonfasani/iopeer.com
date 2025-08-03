@@ -2,6 +2,7 @@
  * Iopeer API Service adaptado para AgentHub
  */
 
+import { sendMessage as agentSendMessage } from '../api/agentClient';
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 class IopeerAPI {
@@ -67,14 +68,7 @@ class IopeerAPI {
   }
 
   async sendMessage(agentId, action, data = {}) {
-    return this.request('/message/send', {
-      method: 'POST',
-      body: JSON.stringify({
-        agent_id: agentId,
-        action,
-        data,
-      }),
-    });
+    return agentSendMessage(agentId, action, data);
   }
 
   // Workflows

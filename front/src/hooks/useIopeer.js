@@ -1,14 +1,16 @@
 import useWorkflow from './useWorkflow';
+
 import { useConnection } from './iopeer/useConnection';
 import { sendMessage, makeRequest } from './iopeer/api';
 import { deriveUIState } from './iopeer/useUIState';
 export { useAgents } from './iopeer/agents';
 export { useMarketplace } from './iopeer/marketplace';
-
 export const useIopeer = () => {
   const workflow = useWorkflow();
+
   const connection = useConnection();
   const uiState = deriveUIState(connection);
+
 
   return {
     ...connection,
