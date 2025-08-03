@@ -16,6 +16,8 @@ export const useIopeer = () => {
   return {
     ...connection,
     ...uiState,
+    connection,
+    uiState,
     workflows: workflow.workflows,
     templates: workflow.templates,
     availableAgents: workflow.availableAgents,
@@ -24,8 +26,6 @@ export const useIopeer = () => {
     activeExecution: workflow.activeExecution,
     workflowStats: workflow.workflowStats,
     agentStats: workflow.agentStats,
-    connect: connection.connect,
-    retry: connection.retry,
     clearWorkflowError: workflow.clearError,
     clearExecutionEvents: workflow.clearExecutionEvents,
     createWorkflow: workflow.createWorkflow,
@@ -47,20 +47,13 @@ export const useAgents = () => {
   const [error, setError] = useState(null);
   const [connectionStatus, setConnectionStatus] = useState('disconnected');
 
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-
   const fetchAgents = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       setConnectionStatus('connecting');
 
-      const response = await fetch(`${API_BASE_URL}/agents`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch agents: ${response.status}`);
-      }
-
-      const result = await response.json();
+      const result = await iopeerAPI.getAgents();
       const agentsData = result.agents || [];
       setAgents(agentsData);
       setConnectionStatus('connected');
@@ -86,11 +79,7 @@ export const useAgents = () => {
 
   const getAgentDetails = useCallback(async (agentId) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/agents/${agentId}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch agent details: ${response.status}`);
-      }
-      return await response.json();
+      return await iopeerAPI.getAgent(agentId);
     } catch (err) {
       console.error('Get agent details error:', err);
       throw err;
