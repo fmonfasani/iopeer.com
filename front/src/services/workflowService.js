@@ -2,7 +2,7 @@
 // Servicio para manejar todas las operaciones de workflows
 
 
-import { API_BASE_URL } from '../config/apiBase';
+import { API_BASE_URL, WS_BASE_URL } from '../config/apiBase';
 
 
 class WorkflowService {
