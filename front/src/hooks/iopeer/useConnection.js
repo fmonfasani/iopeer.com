@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { makeRequest } from './api';
+import { iopeerAPI } from '../../services/iopeerAPI';
 
 export const useConnection = () => {
   const [connectionStatus, setConnectionStatus] = useState('disconnected');
@@ -34,10 +34,10 @@ export const useConnection = () => {
       clearError();
 
       try {
-        const health = await makeRequest('/health');
+        const health = await iopeerAPI.request('/health');
         setSystemHealth(health);
         try {
-          const agentsResponse = await makeRequest('/agents');
+          const agentsResponse = await iopeerAPI.request('/agents');
           setAgents(agentsResponse.agents || []);
         } catch {
           setAgents([]);
