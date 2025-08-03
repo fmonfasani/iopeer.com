@@ -1,9 +1,6 @@
 import asyncio
-import sys
 
 import pytest
-
-sys.path.append("back")
 from workflow_engine.core.WorkflowEngine import (
     AgentRegistry,
     Workflow,
