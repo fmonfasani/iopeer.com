@@ -5,7 +5,9 @@
 
 class ErrorService {
   static handleApiError(error, context = '') {
-    console.error(`[${context}] API Error:`, error);
+    if (process.env.NODE_ENV !== 'production') {
+      console.error(`[${context}] API Error:`, error);
+    }
     
     // Determinar tipo de error
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
@@ -79,9 +81,10 @@ class ErrorService {
     // En producción, enviar a servicio de logging
     if (process.env.NODE_ENV === 'production') {
       // sendToLoggingService(errorLog);
+    } else {
+      // Solo mostrar en consola en desarrollo
+      console.error('Error Log:', errorLog);
     }
-    
-    console.error('Error Log:', errorLog);
     return errorLog;
   }
 }

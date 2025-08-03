@@ -1,31 +1,27 @@
 import { useState, useCallback, useEffect } from 'react';
 import { marketplaceService } from '../services/marketplace.service';
 import { useIopeer } from './useIopeer';
+import ErrorService from '../services/errorService';
+import useAsync from './useAsync';
 
 export const useMarketplace = () => {
   const { isConnected } = useIopeer();
   const [featuredAgents, setFeaturedAgents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { execute: fetchFeaturedAgents, loading, error } = useAsync(
+    marketplaceService.getFeaturedAgents,
+    { context: 'getFeaturedAgents' }
+  );
 
   const loadFeaturedAgents = useCallback(async () => {
-    if (!isConnected) {
-      setError('Not connected to the backend.');
-      return;
-    }
-    setLoading(true);
-    setError(null);
-
     try {
-      const agents = await marketplaceService.getFeaturedAgents();
+      const agents = await fetchFeaturedAgents();
       setFeaturedAgents(agents);
     } catch (err) {
-      setError(err.message);
-      console.error('Error loading featured agents:', err);
-    } finally {
-      setLoading(false);
+      if (ErrorService.logError) {
+        ErrorService.logError(err, 'loadFeaturedAgents');
+      }
     }
-  }, [isConnected]);
+  }, [fetchFeaturedAgents]);
 
   const installAgent = useCallback(async (agent) => {
     return await marketplaceService.installAgent(agent);
