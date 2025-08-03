@@ -12,6 +12,7 @@ import UIGeneratorPage from '../pages/UIGeneratorPage';
 import WorkflowEditorPage from '../pages/WorkflowEditorPage';
 import DebugPage from '../pages/DebugPage';
 import Workflows from './Workflows';
+import MiAppPage from './MiAppPage';
 
 const Dashboard = () => {
   return (
@@ -29,6 +30,7 @@ const Dashboard = () => {
         <Route path="analytics" element={<Analytics />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="debug" element={<DebugPage />} />
+        <Route path="mi-app" element={<MiAppPage />} />
         {/* Catch all route */}
         <Route path="*" element={<Home />} />
       </Routes>
