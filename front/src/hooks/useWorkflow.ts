@@ -159,7 +159,7 @@ export const useWorkflow = () => {
     loadWorkflows();
     loadAvailableAgents();
     loadTemplates();
-  }, []);
+  }, [loadWorkflows, loadAvailableAgents, loadTemplates]);
 
   // Función para cargar workflows
   const loadWorkflows = useCallback(async () => {
