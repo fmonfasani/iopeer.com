@@ -1,6 +1,7 @@
 // front/src/components/debug/OAuthTest.jsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { API_BASE_URL } from '../../config/apiBase';
 
 const OAuthTest = () => {
   const [oauthStatus, setOauthStatus] = useState(null);
@@ -15,7 +16,7 @@ const OAuthTest = () => {
   const checkOAuthStatus = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/auth/oauth/status`);
+      const response = await fetch(`${API_BASE_URL}/auth/oauth/status`);
       
       if (response.ok) {
         const data = await response.json();
@@ -224,7 +225,7 @@ const OAuthTest = () => {
               isLoggedIn,
               user,
               frontendUrl: window.location.origin,
-              backendUrl: process.env.REACT_APP_API_URL || 'http://localhost:8000'
+              backendUrl: API_BASE_URL
             }, null, 2)}
           </pre>
         </details>

@@ -1,8 +1,7 @@
 // frontend/src/hooks/useIopeer.js - CORREGIDO
 import { useState, useEffect, useCallback, useRef } from 'react';
 import useWorkflow from './useWorkflow';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+import { API_BASE_URL } from '../config/apiBase';
 
 // Hook principal de Iopeer
 export const useIopeer = () => {

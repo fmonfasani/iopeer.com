@@ -1,5 +1,6 @@
 // src/hooks/useWorkflow.js - MEJORADO para conectar con las nuevas APIs
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { API_BASE_URL } from '../config/apiBase';
 
 export interface Agent {
   id: string;
@@ -18,7 +19,6 @@ export interface WorkflowTemplate {
 }
 
 // Configuración de la API
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 // Cliente de API para workflows
 class WorkflowAPIClient {
