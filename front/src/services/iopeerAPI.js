@@ -70,7 +70,13 @@ class IopeerAPI {
   }
 
   async sendMessage(agentId, action, data = {}) {
-    return agentSendMessage(agentId, action, data);
+    return this.request(`/agents/${agentId}/messages`, {
+      method: 'POST',
+      body: JSON.stringify({
+        action,
+        data,
+      }),
+    });
   }
 
   // Workflows
