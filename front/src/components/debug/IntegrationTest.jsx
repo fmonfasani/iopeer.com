@@ -3,7 +3,7 @@
 // Componente para probar el flujo completo
 // ============================================
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { 
   CheckCircle, 
   XCircle, 
@@ -35,7 +35,7 @@ const IntegrationTest = () => {
   const [allTestsPassed, setAllTestsPassed] = useState(false);
 
   // Definir tests
-  const tests = [
+  const tests = useMemo(() => [
     {
       id: 'auth',
       name: 'Autenticación',
@@ -79,20 +79,21 @@ const IntegrationTest = () => {
         }
       }
     }
-  ];
+  ], [isLoggedIn, agents, sendMessage]);
 
   // Ejecutar un test individual
   const runTest = useCallback(async (test) => {
     setCurrentTest(test.id);
+    const startTime = Date.now();
     setTestResults(prev => ({
       ...prev,
-      [test.id]: { status: 'running', startTime: Date.now() }
+      [test.id]: { status: 'running', startTime }
     }));
 
     try {
       const result = await test.test();
-      const duration = Date.now() - testResults[test.id]?.startTime || 0;
-      
+      const duration = Date.now() - startTime;
+
       setTestResults(prev => ({
         ...prev,
         [test.id]: {
@@ -106,14 +107,14 @@ const IntegrationTest = () => {
         ...prev,
         [test.id]: {
           status: 'error',
-          duration: Date.now() - (testResults[test.id]?.startTime || Date.now()),
+          duration: Date.now() - startTime,
           error: error.message
         }
       }));
     }
-    
+
     setCurrentTest(null);
-  }, [agents, sendMessage, testResults]);
+  }, [agents, sendMessage]);
 
   // Ejecutar todos los tests - ARREGLADO con useCallback
   const runAllTests = useCallback(async () => {
@@ -131,7 +132,7 @@ const IntegrationTest = () => {
       testResults[test.id]?.status === 'passed'
     );
     setAllTestsPassed(allPassed);
-  }, [tests, runTest, testResults]);
+  }, [runTest, testResults]);
 
   // Auto-run tests when component mounts - ARREGLADO con dependency
   useEffect(() => {
