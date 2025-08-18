@@ -37,7 +37,7 @@ def status(ctx):
 def agents(ctx):
     """List all agents"""
     try:
-        response = requests.get(f"{ctx.obj['base_url']}/agents")
+        response = requests.get(f"{ctx.obj['base_url']}/api/v1/agents")
         if response.status_code == 200:
             data = response.json()
             click.echo(f"🤖 Found {data['total']} agents:")
@@ -57,9 +57,9 @@ def agents(ctx):
 @click.option("--data", help="JSON data for the action")
 @click.pass_context
 def send(ctx, agent_id, action, data):
-    """Send message to an agent"""
+    """Execute an action on an agent"""
     try:
-        payload = {"agent_id": agent_id, "action": action}
+        payload = {"action": action}
 
         if data:
             try:
@@ -68,7 +68,9 @@ def send(ctx, agent_id, action, data):
                 click.echo("❌ Invalid JSON data")
                 return
 
-        response = requests.post(f"{ctx.obj['base_url']}/message/send", json=payload)
+        response = requests.post(
+            f"{ctx.obj['base_url']}/api/v1/agents/{agent_id}/execute", json=payload
+        )
 
         if response.status_code == 200:
             result = response.json()
@@ -86,7 +88,7 @@ def send(ctx, agent_id, action, data):
 def workflows(ctx):
     """List all workflows"""
     try:
-        response = requests.get(f"{ctx.obj['base_url']}/workflows")
+        response = requests.get(f"{ctx.obj['base_url']}/api/v1/workflows")
         if response.status_code == 200:
             data = response.json()
             click.echo(f"⚡ Found {data['total']} workflows:")
@@ -99,22 +101,25 @@ def workflows(ctx):
 
 
 @cli.command()
-@click.argument("workflow_name")
+@click.argument("workflow_id")
 @click.option("--data", help="JSON data for the workflow")
 @click.pass_context
-def run(ctx, workflow_name, data):
+def run(ctx, workflow_id, data):
     """Run a workflow"""
     try:
-        payload = {"workflow": workflow_name}
+        payload = {"initial_data": {}}
 
         if data:
             try:
-                payload["data"] = json.loads(data)
+                payload["initial_data"] = json.loads(data)
             except json.JSONDecodeError:
                 click.echo("❌ Invalid JSON data")
                 return
 
-        response = requests.post(f"{ctx.obj['base_url']}/workflow/start", json=payload)
+        response = requests.post(
+            f"{ctx.obj['base_url']}/api/v1/workflows/{workflow_id}/execute",
+            json=payload,
+        )
 
         if response.status_code == 200:
             result = response.json()
