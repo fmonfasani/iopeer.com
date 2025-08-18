@@ -1,8 +1,8 @@
-import os
 from datetime import datetime, timedelta
 
 from agenthub.schemas import SignInInput, TokenResponse
 from agenthub.utils import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
+# SECRET_KEY is sourced from the AGENTHUB_SECRET_KEY environment variable or config
 from fastapi import APIRouter, Depends, HTTPException, status
 from jose import jwt
 from passlib.context import CryptContext
@@ -13,10 +13,6 @@ from ..models.user import User
 router = APIRouter()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-SECRET_KEY = os.getenv("AGENTHUB_SECRET_KEY", "dev-secret-key")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 # Dependency
