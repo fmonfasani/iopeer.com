@@ -28,11 +28,19 @@ class SignInInput(BaseModel):
     password: str
 
 
+class UserPublic(BaseModel):
+    """Minimal public user data returned in auth responses."""
+
+    id: int
+    email: EmailStr
+
+
 class TokenResponse(BaseModel):
     """Response returned after successful authentication."""
 
     access_token: str
     token_type: str = "bearer"
+    user: UserPublic
 
 
 class OAuthUser(BaseModel):
@@ -49,6 +57,7 @@ __all__ = [
     "UserCreate",
     "UserOut",
     "SignInInput",
+    "UserPublic",
     "TokenResponse",
     "OAuthUser",
 ]
