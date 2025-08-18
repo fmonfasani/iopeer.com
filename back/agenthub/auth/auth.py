@@ -4,12 +4,9 @@ from datetime import datetime, timedelta
 from agenthub.schemas import SignInInput, TokenResponse
 from agenthub.utils import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.responses import JSONResponse
-from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
-
 from ..database.connection import SessionLocal
 from ..models.user import User
 
@@ -70,10 +67,8 @@ def signin(user: SignInInput, db: Session = Depends(get_db)):
 
     access_token = create_access_token(data={"sub": db_user.email})
 
-    return JSONResponse(
-        content={
-            "access_token": access_token,
-            "token_type": "bearer",
-            "user": {"id": db_user.id, "email": db_user.email},
-        }
+    return TokenResponse(
+        access_token=access_token,
+        token_type="bearer",
+        user={"id": db_user.id, "email": db_user.email},
     )
