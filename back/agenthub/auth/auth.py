@@ -1,7 +1,7 @@
 import os
 from datetime import datetime, timedelta
 
-from agenthub.schemas import SignInInput, TokenResponse
+from agenthub.schemas import SignInInput, TokenResponse, UserCreate
 from agenthub.utils import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
@@ -46,13 +46,13 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 
 
 @router.post("/signup")
-def register(email: str, password: str, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == email).first()
-    if user:
+def register(user: UserCreate, db: Session = Depends(get_db)):
+    db_user = db.query(User).filter(User.email == user.email).first()
+    if db_user:
         raise HTTPException(status_code=400, detail="El email ya está registrado")
 
-    hashed_pw = pwd_context.hash(password)
-    new_user = User(email=email, hashed_password=hashed_pw)
+    hashed_pw = pwd_context.hash(user.password)
+    new_user = User(email=user.email, hashed_password=hashed_pw)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)

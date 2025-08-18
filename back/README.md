@@ -127,12 +127,20 @@ http://localhost:8000
 ### POST `/auth/signup`
 Registra un nuevo usuario en el sistema.
 
-**Request Body:**
+**Request Body (JSON):**
 ```json
 {
   "email": "usuario@ejemplo.com",
   "password": "contraseña123"
 }
+```
+
+Ejemplo con `curl`:
+
+```bash
+curl -X POST http://localhost:8000/auth/signup \
+  -H 'Content-Type: application/json' \
+  -d '{"email": "usuario@ejemplo.com", "password": "contraseña123"}'
 ```
 
 **Response (201):**

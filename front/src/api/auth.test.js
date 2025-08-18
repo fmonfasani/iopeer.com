@@ -12,11 +12,15 @@ describe('auth api', () => {
     process.env.REACT_APP_API_URL = 'http://localhost:8000';
   });
 
-  test('signupRequest posts to /signup', async () => {
+  test('signupRequest posts JSON body to /signup', async () => {
     await signupRequest('a@b.com', 'x');
     expect(fetch).toHaveBeenCalledWith(
       'http://localhost:8000/auth/signup',
-      expect.objectContaining({ method: 'POST' })
+      expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'a@b.com', password: 'x' })
+      })
     );
   });
 
