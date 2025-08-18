@@ -70,7 +70,7 @@ class IopeerAPI {
   }
 
   async sendMessage(agentId, action, data = {}) {
-    return this.request(`/agents/${agentId}/messages`, {
+    return this.request(`/agents/${agentId}/execute`, {
       method: 'POST',
       body: JSON.stringify({
         action,
@@ -81,30 +81,27 @@ class IopeerAPI {
 
   // Workflows
   async getWorkflows() {
-    return this.request('/workflows');
+    return this.request('/api/v1/workflows');
   }
 
   // MANTENER SOLO UNA VERSION - Eliminado el duplicado
-  async createWorkflow({ name, tasks = [], parallel = false, timeout = 30 }) {
-    return this.request('/workflows/register', {
+  async createWorkflow(workflowData) {
+    return this.request('/api/v1/workflows', {
       method: 'POST',
-      body: JSON.stringify({ name, tasks, parallel, timeout }),
+      body: JSON.stringify(workflowData),
     });
   }
 
-  async executeWorkflow(workflowName, data = {}) {
-    return this.request('/workflow/start', {
+  async executeWorkflow(workflowId, initialData = {}) {
+    return this.request(`/api/v1/workflows/${workflowId}/execute`, {
       method: 'POST',
-      body: JSON.stringify({
-        workflow: workflowName,
-        data,
-      }),
+      body: JSON.stringify({ initial_data: initialData }),
     });
   }
 
   // Alias kept for backwards compatibility
-  async startWorkflow(workflowName, data = {}) {
-    return this.executeWorkflow(workflowName, data);
+  async startWorkflow(workflowId, initialData = {}) {
+    return this.executeWorkflow(workflowId, initialData);
   }
 
   // Stats
@@ -140,15 +137,15 @@ class IopeerAPI {
     });
   }
 
-  async executeWorkflowById(workflowId, data) {
-    return this.request(`/workflows/${workflowId}/execute`, {
+  async executeWorkflowById(workflowId, initialData) {
+    return this.request(`/api/v1/workflows/${workflowId}/execute`, {
       method: 'POST',
-      body: JSON.stringify(data)
+      body: JSON.stringify({ initial_data: initialData })
     });
   }
 
   async getWorkflowExecution(executionId) {
-    return this.request(`/workflows/executions/${executionId}`);
+    return this.request(`/api/v1/workflows/executions/${executionId}`);
   }
 
   // UI Generator específico
