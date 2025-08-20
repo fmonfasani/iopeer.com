@@ -534,8 +534,8 @@ python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements-dev.txt  # para producción usa requirements.txt
 
-# Configurar clave secreta para JWT
-export AGENTHUB_SECRET_KEY="mi-clave-secreta"
+# Configurar clave secreta para JWT (obligatorio)
+export AGENTHUB_SECRET_KEY="mi-clave-secreta"  # la app fallará si no se define
 
 # Ejecutar backend
 python -m agenthub.main

@@ -6,8 +6,8 @@ host: "0.0.0.0"
 port: 8000
 debug: false
 log_level: "INFO"
-# Clave secreta para JWT (o usa la variable de entorno AGENTHUB_SECRET_KEY)
-secret_key: "dev-secret-key"
+# Clave secreta para JWT - definir AGENTHUB_SECRET_KEY en el entorno
+# secret_key: ""
 
 # Configuración de workers
 max_workers: 4

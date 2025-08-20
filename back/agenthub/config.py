@@ -19,6 +19,7 @@ class Config:
         self.config_path = os.getenv("AGENTHUB_CONFIG", "config.yaml")
         self.settings = self._load_config()
         self._apply_defaults()
+        self._require_secret_key()
 
     def _load_config(self) -> Dict[str, Any]:
         """Carga configuración desde archivo YAML"""
@@ -71,6 +72,13 @@ class Config:
                     )
                 else:
                     self.settings[config_key] = env_value
+
+    def _require_secret_key(self) -> None:
+        """Ensure the secret key is provided via environment."""
+        secret = os.getenv("AGENTHUB_SECRET_KEY")
+        if not secret:
+            raise RuntimeError("Missing AGENTHUB_SECRET_KEY environment variable")
+        self.settings["secret_key"] = secret
 
     def get(self, key: str, default=None):
         """Obtiene valor de configuración"""
