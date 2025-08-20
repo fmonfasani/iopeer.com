@@ -36,5 +36,7 @@ logging:
 # Configuración de seguridad
 security:
   api_key_required: false
-  cors_origins: ["*"]
+  cors_origins:
+    - "http://localhost:3000"
+    - "http://localhost:5173"
   rate_limit: 100  # requests per minute
