@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 import logging.handlers
-import os
 from pathlib import Path
 
 from agenthub.config import config
@@ -13,7 +12,7 @@ from agenthub.config import config
 # Common constants
 # ---------------------------------------------------------------------------
 
-SECRET_KEY = os.getenv("AGENTHUB_SECRET_KEY", config.get("secret_key", "dev-secret-key"))
+SECRET_KEY = config["secret_key"]
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 

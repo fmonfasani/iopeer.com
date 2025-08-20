@@ -26,7 +26,7 @@ AgentHub is a lightweight framework for coordinating AI agents. It exposes a RES
    ```bash
    export AGENTHUB_SECRET_KEY="replace-me"
    ```
-   Alternatively add `secret_key` to `config.yaml`. A development default is used if omitted.
+   The server will fail to start if this variable is not defined.
 
 
 ## Running the server
