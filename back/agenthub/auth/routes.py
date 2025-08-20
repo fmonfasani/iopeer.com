@@ -9,8 +9,8 @@ from agenthub.models.user import User
 
 # Imports locales
 from agenthub.schemas import SignInInput, UserCreate
-from fastapi import APIRouter, Depends, HTTPException, Request, status
-from fastapi.security import HTTPBearer  # ✅ IMPORTACIÓN AGREGADA
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials  # ✅ IMPORTACIÓN AGREGADA
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
@@ -117,38 +117,28 @@ def login(user: SignInInput, db: Session = Depends(get_db)):
     }
 
 
-@router.get("/me")
-def get_current_user(request: Request, db: Session = Depends(get_db)):
-    """Return current user info based on the bearer token."""
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: Session = Depends(get_db),
+):
+    """Validate JWT from Authorization header and return current user."""
 
-    # Extraer token del header Authorization
-    auth_header = request.headers.get("Authorization")
-    if not auth_header or not auth_header.startswith("Bearer "):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or missing token"
-        )
-
-    token = auth_header.split(" ", 1)[1]
+    token = credentials.credentials
 
     try:
-        # Verificar y decodificar JWT
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("user_id")
         email = payload.get("sub")
-
         if user_id is None or email is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
             )
-
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
         )
 
-    # Buscar usuario en la base de datos
     user = db.query(User).filter(User.id == user_id, User.email == email).first()
-
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
@@ -159,6 +149,14 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
         "email": user.email,
         "is_active": user.is_active,
     }
+
+
+@router.get("/me")
+def read_current_user(current_user: dict = Depends(get_current_user)):
+    return current_user
+
+
+router.get_current_user = get_current_user
 
 
 # ============================================
