@@ -388,7 +388,7 @@ class ExecuteWorkflowRequest(BaseModel):
 # ============================================
 
 @app.get("/api/v1/workflows")
-async def list_workflows():
+async def list_workflows(current_user: dict = Depends(auth_router.get_current_user)):
     """List all available workflows"""
     try:
         workflows = []
@@ -413,7 +413,7 @@ async def list_workflows():
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/v1/workflows", status_code=201)
-async def create_workflow(request: CreateWorkflowRequest):
+async def create_workflow(request: CreateWorkflowRequest, current_user: dict = Depends(auth_router.get_current_user)):
     """Create a new workflow"""
     try:
         if request.workflow_id in workflow_runtime["workflows"]:
@@ -472,7 +472,7 @@ async def create_workflow(request: CreateWorkflowRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/v1/workflows/{workflow_id}")
-async def get_workflow(workflow_id: str):
+async def get_workflow(workflow_id: str, current_user: dict = Depends(auth_router.get_current_user)):
     """Get workflow details"""
     try:
         workflow = workflow_runtime["workflows"].get(workflow_id)
@@ -518,7 +518,7 @@ async def get_workflow(workflow_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/v1/workflows/{workflow_id}/execute")
-async def execute_workflow(workflow_id: str, request: ExecuteWorkflowRequest):
+async def execute_workflow(workflow_id: str, request: ExecuteWorkflowRequest, current_user: dict = Depends(auth_router.get_current_user)):
     """Execute a workflow"""
     try:
         workflow = workflow_runtime["workflows"].get(workflow_id)
@@ -578,7 +578,7 @@ async def execute_workflow(workflow_id: str, request: ExecuteWorkflowRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/v1/agents/available")
-async def get_available_agents():
+async def get_available_agents(current_user: dict = Depends(auth_router.get_current_user)):
     """Get all available agents for workflow creation"""
     try:
         if not workflow_runtime["agent_registry"]:
@@ -608,7 +608,7 @@ async def get_available_agents():
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/v1/workflows/templates")
-async def get_workflow_templates():
+async def get_workflow_templates(current_user: dict = Depends(auth_router.get_current_user)):
     """Get predefined workflow templates"""
     try:
         templates = {
@@ -653,7 +653,7 @@ async def get_workflow_templates():
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/v1/workflows/templates/{template_id}/create")
-async def create_from_template(template_id: str, customizations: dict = None):
+async def create_from_template(template_id: str, customizations: dict = None, current_user: dict = Depends(auth_router.get_current_user)):
     """Create workflow from template"""
     try:
         if template_id not in workflow_runtime["workflows"]:

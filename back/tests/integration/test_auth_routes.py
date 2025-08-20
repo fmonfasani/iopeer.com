@@ -1,8 +1,12 @@
 import os
+import sys
+from pathlib import Path
 from passlib.context import CryptContext
 from fastapi.testclient import TestClient
 
 os.environ.setdefault("DATABASE_URL", "sqlite:///./test.db")
+
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from agenthub.main import app
 from agenthub.database.connection import Base, engine, SessionLocal

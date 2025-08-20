@@ -15,8 +15,9 @@ router = APIRouter()
 # ============================================
 
 try:
-    from .routes import router as auth_router
+    from .routes import router as auth_router, get_current_user
     router.include_router(auth_router, tags=["auth"])
+    router.get_current_user = get_current_user
     logger.info("✅ Auth routes loaded successfully")
 except ImportError as e:
     logger.error(f"❌ Failed to load auth routes: {e}")
