@@ -45,7 +45,7 @@ from agenthub.database.connection import SessionLocal, engine, Base
 # 6. SEXTO: Workflow Engine CORREGIDO
 from workflow_engine.core.WorkflowEngine import (
     WorkflowEngine,
-    Workflow, 
+    Workflow,
     WorkflowNode,
     WorkflowConnection,
     AgentRegistry,
@@ -53,6 +53,9 @@ from workflow_engine.core.WorkflowEngine import (
     ConnectionType,
     NodeStatus
 )
+
+# Seguridad para Workflows
+from security.workflow_security import WorkflowSecurityManager
 
 # 7. SÉPTIMO: OAuth (opcional)
 try:
@@ -68,11 +71,12 @@ except ImportError:
 # Runtime global para workflows
 workflow_runtime = {
     "agent_registry": None,
-    "event_bus": None, 
+    "event_bus": None,
     "workflow_engine": None,
     "workflows": {},
     "active_executions": {},
-    "websocket_connections": []
+    "websocket_connections": [],
+    "security_manager": None,
 }
 
 # ============================================
@@ -110,10 +114,19 @@ async def startup_event():
         # 3. Initialize workflow engine FIRST
         await initialize_workflow_engine()
 
-        # 4. Load agents from registry  
+        # 4. Initialize workflow security manager
+        workflow_runtime["security_manager"] = WorkflowSecurityManager()
+        try:
+            from workflow_engine import runtime as engine_runtime
+            engine_runtime.security_manager = workflow_runtime["security_manager"]
+        except Exception:
+            pass
+        logger.info("✅ Workflow security manager initialized")
+
+        # 5. Load agents from registry
         await load_agents_from_registry()
 
-        # 5. Load predefined workflows
+        # 6. Load predefined workflows
         await load_predefined_workflows()
 
         logger.info("✅ IOPeer Agent Hub with Workflows started successfully")
@@ -396,24 +409,44 @@ async def create_workflow(request: CreateWorkflowRequest):
     try:
         if request.workflow_id in workflow_runtime["workflows"]:
             raise HTTPException(status_code=409, detail="Workflow already exists")
+        data = request.model_dump()
+        security = workflow_runtime.get("security_manager")
+        if security:
+            validation = await security.validate_workflow_security(
+                data, user_id="anonymous", user_tier="free"
+            )
+            for warning in validation.get("warnings", []):
+                logger.warning(f"Workflow security warning: {warning}")
+            metrics = validation.get("metrics")
+            if metrics:
+                logger.info(f"Workflow security metrics: {metrics}")
+            if not validation.get("is_valid", False):
+                raise HTTPException(status_code=400, detail="Workflow failed security validation")
+            data = validation.get("sanitized_workflow", data)
 
-        # Create workflow
-        workflow = Workflow(request.workflow_id, request.name)
-        workflow.description = request.description
-        
-        # Add nodes
-        for node_req in request.nodes:
-            node = WorkflowNode(node_req.id, node_req.agent_type, node_req.config)
+        # Create workflow from sanitized data
+        workflow = Workflow(data["workflow_id"], data.get("name", ""))
+        workflow.description = data.get("description", "")
+
+        for node_data in data.get("nodes", []):
+            node = WorkflowNode(
+                node_data.get("id"),
+                node_data.get("agent_type"),
+                node_data.get("config", {}),
+            )
             workflow.add_node(node)
-        
-        # Add connections
-        for conn_req in request.connections:
-            connection_type = ConnectionType.SUCCESS if conn_req.connection_type == "success" else ConnectionType.ERROR
-            connection = WorkflowConnection(conn_req.source_id, conn_req.target_id, connection_type)
+
+        for conn_data in data.get("connections", []):
+            conn_type = conn_data.get("connection_type", conn_data.get("type", "success"))
+            connection_type = ConnectionType.SUCCESS if conn_type == "success" else ConnectionType.ERROR
+            connection = WorkflowConnection(
+                conn_data.get("source_id"),
+                conn_data.get("target_id"),
+                connection_type,
+            )
             workflow.add_connection(connection)
-        
-        # Store workflow
-        workflow_runtime["workflows"][request.workflow_id] = workflow
+
+        workflow_runtime["workflows"][data["workflow_id"]] = workflow
         
         logger.info(f"✅ Workflow created: {request.workflow_id}")
         
@@ -482,10 +515,39 @@ async def execute_workflow(workflow_id: str, request: ExecuteWorkflowRequest):
         workflow = workflow_runtime["workflows"].get(workflow_id)
         if not workflow:
             raise HTTPException(status_code=404, detail="Workflow not found")
-        
+
         if not workflow_runtime["workflow_engine"]:
             raise HTTPException(status_code=500, detail="Workflow engine not initialized")
-        
+
+        security = workflow_runtime.get("security_manager")
+        if security:
+            workflow_data = {
+                "workflow_id": workflow.id,
+                "name": workflow.name,
+                "nodes": [
+                    {"id": n.id, "agent_type": n.agent_type, "config": n.config}
+                    for n in workflow.nodes.values()
+                ],
+                "connections": [
+                    {
+                        "source_id": c.source_id,
+                        "target_id": c.target_id,
+                        "type": c.type.value,
+                    }
+                    for c in workflow.connections
+                ],
+            }
+            validation = await security.validate_workflow_security(
+                workflow_data, user_id="anonymous", user_tier="free"
+            )
+            for warning in validation.get("warnings", []):
+                logger.warning(f"Workflow security warning: {warning}")
+            metrics = validation.get("metrics")
+            if metrics:
+                logger.info(f"Workflow security metrics: {metrics}")
+            if not validation.get("is_valid", False):
+                raise HTTPException(status_code=400, detail="Workflow failed security validation")
+
         # Execute workflow
         execution_id = await workflow_runtime["workflow_engine"].execute_workflow(
             workflow, request.initial_data
