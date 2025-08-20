@@ -318,9 +318,18 @@ app = FastAPI(
 )
 
 # CORS middleware
+# CORS middleware configuration from config or environment variable
+cors_origins_env = os.getenv("AGENTHUB_CORS_ORIGINS")
+if cors_origins_env:
+    cors_origins = [origin.strip() for origin in cors_origins_env.split(",")]
+else:
+    cors_origins = config.get("security", {}).get("cors_origins", ["*"])
+    if isinstance(cors_origins, str):
+        cors_origins = [origin.strip() for origin in cors_origins.split(",")]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
